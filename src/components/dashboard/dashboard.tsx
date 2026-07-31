@@ -3,19 +3,31 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, LayoutDashboard, RefreshCw, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, RefreshCw, Mail, Phone, User, Settings2, Bell } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import type { DashboardData } from "@/lib/dashboard-types";
+import type { NotificationItem } from "@/lib/settings-types";
 import { StatsCards } from "./stats-cards";
 import { MessagesAreaChart, SubjectPieChart, DowBarChart } from "./charts";
 import { MessagesTable } from "./messages-table";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-export function Dashboard() {
+export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchData = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -32,8 +44,32 @@ export function Dashboard() {
     }
   };
 
+  const fetchNotifs = async () => {
+    try {
+      const res = await fetch("/api/notifications?limit=10", { cache: "no-store" });
+      const data = await res.json();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch {
+      // ignore
+    }
+  };
+
+  const markAllRead = async () => {
+    if (unreadCount === 0) return;
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAllRead: true }),
+    });
+    await fetchNotifs();
+  };
+
   useEffect(() => {
     fetchData();
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -58,7 +94,82 @@ export function Dashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Notifications bell */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-9 w-9"
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <div className="flex items-center justify-between px-2 py-1.5">
+                  <DropdownMenuLabel className="p-0 text-sm">
+                    Notifications
+                  </DropdownMenuLabel>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={markAllRead}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      Tout marquer lu
+                    </button>
+                  )}
+                </div>
+                <DropdownMenuSeparator />
+                {notifications.length === 0 ? (
+                  <div className="py-6 text-center">
+                    <Bell className="h-6 w-6 mx-auto text-muted-foreground/50 mb-2" />
+                    <p className="text-xs text-muted-foreground">Aucune notification</p>
+                  </div>
+                ) : (
+                  notifications.slice(0, 6).map((n) => (
+                    <DropdownMenuItem
+                      key={n.id}
+                      className="flex items-start gap-2.5 py-2.5 cursor-pointer"
+                    >
+                      <span
+                        className={cn(
+                          "mt-1.5 h-2 w-2 rounded-full shrink-0",
+                          n.read ? "bg-muted-foreground/30" : "bg-accent"
+                        )}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-foreground truncate">
+                          {n.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {n.message}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                )}
+                {onGoSettings && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={onGoSettings}
+                      className="text-accent cursor-pointer"
+                    >
+                      <Settings2 className="h-4 w-4 mr-2" />
+                      Gérer les notifications
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button
               variant="ghost"
               size="sm"
@@ -66,13 +177,26 @@ export function Dashboard() {
               disabled={refreshing}
               className="text-muted-foreground"
             >
-              <RefreshCw className={`h-4 w-4 mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 sm:mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Actualiser</span>
             </Button>
+
+            {onGoSettings && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onGoSettings}
+                className="text-muted-foreground hover:text-accent"
+              >
+                <Settings2 className="h-4 w-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Paramètres</span>
+              </Button>
+            )}
+
             <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link href="/">
                 <ArrowLeft className="h-4 w-4 mr-1.5" />
-                Retour au site
+                <span className="hidden sm:inline">Site</span>
               </Link>
             </Button>
           </div>

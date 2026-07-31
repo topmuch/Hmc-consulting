@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSettings, maybeCreateNotification } from "@/lib/settings-server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,6 +50,16 @@ export async function POST(req: NextRequest) {
         message,
       },
     });
+
+    // Create an in-app notification if enabled in settings
+    const settings = await getSettings();
+    await maybeCreateNotification(
+      "new_message",
+      `Nouveau message de ${name}`,
+      `Sujet : ${subject}${company ? ` · ${company}` : ""}`,
+      `/?view=dashboard`,
+      settings.notifyOnNewMessage
+    );
 
     return NextResponse.json({ ok: true, id: record.id });
   } catch (err) {

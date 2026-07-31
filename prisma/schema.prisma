@@ -41,3 +41,42 @@ model ContactMessage {
   message   String
   createdAt DateTime @default(now())
 }
+
+model SiteSetting {
+  id                  String   @id @default("singleton")
+  // Général
+  siteName            String   @default("HMC")
+  siteFullName        String   @default("Horizon Management Consulting")
+  tagline             String   @default("Votre partenaire en conseil et management des entreprises")
+  email               String   @default("contact@hmc-consulting.com")
+  phone               String   @default("+221 77 455 11 36")
+  partner             String   @default("Cheikh Lam")
+  partnerRole         String   @default("Partner")
+  // SEO
+  seoTitle            String?
+  seoDescription      String?
+  seoKeywords         String?
+  ogImage             String?
+  // Notifications
+  notifyEmail         String?
+  notifyOnNewMessage  Boolean  @default(true)
+  notifyDailyDigest   Boolean  @default(false)
+  notifyWeeklyDigest  Boolean  @default(true)
+  // Réseaux sociaux
+  linkedin            String?
+  twitter             String?
+  facebook            String?
+  instagram           String?
+
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // "new_message" | "system" | ...
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
