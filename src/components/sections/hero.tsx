@@ -65,7 +65,7 @@ export function Hero() {
               size="lg"
               className="bg-sky text-navy hover:bg-sky-light group font-medium"
             >
-              <Link href="#services">
+              <Link href="/?page=services">
                 Découvrir nos services
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -76,7 +76,7 @@ export function Hero() {
               variant="outline"
               className="border-white/40 text-white hover:bg-white/10 hover:text-white"
             >
-              <Link href="#contact">Nous rencontrer</Link>
+              <Link href="/?page=contact">Nous rencontrer</Link>
             </Button>
           </motion.div>
 

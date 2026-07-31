@@ -15,6 +15,13 @@ import {
   Mail,
   Users,
   Settings2,
+  BookOpen,
+  Heart,
+  LayoutGrid,
+  Compass,
+  Award,
+  MessageSquare,
+  ArrowRight,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,14 +37,73 @@ export const COMPANY = {
   countriesCount: 20,
 };
 
-export const NAV_LINKS = [
-  { href: "#histoire", label: "Notre Histoire" },
-  { href: "#valeurs", label: "Nos Valeurs" },
-  { href: "#services", label: "Nos Services" },
-  { href: "#experience", label: "Notre Expérience" },
-  { href: "#expertise", label: "Notre Expertise" },
-  { href: "#contact", label: "Contact" },
+export type PageMeta = {
+  id: string;
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  shortDescription: string;
+  longDescription: string;
+};
+
+export const PAGES: PageMeta[] = [
+  {
+    id: "histoire",
+    label: "Notre Histoire",
+    href: "/?page=histoire",
+    icon: BookOpen,
+    shortDescription: "Près de 30 ans d'expertise au service de l'excellence managériale.",
+    longDescription:
+      "Découvrez notre parcours, notre mission et les valeurs qui guident notre cabinet depuis ses débuts.",
+  },
+  {
+    id: "valeurs",
+    label: "Nos Valeurs",
+    href: "/?page=valeurs",
+    icon: Heart,
+    shortDescription: "Intégrité, innovation, engagement et responsabilité.",
+    longDescription:
+      "Les quatre piliers fondamentaux qui guident chacune de nos interventions et structurent la confiance de nos clients.",
+  },
+  {
+    id: "services",
+    label: "Nos Services",
+    href: "/?page=services",
+    icon: LayoutGrid,
+    shortDescription: "Conseil stratégique, management opérationnel et transformation.",
+    longDescription:
+      "Une offre intégrée, globale et innovante pour répondre aux exigences des marchés et sécuriser votre activité.",
+  },
+  {
+    id: "experience",
+    label: "Notre Expérience",
+    href: "/?page=experience",
+    icon: Compass,
+    shortDescription: "Près de 20 pays couverts en Afrique et Océan Indien.",
+    longDescription:
+      "Une présence significative dans près de 20 pays, du Maroc à l'Afrique du Sud, en passant par l'Océan Indien.",
+  },
+  {
+    id: "expertise",
+    label: "Notre Expertise",
+    href: "/?page=expertise",
+    icon: Award,
+    shortDescription: "Conseil & audit, management et finance & structuration.",
+    longDescription:
+      "Trois domaines d'expertise couvrant l'ensemble de la chaîne de valeur de l'entreprise, du diagnostic à la mise en œuvre.",
+  },
+  {
+    id: "contact",
+    label: "Contact",
+    href: "/?page=contact",
+    icon: MessageSquare,
+    shortDescription: "Parlons de votre projet et de vos enjeux stratégiques.",
+    longDescription:
+      "Une question, un projet de développement ou de structuration ? Notre équipe vous répond avec confidentialité.",
+  },
 ];
+
+export const NAV_LINKS = PAGES.map((p) => ({ href: p.href, label: p.label, id: p.id }));
 
 export type Value = {
   icon: LucideIcon;
