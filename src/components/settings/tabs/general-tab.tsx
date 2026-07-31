@@ -42,7 +42,7 @@ export function GeneralTab({ settings, update }: Props) {
             type="email"
             value={settings.email}
             onChange={(e) => update("email", e.target.value)}
-            placeholder="contact@hmc-consulting.com"
+            placeholder="contact@hmc-consulting.pro"
           />
         </Field>
         <Field label="Téléphone" description="Numéro affiché sur le site.">

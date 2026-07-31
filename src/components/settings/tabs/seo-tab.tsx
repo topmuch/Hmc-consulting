@@ -123,7 +123,7 @@ export function SeoTab({ settings, update }: Props) {
           {showPreview && (
             <div className="space-y-1">
               <div className="text-xs text-muted-foreground truncate">
-                https://hmc-consulting.com
+                https://hmc-consulting.pro
               </div>
               <div className="text-lg text-[#1a0dab] leading-snug line-clamp-1">
                 {effectiveTitle}

@@ -30,7 +30,7 @@ export const COMPANY = {
   name: "HMC",
   fullName: "Horizon Management Consulting",
   tagline: "Votre partenaire en conseil et management des entreprises",
-  email: "contact@hmc-consulting.com",
+  email: "contact@hmc-consulting.pro",
   phone: "+221 77 455 11 36",
   partner: "Cheikh Lam",
   partnerRole: "Partner",
