@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COMPANY, NAV_LINKS } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
 
-export function SiteHeader() {
+export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -55,19 +55,41 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          {onGoDashboard && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onGoDashboard}
+              className="text-foreground/80 hover:text-accent"
+            >
+              <LayoutDashboard className="h-4 w-4 mr-1.5" />
+              Dashboard
+            </Button>
+          )}
           <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
             <Link href="#contact">Nous contacter</Link>
           </Button>
         </nav>
 
         {/* Mobile toggle */}
-        <button
-          className="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Ouvrir le menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-1">
+          {onGoDashboard && (
+            <button
+              className="inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
+              onClick={onGoDashboard}
+              aria-label="Ouvrir le tableau de bord"
+            >
+              <LayoutDashboard className="h-5 w-5" />
+            </button>
+          )}
+          <button
+            className="inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Ouvrir le menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -84,6 +106,18 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+            {onGoDashboard && (
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onGoDashboard();
+                }}
+                className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-secondary hover:text-accent transition-colors flex items-center gap-2"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </button>
+            )}
             <Button asChild className="mt-2 bg-accent text-accent-foreground hover:bg-accent/90">
               <Link href="#contact" onClick={() => setOpen(false)}>
                 Nous contacter
