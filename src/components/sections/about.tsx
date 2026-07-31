@@ -20,11 +20,11 @@ export function About() {
           >
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/values-sunset.jpg"
-                alt="Résort tropical au coucher du soleil"
+                src="/about-team.jpg"
+                alt="Équipe de consultants collaborant en bureau"
                 className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
             </div>
             {/* Floating badge */}
             <div className="absolute -bottom-6 -right-2 sm:right-6 bg-background rounded-xl shadow-xl border border-border p-5 max-w-[200px]">
@@ -32,7 +32,7 @@ export function About() {
                 +{COMPANY.yearsExperience}
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
-                ans d&apos;expérience dans le secteur hôtelier
+                ans d&apos;expérience en conseil et management
               </div>
             </div>
             {/* Decorative frame */}
@@ -47,27 +47,29 @@ export function About() {
                 <>
                   Une rencontre entre{" "}
                   <span className="italic text-accent">expertise</span> et excellence
-                  opérationnelle
+                  managériale
                 </>
               }
             />
             <div className="mt-6 space-y-5 text-muted-foreground text-base sm:text-lg leading-relaxed text-pretty">
               <p>
-                Forte d&apos;une expérience de près de {COMPANY.yearsExperience} ans dans le
-                secteur hôtelier, nos experts sont des spécialistes dans le support,
-                l&apos;accompagnement et la structuration des hôtels, des groupes hôteliers et
-                des projets immobiliers dans l&apos;atteinte de l&apos;excellence opérationnelle.
+                Forte d&apos;une expérience de près de {COMPANY.yearsExperience} ans
+                auprès des entreprises, nos experts sont des spécialistes dans le
+                support, l&apos;accompagnement et la structuration des organisations
+                — PME, groupes et projets — dans l&apos;atteinte de l&apos;excellence
+                opérationnelle.
               </p>
               <p>
-                HMC est un partenaire délivrant un service clé en main de haute valeur ajoutée
-                afin de vous accompagner dans la sécurisation de vos décisions et de vos choix
-                stratégiques. Notre mission est d&apos;accompagner les unités d&apos;exploitation
-                hôtelières à opter pour la stratégie optimale et à sécuriser leur activité tout
-                en maîtrisant leurs risques.
+                HMC est un partenaire délivrant un service clé en main de haute valeur
+                ajoutée afin de vous accompagner dans la sécurisation de vos décisions
+                et de vos choix stratégiques. Notre mission est d&apos;accompagner les
+                entreprises à opter pour la stratégie optimale et à sécuriser leur
+                activité tout en maîtrisant leurs risques.
               </p>
               <p>
                 Nous proposons un accompagnement personnalisé afin de permettre le
-                développement des projets suivant leur phase de croissance et de maturité.
+                développement des projets suivant leur phase de croissance et de
+                maturité.
               </p>
             </div>
 

@@ -8,16 +8,16 @@ import { Button } from "@/components/ui/button";
 
 export function Hero() {
   return (
-    <section id="top" className="relative min-h-[100svh] flex items-center overflow-hidden bg-charcoal">
+    <section id="top" className="relative min-h-[100svh] flex items-center overflow-hidden bg-navy">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/hero-resort.jpg"
-          alt="Résort hôtelier de luxe au coucher du soleil"
+          src="/hero-business.jpg"
+          alt="Skyline business district au coucher du soleil"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/85 via-charcoal/65 to-charcoal/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-charcoal/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/70 to-navy/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy/75 via-transparent to-navy/40" />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
@@ -26,10 +26,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-gold-light backdrop-blur-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-sky/40 bg-sky/10 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-sky-light backdrop-blur-sm"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
-            Consulting stratégique hôtelier
+            <span className="h-1.5 w-1.5 rounded-full bg-sky animate-pulse" />
+            Conseil &amp; Management des entreprises
           </motion.span>
 
           <motion.h1
@@ -38,8 +38,8 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="mt-6 font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-[1.05] text-white text-balance"
           >
-            Partenaire de votre{" "}
-            <span className="italic text-gold-light">développement stratégique</span>
+            Votre partenaire en{" "}
+            <span className="italic text-sky-light">conseil et management</span>
           </motion.h1>
 
           <motion.p
@@ -48,9 +48,10 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="mt-6 max-w-2xl text-base sm:text-lg text-white/85 leading-relaxed text-pretty"
           >
-            HMC est un cabinet de consulting stratégique et d&apos;accompagnement dédié au
-            secteur hôtelier et immobilier, du segment Haut de Gamme (Luxe) à l&apos;économie.
-            Nous sécurisons votre activité tout en maîtrisant vos risques.
+            HMC est un cabinet de conseil et de management dédié aux entreprises.
+            Nous accompagnons les organisations dans leur développement, sécurisons
+            leur activité tout en maîtrisant leurs risques, de la stratégie à la mise
+            en œuvre opérationnelle.
           </motion.p>
 
           <motion.div
@@ -62,7 +63,7 @@ export function Hero() {
             <Button
               asChild
               size="lg"
-              className="bg-gold text-charcoal hover:bg-gold-light group"
+              className="bg-sky text-navy hover:bg-sky-light group font-medium"
             >
               <Link href="#services">
                 Découvrir nos services
@@ -89,8 +90,8 @@ export function Hero() {
             <Stat value={`+${COMPANY.yearsExperience}`} label="ans d'expérience" />
             <Stat value={`+${COMPANY.countriesCount}`} label="pays couverts" />
             <Stat
-              value="Luxe → Éco"
-              label="tous segments"
+              value="PMe → Groupes"
+              label="toutes tailles"
               className="col-span-2 sm:col-span-1"
             />
           </motion.div>
@@ -100,7 +101,7 @@ export function Hero() {
       {/* Bottom geography hint */}
       <div className="absolute bottom-6 left-0 right-0 z-10 hidden md:flex justify-center">
         <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/60">
-          <MapPin className="h-3.5 w-3.5 text-gold" />
+          <MapPin className="h-3.5 w-3.5 text-sky" />
           Afrique &amp; Océan Indien
         </div>
       </div>
@@ -119,7 +120,7 @@ function Stat({
 }) {
   return (
     <div className={className}>
-      <div className="font-serif text-3xl sm:text-4xl font-semibold text-gold-light">
+      <div className="font-serif text-3xl sm:text-4xl font-semibold text-sky-light">
         {value}
       </div>
       <div className="mt-1 text-xs sm:text-sm uppercase tracking-wider text-white/70">

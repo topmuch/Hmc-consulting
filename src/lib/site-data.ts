@@ -13,13 +13,15 @@ import {
   MapPin,
   Phone,
   Mail,
+  Users,
+  Settings2,
   type LucideIcon,
 } from "lucide-react";
 
 export const COMPANY = {
   name: "HMC",
-  fullName: "Hospitality Management Consulting",
-  tagline: "Partenaire de votre développement stratégique",
+  fullName: "Horizon Management Consulting",
+  tagline: "Votre partenaire en conseil et management des entreprises",
   email: "contact@hmc-consulting.com",
   phone: "+221 77 455 11 36",
   partner: "Cheikh Lam",
@@ -48,13 +50,13 @@ export const VALUES: Value[] = [
     icon: ShieldCheck,
     title: "Intégrité",
     description:
-      "Une conduite éthique et transparente guide chacune de nos interventions, garantissant la confiance de nos partenaires et la pérennité de nos engagements.",
+      "Une conduite éthique et transparente guide chacune de nos interventions, garantissant la confiance de nos clients et la pérennité de nos engagements.",
   },
   {
     icon: Lightbulb,
     title: "Innovation",
     description:
-      "Nous mobilisons des solutions digitales et des approches renouvelées pour transformer les défis du secteur hôtelier en opportunités tangibles.",
+      "Nous mobilisons des solutions nouvelles et des approches renouvelées pour transformer les défis des entreprises en opportunités tangibles et durables.",
   },
   {
     icon: Handshake,
@@ -66,7 +68,7 @@ export const VALUES: Value[] = [
     icon: Scale,
     title: "Responsabilité",
     description:
-      "Nous assumerons pleinement la sécurité de vos décisions et de vos choix stratégiques, dans le respect des hommes, des actifs et des territoires.",
+      "Nous assumerons pleinement la sécurité de vos décisions et de vos choix stratégiques, dans le respect des hommes, des organisations et des territoires.",
   },
 ];
 
@@ -80,24 +82,24 @@ export type Service = {
 export const SERVICES: Service[] = [
   {
     icon: Layers,
-    title: "Intégrée",
-    subtitle: "Au secteur hôtelier",
+    title: "Conseil Stratégique",
+    subtitle: "Vision & décision",
     description:
-      "Une connaissance profonde du secteur hôtelier, du segment du Luxe à l'économique, nous permet d'adapter nos interventions à chaque typologie d'actif et à chaque phase de maturité.",
+      "Une connaissance profonde des secteurs d'activité nous permet d'adapter nos interventions à chaque typologie d'entreprise et à chaque phase de maturité, de la PMe au grand groupe.",
   },
   {
-    icon: Briefcase,
-    title: "Globale",
-    subtitle: "Stratégie, Gestion & Accompagnement",
+    icon: Settings2,
+    title: "Management Opérationnel",
+    subtitle: "Pilotage & performance",
     description:
-      "Une offre complète couvrant la stratégie, la gestion hôtelière et l'Asset Management, pour sécuriser l'activité et garantir la rentabilité de nos clients.",
+      "Une offre complète couvrant le management de transition, l'organisation et le pilotage de la performance, pour sécuriser l'activité et garantir la rentabilité de nos clients.",
   },
   {
     icon: Sparkles,
-    title: "Innovante",
-    subtitle: "Solutions digitales",
+    title: "Transformation",
+    subtitle: "Solutions innovantes",
     description:
-      "L'application de solutions digitales à notre expertise nous permet de proposer des accompagnements modernes, mesurables et adaptés aux évolutions du métier de l'hôtellerie.",
+      "L'application de solutions digitales et de méthodes éprouvées à notre expertise nous permet de proposer des accompagnements modernes, mesurables et adaptés aux évolutions des marchés.",
   },
 ];
 
@@ -110,33 +112,35 @@ export type Expertise = {
 export const EXPERTISE: Expertise[] = [
   {
     icon: LineChart,
-    title: "Consulting",
+    title: "Conseil & Audit",
     items: [
       "Audit opérationnel et financier",
-      "Formation en Contrôle Interne",
-      "Externalisation de Services Financiers",
-      "Yield et Revenue Management",
-      "Support système d'information",
+      "Diagnostic organisationnel",
+      "Contrôle interne et conformité",
+      "Stratégie de croissance",
+      "Études de marché et faisabilité",
     ],
   },
   {
-    icon: Building2,
-    title: "Gestion Hôtelière",
+    icon: Users,
+    title: "Management & Organisation",
     items: [
-      "Gestion hôtelière",
-      "Externalisation de Services Financiers",
-      "Stratégie d'investissement",
-      "Gestion et sécurisation d'actifs",
+      "Management de transition",
+      "Externalisation de fonctions",
+      "Pilotage de la performance",
+      "Conduite du changement",
+      "Structuration des équipes",
     ],
   },
   {
     icon: Wallet,
-    title: "Asset Management",
+    title: "Finance & Structuration",
     items: [
-      "Structuration de projets d'acquisition, de cession ou de rénovation",
-      "Stratégie de mobilisation de ressources financières",
-      "Business Planning, modélisation",
-      "Négociation de contrats de gestion",
+      "Structuration de projets d'investissement",
+      "Mobilisation de ressources financières",
+      "Business Planning et modélisation",
+      "Accompagnement à la levée de fonds",
+      "Négociation et montages contractuels",
     ],
   },
 ];
@@ -152,32 +156,32 @@ export const SUPPORT_ITEMS: SupportItem[] = [
     description: "Construction de modèles économiques et plans d'affaires robustes.",
   },
   {
-    title: "Construction & Rénovation",
-    description: "Accompagnement sur les phases de construction et de rénovation d'actifs.",
+    title: "Création & Développement",
+    description: "Accompagnement à la création d'entreprise et au développement d'activités.",
   },
   {
     title: "Structuration",
-    description: "Structuration juridique, financière et opérationnelle des projets.",
+    description: "Structuration juridique, financière et opérationnelle des organisations.",
   },
   {
-    title: "Mobilisation de capitaux",
-    description: "Assistance à la mobilisation de capitaux permanents.",
+    title: "Mobilisation de financements",
+    description: "Assistance à la mobilisation de capitaux et au financement de projets.",
   },
   {
-    title: "Changement de SI",
-    description: "Accompagnement au changement de système d'information.",
+    title: "Transformation digitale",
+    description: "Accompagnement à la digitalisation et au changement de système d'information.",
   },
   {
-    title: "Rebranding",
-    description: "Stratégie et mise en œuvre de repositionnement de marque.",
+    title: "Repositionnement stratégique",
+    description: "Stratégie et mise en œuvre de repositionnement d'activité ou de marque.",
   },
   {
     title: "Négociation de contrats",
-    description: "Négociation de contrats de gestion et appels d'offres.",
+    description: "Négociation de contrats stratégiques et appels d'offres.",
   },
   {
     title: "Recherche de partenaires",
-    description: "Recherche de partenaires techniques ou financiers.",
+    description: "Recherche de partenaires techniques, commerciaux ou financiers.",
   },
 ];
 
@@ -202,9 +206,23 @@ export const COUNTRIES: string[] = [
   "Angola",
 ];
 
-export const CLIENTS = [
-  { name: "Sofitel", logo: "/client-sofitel.png" },
-  { name: "Hôtel Sindone", logo: "/client-sindone.png" },
+export const SECTORS = [
+  {
+    name: "Entreprises & PME",
+    description: "Développement et structuration d'entreprises de toutes tailles.",
+  },
+  {
+    name: "Groupes & Holdings",
+    description: "Accompagnement stratégique de groupes en croissance.",
+  },
+  {
+    name: "Investisseurs",
+    description: "Analyse, structuration et sécurisation d'investissements.",
+  },
+  {
+    name: "Institutions",
+    description: "Conseil auprès d'institutions et d'organisations publiques.",
+  },
 ];
 
 export const CONTACT_ICONS = {

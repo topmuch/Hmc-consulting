@@ -22,27 +22,27 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "HMC — Hospitality Management Consulting | Partenaire de votre développement stratégique",
+  title: "HMC — Horizon Management Consulting | Conseil et management des entreprises",
   description:
-    "HMC est un cabinet de consulting stratégique et d'accompagnement dédié au secteur hôtelier et immobilier, du segment Haut de Gamme (Luxe) à l'économique. Près de 30 ans d'expérience en Afrique et Océan Indien.",
+    "HMC est un cabinet de conseil et de management dédié aux entreprises. Conseil stratégique, management opérationnel et structuration financière. Près de 30 ans d'expérience en Afrique et Océan Indien.",
   keywords: [
     "HMC",
-    "Hospitality Management Consulting",
-    "consulting hôtelier",
-    "asset management",
-    "gestion hôtelière",
-    "luxe",
+    "Horizon Management Consulting",
+    "conseil entreprise",
+    "management",
+    "consulting stratégique",
+    "management de transition",
+    "structuration financière",
     "Afrique",
-    "stratégie hôtelière",
   ],
   authors: [{ name: "HMC" }],
   icons: {
     icon: "/hmc-logo.png",
   },
   openGraph: {
-    title: "HMC — Hospitality Management Consulting",
+    title: "HMC — Horizon Management Consulting",
     description:
-      "Partenaire de votre développement stratégique. Consulting hôtelier et immobilier, du Luxe à l'économique.",
+      "Conseil et management des entreprises. Partenaire de votre développement stratégique.",
     siteName: "HMC",
     type: "website",
   },
@@ -54,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className="scroll-smooth">
       <body
         className={`${geistSans.variable} ${playfair.variable} ${inter.variable} antialiased bg-background text-foreground`}
       >

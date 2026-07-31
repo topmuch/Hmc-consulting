@@ -17,7 +17,7 @@ export function Services() {
               innovante
             </>
           }
-          description="Notre offre de services permet à nos clients de répondre efficacement aux exigences des pratiques de l'évolution du métier de l'hôtellerie, et de sécuriser leur activité tout en garantissant leur rentabilité."
+          description="Notre offre de services permet à nos clients de répondre efficacement aux exigences des marchés, de sécuriser leur activité et de garantir leur rentabilité, de la PME au grand groupe."
         />
 
         {/* Three pillars */}
@@ -29,14 +29,14 @@ export function Services() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.55, delay: i * 0.12 }}
-              className="group relative overflow-hidden rounded-2xl bg-charcoal p-7 text-white shadow-lg"
+              className="group relative overflow-hidden rounded-2xl bg-navy p-7 text-white shadow-lg"
             >
               {/* Decorative gradient */}
-              <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-accent/20 blur-3xl group-hover:bg-accent/30 transition-colors" />
+              <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-sky/25 blur-3xl group-hover:bg-sky/35 transition-colors" />
 
               <div className="relative">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-gold-light border border-white/10">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-sky-light border border-white/10">
                     <service.icon className="h-6 w-6" strokeWidth={1.5} />
                   </div>
                   <span className="font-serif text-5xl font-semibold text-white/10">
@@ -44,7 +44,7 @@ export function Services() {
                   </span>
                 </div>
                 <h3 className="mt-5 font-serif text-2xl font-semibold">{service.title}</h3>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gold-light/90">
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-sky-light/90">
                   {service.subtitle}
                 </p>
                 <p className="mt-4 text-sm leading-relaxed text-white/75">
@@ -69,8 +69,8 @@ export function Services() {
                 Support ponctuel sur vos projets
               </h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-                Notre rôle est également d&apos;être un support ponctuel sur l&apos;ensemble de
-                vos projets ou changements majeurs.
+                Notre rôle est également d&apos;être un support ponctuel sur l&apos;ensemble
+                de vos projets ou changements majeurs.
               </p>
             </div>
             <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">

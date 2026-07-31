@@ -21,8 +21,8 @@ export function SiteFooter() {
               />
             </Link>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
-              {COMPANY.fullName} — cabinet de consulting stratégique et d&apos;accompagnement
-              dédié au secteur hôtelier et immobilier, du Luxe à l&apos;économique. {COMPANY.tagline}.
+              {COMPANY.fullName} — cabinet de conseil et de management dédié aux
+              entreprises. {COMPANY.tagline}.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-accent font-semibold">
               <span className="h-px w-6 bg-accent" />
@@ -90,7 +90,7 @@ export function SiteFooter() {
             © {year} {COMPANY.fullName}. Tous droits réservés.
           </p>
           <p className="text-xs text-muted-foreground">
-            Conçu avec exigence pour le secteur hôtelier.
+            Conseil et management des entreprises.
           </p>
         </div>
       </div>

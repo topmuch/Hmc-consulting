@@ -17,7 +17,7 @@ export function Expertise() {
               <span className="italic text-accent">une seule exigence</span>
             </>
           }
-          description="Du diagnostic opérationnel à la structuration d'actifs, nous couvrons l'ensemble de la chaîne de valeur hôtelière avec une vision stratégique et opérationnelle."
+          description="Du diagnostic stratégique à la structuration financière, nous couvrons l'ensemble de la chaîne de valeur de l'entreprise avec une vision à la fois stratégique et opérationnelle."
           align="center"
           className="mx-auto"
         />
@@ -69,17 +69,17 @@ export function Expertise() {
           className="mt-16 relative rounded-2xl overflow-hidden h-56 sm:h-64"
         >
           <img
-            src="/expertise-staff.jpg"
-            alt="Personnel hôtelier et service de qualité"
+            src="/expertise-meeting.jpg"
+            alt="Dirigeants en réunion stratégique"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/85 via-charcoal/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/50 to-transparent" />
           <div className="absolute inset-0 flex items-center">
             <div className="px-8 sm:px-12 max-w-xl">
               <p className="font-serif text-xl sm:text-2xl lg:text-3xl font-medium text-white leading-snug text-balance">
-                &ldquo;L&apos;excellence opérationnelle, au service de la valeur patrimoniale.&rdquo;
+                &ldquo;L&apos;excellence managériale, au service de la création de valeur.&rdquo;
               </p>
-              <p className="mt-3 text-sm text-gold-light uppercase tracking-[0.18em]">
+              <p className="mt-3 text-sm text-sky-light uppercase tracking-[0.18em]">
                 — Notre conviction
               </p>
             </div>

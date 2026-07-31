@@ -39,7 +39,7 @@ export function SiteHeader() {
               {COMPANY.name}
             </span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Hospitality Management Consulting
+              {COMPANY.fullName}
             </span>
           </span>
         </Link>

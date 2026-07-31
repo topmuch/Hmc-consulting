@@ -67,7 +67,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="relative py-20 sm:py-28 bg-charcoal text-white overflow-hidden">
+    <section id="contact" className="relative py-20 sm:py-28 bg-navy text-white overflow-hidden">
       {/* Decorative chess background */}
       <div className="absolute inset-0 z-0 opacity-20">
         <img
@@ -76,7 +76,7 @@ export function Contact() {
           className="h-full w-full object-cover"
           aria-hidden
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/75" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/75" />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,10 +87,10 @@ export function Contact() {
               eyebrow="Contact"
               title={
                 <>
-                  Parlons de votre <span className="italic text-gold-light">projet</span>
+                  Parlons de votre <span className="italic text-sky-light">projet</span>
                 </>
               }
-              description="Une question, un projet d'acquisition, de rénovation ou de structuration ? Notre équipe vous répond avec la confidentialité et l'attention que méritent vos enjeux."
+              description="Une question, un projet de développement, de structuration ou de transformation ? Notre équipe vous répond avec la confidentialité et l'attention que méritent vos enjeux."
               light
             />
 
@@ -115,8 +115,8 @@ export function Contact() {
               />
             </div>
 
-            <div className="mt-8 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-gold-light/90">
-              <span className="h-px w-8 bg-gold-light/50" />
+            <div className="mt-8 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-sky-light/90">
+              <span className="h-px w-8 bg-sky-light/50" />
               Afrique &amp; Océan Indien
             </div>
           </div>
@@ -131,7 +131,7 @@ export function Contact() {
           >
             {done ? (
               <div className="flex flex-col items-center justify-center text-center py-16">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gold/20 text-gold-light">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky/20 text-sky-light">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
                 <h3 className="mt-5 font-serif text-2xl font-semibold">Message envoyé</h3>
@@ -156,7 +156,7 @@ export function Contact() {
                       value={form.name}
                       onChange={(e) => update("name", e.target.value)}
                       placeholder="Votre nom"
-                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-gold-light"
+                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
                   <Field label="E-mail *">
@@ -166,7 +166,7 @@ export function Contact() {
                       value={form.email}
                       onChange={(e) => update("email", e.target.value)}
                       placeholder="vous@exemple.com"
-                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-gold-light"
+                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
                 </div>
@@ -178,8 +178,8 @@ export function Contact() {
                       <Input
                         value={form.company}
                         onChange={(e) => update("company", e.target.value)}
-                        placeholder="Votre structure"
-                        className="bg-white/5 border-white/15 text-white placeholder:text-white/40 pl-9 focus-visible:border-gold-light"
+                        placeholder="Votre entreprise"
+                        className="bg-white/5 border-white/15 text-white placeholder:text-white/40 pl-9 focus-visible:border-sky-light"
                       />
                     </div>
                   </Field>
@@ -188,7 +188,7 @@ export function Contact() {
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value)}
                       placeholder="+221 ..."
-                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-gold-light"
+                      className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
                 </div>
@@ -199,7 +199,7 @@ export function Contact() {
                     value={form.subject}
                     onChange={(e) => update("subject", e.target.value)}
                     placeholder="Objet de votre demande"
-                    className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-gold-light"
+                    className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                   />
                 </Field>
 
@@ -210,14 +210,14 @@ export function Contact() {
                     onChange={(e) => update("message", e.target.value)}
                     placeholder="Décrivez votre projet ou votre demande…"
                     rows={5}
-                    className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-gold-light resize-none"
+                    className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light resize-none"
                   />
                 </Field>
 
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-gold text-charcoal hover:bg-gold-light font-medium group"
+                  className="w-full bg-sky text-navy hover:bg-sky-light font-medium group"
                 >
                   {submitting ? (
                     <>
@@ -268,14 +268,14 @@ function ContactCard({
   href?: string;
 }) {
   const content = (
-    <div className="group flex items-center gap-4 rounded-xl bg-white/[0.04] border border-white/10 p-4 hover:border-gold-light/40 hover:bg-white/[0.07] transition-all">
-      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gold/15 text-gold-light shrink-0">
+    <div className="group flex items-center gap-4 rounded-xl bg-white/[0.04] border border-white/10 p-4 hover:border-sky-light/40 hover:bg-white/[0.07] transition-all">
+      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sky/15 text-sky-light shrink-0">
         {icon}
       </div>
       <div className="min-w-0">
         <div className="text-[11px] uppercase tracking-[0.16em] text-white/50">{label}</div>
         <div className="text-base font-medium text-white truncate">{value}</div>
-        {sub && <div className="text-xs text-gold-light/80">{sub}</div>}
+        {sub && <div className="text-xs text-sky-light/80">{sub}</div>}
       </div>
     </div>
   );
