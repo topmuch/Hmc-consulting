@@ -25,7 +25,7 @@ export function Experience() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
             <SectionHeading
-              eyebrow="Notre Expérience"
+              eyebrow="Expérience"
               title={
                 <>
                   Une présence en{" "}

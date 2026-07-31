@@ -50,7 +50,7 @@ export type PageMeta = {
 export const PAGES: PageMeta[] = [
   {
     id: "histoire",
-    label: "Notre Histoire",
+    label: "À propos",
     href: "/?page=histoire",
     icon: BookOpen,
     shortDescription: "Près de 30 ans d'expertise au service de l'excellence managériale.",
@@ -59,7 +59,7 @@ export const PAGES: PageMeta[] = [
   },
   {
     id: "valeurs",
-    label: "Nos Valeurs",
+    label: "Valeurs",
     href: "/?page=valeurs",
     icon: Heart,
     shortDescription: "Intégrité, innovation, engagement et responsabilité.",
@@ -68,7 +68,7 @@ export const PAGES: PageMeta[] = [
   },
   {
     id: "services",
-    label: "Nos Services",
+    label: "Services",
     href: "/?page=services",
     icon: LayoutGrid,
     shortDescription: "Conseil stratégique, management opérationnel et transformation.",
@@ -77,7 +77,7 @@ export const PAGES: PageMeta[] = [
   },
   {
     id: "experience",
-    label: "Notre Expérience",
+    label: "Expérience",
     href: "/?page=experience",
     icon: Compass,
     shortDescription: "Près de 20 pays couverts en Afrique et Océan Indien.",
@@ -85,22 +85,22 @@ export const PAGES: PageMeta[] = [
       "Une présence significative dans près de 20 pays, du Maroc à l'Afrique du Sud, en passant par l'Océan Indien.",
   },
   {
-    id: "expertise",
-    label: "Notre Expertise",
-    href: "/?page=expertise",
-    icon: Award,
-    shortDescription: "Conseil & audit, management et finance & structuration.",
-    longDescription:
-      "Trois domaines d'expertise couvrant l'ensemble de la chaîne de valeur de l'entreprise, du diagnostic à la mise en œuvre.",
-  },
-  {
     id: "produits",
-    label: "Nos Produits",
+    label: "Produits",
     href: "/?page=produits",
     icon: Package,
     shortDescription: "QRbags, QRtags, QRtrans, VerifScan, MyRest — nos solutions QR code.",
     longDescription:
       "Découvrez notre gamme de solutions digitales basées sur la technologie QR code, conçues pour la traçabilité, la logistique et l'expérience client.",
+  },
+  {
+    id: "expertise",
+    label: "Expertise",
+    href: "/?page=expertise",
+    icon: Award,
+    shortDescription: "Conseil & audit, management et finance & structuration.",
+    longDescription:
+      "Trois domaines d'expertise couvrant l'ensemble de la chaîne de valeur de l'entreprise, du diagnostic à la mise en œuvre.",
   },
   {
     id: "contact",

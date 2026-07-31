@@ -42,7 +42,7 @@ export function About() {
           {/* Right: content */}
           <div className="order-1 lg:order-2">
             <SectionHeading
-              eyebrow="Notre Histoire"
+              eyebrow="À propos"
               title={
                 <>
                   Une rencontre entre{" "}

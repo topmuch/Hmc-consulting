@@ -10,7 +10,7 @@ export function Services() {
     <section id="services" className="py-20 sm:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Nos Services"
+          eyebrow="Services"
           title={
             <>
               Une offre <span className="italic text-accent">intégrée, globale</span> et

@@ -10,7 +10,7 @@ export function Expertise() {
     <section id="expertise" className="py-20 sm:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Notre Expertise"
+          eyebrow="Expertise"
           title={
             <>
               Trois domaines d&apos;expertise,{" "}
