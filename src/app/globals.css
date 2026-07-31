@@ -147,7 +147,7 @@
 /* Smooth scroll for anchor navigation */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 6rem;
 }
 
 /* Custom scrollbar — blue themed */

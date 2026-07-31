@@ -13,11 +13,11 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-12">
           {/* Brand */}
           <div className="md:col-span-5">
-            <Link href="#top" className="inline-flex items-center gap-3">
+            <Link href="#top" className="inline-flex items-center">
               <img
                 src="/hmc-logo.png"
                 alt={`${COMPANY.name} — ${COMPANY.fullName}`}
-                className="h-12 w-auto"
+                className="h-16 w-auto sm:h-20"
               />
             </Link>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">

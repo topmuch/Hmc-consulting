@@ -115,7 +115,7 @@ export function SettingsPage() {
             <img
               src="/hmc-logo.png"
               alt={`${COMPANY.name} — ${COMPANY.fullName}`}
-              className="h-10 w-auto"
+              className="h-12 w-auto"
             />
             <div className="hidden sm:flex flex-col leading-tight">
               <span className="font-serif text-base font-semibold text-foreground flex items-center gap-2">

@@ -15,21 +15,13 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-background border-b border-border shadow-sm">
-      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
-        <Link href="/" className="flex items-center gap-3 group">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
+        <Link href="/" className="flex items-center group" aria-label="HMC — Horizon Management Consulting">
           <img
             src="/hmc-logo.png"
-            alt={`${COMPANY.name} — ${COMPANY.fullName}`}
-            className="h-9 w-auto sm:h-10 transition-transform group-hover:scale-105"
+            alt="HMC — Horizon Management Consulting"
+            className="h-14 w-auto sm:h-16 transition-transform group-hover:scale-105"
           />
-          <span className="hidden sm:flex flex-col leading-tight">
-            <span className="font-serif text-base font-semibold text-foreground">
-              {COMPANY.name}
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              {COMPANY.fullName}
-            </span>
-          </span>
         </Link>
 
         {/* Desktop nav */}
