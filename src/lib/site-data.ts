@@ -22,6 +22,7 @@ import {
   Award,
   MessageSquare,
   ArrowRight,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 
@@ -91,6 +92,15 @@ export const PAGES: PageMeta[] = [
     shortDescription: "Conseil & audit, management et finance & structuration.",
     longDescription:
       "Trois domaines d'expertise couvrant l'ensemble de la chaîne de valeur de l'entreprise, du diagnostic à la mise en œuvre.",
+  },
+  {
+    id: "produits",
+    label: "Nos Produits",
+    href: "/?page=produits",
+    icon: Package,
+    shortDescription: "QRbags, QRtags, QRtrans, VerifScan, MyRest — nos solutions QR code.",
+    longDescription:
+      "Découvrez notre gamme de solutions digitales basées sur la technologie QR code, conçues pour la traçabilité, la logistique et l'expérience client.",
   },
   {
     id: "contact",
