@@ -22,6 +22,7 @@ export function Contact() {
     phone: "",
     subject: "",
     message: "",
+    productId: "",
   });
 
   const update = (key: keyof typeof form, value: string) =>
@@ -49,6 +50,7 @@ export function Contact() {
         phone: "",
         subject: "",
         message: "",
+        productId: "",
       });
       toast({
         title: "Message envoyé",
@@ -192,6 +194,22 @@ export function Contact() {
                     />
                   </Field>
                 </div>
+
+                <Field label="Produit intéressé (optionnel)">
+                  <select
+                    value={form.productId}
+                    onChange={(e) => update("productId", e.target.value)}
+                    className="w-full rounded-md bg-white/5 border border-white/15 text-white px-3 py-2 text-sm focus-visible:border-sky-light focus-visible:outline-none [&>option]:bg-navy [&>option]:text-white"
+                  >
+                    <option value="">— Aucun produit spécifique —</option>
+                    <option value="qrbags">QRbags — Traçabilité de bagages</option>
+                    <option value="qrtags">QRtags — Traçabilité d'objets</option>
+                    <option value="qrtags-entreprise">QRtags Entreprise — Objets trouvés pro</option>
+                    <option value="qrtrans">QRtrans — Suivi de colis via WhatsApp</option>
+                    <option value="verifscan">VerifScan — Traçabilité agroalimentaire</option>
+                    <option value="myrest">MyRest — Menu digital restaurant</option>
+                  </select>
+                </Field>
 
                 <Field label="Sujet *">
                   <Input

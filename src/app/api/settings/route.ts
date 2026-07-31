@@ -40,6 +40,20 @@ export async function PUT(req: NextRequest) {
     s.facebook = str(body.facebook);
     s.instagram = str(body.instagram);
 
+    // SMTP / Email
+    s.smtpHost = str(body.smtpHost);
+    s.smtpPort = str(body.smtpPort);
+    s.smtpUser = str(body.smtpUser);
+    s.smtpPass = str(body.smtpPass);
+    s.smtpFrom = str(body.smtpFrom);
+
+    // Auth
+    s.adminPassword = str(body.adminPassword);
+
+    // Auto-reply
+    if (typeof body.autoReplyEnabled === "boolean")
+      s.autoReplyEnabled = body.autoReplyEnabled;
+
     // Email format check on notifyEmail if provided
     if (s.notifyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.notifyEmail)) {
       return NextResponse.json(
@@ -52,6 +66,17 @@ export async function PUT(req: NextRequest) {
         { error: "L'email de contact est invalide." },
         { status: 400 }
       );
+    }
+    if (s.smtpFrom) {
+      // Accept both "Name <email>" and plain "email" formats
+      const emailMatch = s.smtpFrom.match(/<([^>]+)>/) || [null, s.smtpFrom];
+      const emailPart = emailMatch[1];
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPart)) {
+        return NextResponse.json(
+          { error: "L'email expéditeur SMTP est invalide." },
+          { status: 400 }
+        );
+      }
     }
 
     const data = { ...DEFAULT_SETTINGS, ...s };
@@ -84,6 +109,13 @@ export async function PUT(req: NextRequest) {
         twitter: updated.twitter,
         facebook: updated.facebook,
         instagram: updated.instagram,
+        smtpHost: updated.smtpHost,
+        smtpPort: updated.smtpPort,
+        smtpUser: updated.smtpUser,
+        smtpPass: updated.smtpPass,
+        smtpFrom: updated.smtpFrom,
+        adminPassword: updated.adminPassword,
+        autoReplyEnabled: updated.autoReplyEnabled,
       },
     });
   } catch (err) {

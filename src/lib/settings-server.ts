@@ -29,6 +29,13 @@ export async function getSettings(): Promise<SiteSettings> {
       twitter: row.twitter,
       facebook: row.facebook,
       instagram: row.instagram,
+      smtpHost: row.smtpHost,
+      smtpPort: row.smtpPort,
+      smtpUser: row.smtpUser,
+      smtpPass: row.smtpPass,
+      smtpFrom: row.smtpFrom,
+      adminPassword: row.adminPassword,
+      autoReplyEnabled: row.autoReplyEnabled,
     };
   } catch (err) {
     console.error("[getSettings] error", err);

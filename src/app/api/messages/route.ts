@@ -1,8 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const session = await getSession(req);
+    if (!session.authenticated) {
+      return NextResponse.json(
+        { error: "Non authentifié" },
+        { status: 401 }
+      );
+    }
+
     const messages = await db.contactMessage.findMany({
       orderBy: { createdAt: "desc" },
       take: 500,
@@ -93,6 +102,45 @@ export async function GET() {
       count: byDowMap.get(name) || 0,
     }));
 
+    // ---- Breakdown by status (new|in_progress|treated|archived) ----
+    const statusOrder = ["new", "in_progress", "treated", "archived"];
+    const byStatusMap = new Map<string, number>(
+      statusOrder.map((s) => [s, 0])
+    );
+    messages.forEach((m) => {
+      const s = byStatusMap.has(m.status) ? m.status : "new";
+      byStatusMap.set(s, (byStatusMap.get(s) || 0) + 1);
+    });
+    const byStatus = statusOrder.map((status) => ({
+      status,
+      count: byStatusMap.get(status) || 0,
+    }));
+
+    // ---- Breakdown by stage (received|qualified|meeting|client) — funnel ----
+    const stageOrder = ["received", "qualified", "meeting", "client"];
+    const byStageMap = new Map<string, number>(
+      stageOrder.map((s) => [s, 0])
+    );
+    messages.forEach((m) => {
+      const st = byStageMap.has(m.stage) ? m.stage : "received";
+      byStageMap.set(st, (byStageMap.get(st) || 0) + 1);
+    });
+    const byStage = stageOrder.map((stage) => ({
+      stage,
+      count: byStageMap.get(stage) || 0,
+    }));
+
+    // ---- Breakdown by product (null = "Non spécifié") ----
+    const byProductMap = new Map<string, number>();
+    messages.forEach((m) => {
+      const key = m.productId || "__none__";
+      byProductMap.set(key, (byProductMap.get(key) || 0) + 1);
+    });
+    const byProduct = Array.from(byProductMap.entries()).map(([key, count]) => ({
+      productId: key === "__none__" ? null : key,
+      count,
+    }));
+
     return NextResponse.json({
       messages,
       stats: {
@@ -105,6 +153,9 @@ export async function GET() {
       byDay,
       bySubject,
       byDow,
+      byStatus,
+      byStage,
+      byProduct,
     });
   } catch (err) {
     console.error("[api/messages] error", err);

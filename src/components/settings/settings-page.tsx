@@ -13,6 +13,8 @@ import {
   Check,
   Loader2,
   Save,
+  Mail,
+  Lock,
 } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import type { SiteSettings } from "@/lib/settings-types";
@@ -25,13 +27,17 @@ import { GeneralTab } from "./tabs/general-tab";
 import { SeoTab } from "./tabs/seo-tab";
 import { NotificationsTab } from "./tabs/notifications-tab";
 import { SocialTab } from "./tabs/social-tab";
+import { EmailTab } from "./tabs/email-tab";
+import { SecurityTab } from "./tabs/security-tab";
 
-type TabId = "general" | "seo" | "notifications" | "social";
+type TabId = "general" | "seo" | "notifications" | "social" | "email" | "security";
 
 const TABS: { id: TabId; label: string; icon: typeof Building2 }[] = [
   { id: "general", label: "Général", icon: Building2 },
   { id: "seo", label: "SEO", icon: Search },
   { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "email", label: "Email & SMTP", icon: Mail },
+  { id: "security", label: "Sécurité", icon: Lock },
   { id: "social", label: "Réseaux sociaux", icon: Share2 },
 ];
 
@@ -210,6 +216,12 @@ export function SettingsPage() {
                 )}
                 {activeTab === "notifications" && (
                   <NotificationsTab settings={settings} update={update} />
+                )}
+                {activeTab === "email" && (
+                  <EmailTab settings={settings} update={update} />
+                )}
+                {activeTab === "security" && (
+                  <SecurityTab settings={settings} update={update} />
                 )}
                 {activeTab === "social" && (
                   <SocialTab settings={settings} update={update} />

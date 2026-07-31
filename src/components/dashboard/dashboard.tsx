@@ -1,15 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, LayoutDashboard, RefreshCw, Mail, Phone, User, Settings2, Bell } from "lucide-react";
+import {
+  ArrowLeft,
+  LayoutDashboard,
+  RefreshCw,
+  Mail,
+  Phone,
+  User,
+  Settings2,
+  Bell,
+  Download,
+  FileText,
+  LogOut,
+  Loader2,
+} from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
-import type { DashboardData } from "@/lib/dashboard-types";
+import type { ContactMessage, DashboardData } from "@/lib/dashboard-types";
 import type { NotificationItem } from "@/lib/settings-types";
 import { StatsCards } from "./stats-cards";
 import { MessagesAreaChart, SubjectPieChart, DowBarChart } from "./charts";
 import { MessagesTable } from "./messages-table";
+import { FunnelChart } from "./funnel-chart";
+import { ProductStats } from "./product-stats";
+import { LoginView } from "./login-view";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -20,20 +36,65 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
+type AuthState = "checking" | "authenticated" | "unauthenticated";
+
+function useAuth() {
+  const [state, setState] = useState<AuthState>("checking");
+
+  const reload = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      const data = await res.json();
+      setState(data?.authenticated ? "authenticated" : "unauthenticated");
+    } catch {
+      setState("unauthenticated");
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        if (!cancelled) {
+          setState(data?.authenticated ? "authenticated" : "unauthenticated");
+        }
+      } catch {
+        if (!cancelled) setState("unauthenticated");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { state, reload };
+}
+
 export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
+  const { state: authState, reload: reloadAuth } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [exporting, setExporting] = useState(false);
+  const { toast } = useToast();
 
-  const fetchData = async (silent = false) => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     else setRefreshing(true);
     try {
       const res = await fetch("/api/messages", { cache: "no-store" });
+      if (res.status === 401) {
+        // Session expired
+        reloadAuth();
+        return;
+      }
       const json = await res.json();
       setData(json as DashboardData);
     } catch (err) {
@@ -42,7 +103,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [reloadAuth]);
 
   const fetchNotifs = async () => {
     try {
@@ -66,11 +127,84 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   };
 
   useEffect(() => {
+    if (authState !== "authenticated") return;
     fetchData();
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [authState, fetchData]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
+    reloadAuth();
+  };
+
+  const handleExportCsv = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const res = await fetch("/api/messages/export", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Échec de l'export");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hmc-messages.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "Export CSV prêt",
+        description: "Le fichier a été téléchargé.",
+      });
+    } catch (err) {
+      console.error("[export]", err);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'exporter les données.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleMonthlyReport = () => {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    window.open(`/api/messages/report?month=${month}`, "_blank");
+  };
+
+  const handleLocalUpdate = (updated: ContactMessage) => {
+    setData((prev) => {
+      if (!prev) return prev;
+      const messages = prev.messages.map((m) => (m.id === updated.id ? updated : m));
+      return { ...prev, messages };
+    });
+  };
+
+  // ---- Auth gate ----
+  if (authState === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-7 w-7 animate-spin text-accent" />
+          <p className="text-sm">Vérification de la session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authState === "unauthenticated") {
+    return <LoginView onSuccess={reloadAuth} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -181,6 +315,31 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               <span className="hidden sm:inline">Actualiser</span>
             </Button>
 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleExportCsv}
+              disabled={exporting}
+              className="text-muted-foreground hover:text-accent"
+            >
+              {exporting ? (
+                <Loader2 className="h-4 w-4 sm:mr-1.5 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 sm:mr-1.5" />
+              )}
+              <span className="hidden sm:inline">Exporter CSV</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMonthlyReport}
+              className="text-muted-foreground hover:text-accent"
+            >
+              <FileText className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Rapport</span>
+            </Button>
+
             {onGoSettings && (
               <Button
                 variant="ghost"
@@ -192,6 +351,16 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
                 <span className="hidden sm:inline">Paramètres</span>
               </Button>
             )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Déconnexion</span>
+            </Button>
 
             <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link href="/">
@@ -243,29 +412,34 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               monthGrowth={data.stats.monthGrowth}
             />
 
-            {/* Charts */}
+            {/* Charts row 1: Area (2/3) + Pie by subject (1/3) */}
             <div className="grid lg:grid-cols-3 gap-4">
               <MessagesAreaChart data={data.byDay} />
               <SubjectPieChart data={data.bySubject} />
             </div>
 
+            {/* Charts row 2: Funnel + Product stats + Dow bar */}
             <div className="grid lg:grid-cols-3 gap-4">
+              <FunnelChart data={data.byStage} />
+              <ProductStats data={data.byProduct} />
               <DowBarChart data={data.byDow} />
-              {/* Latest contact highlight */}
-              <div className="lg:col-span-2 bg-card rounded-2xl border border-border p-5 sm:p-6">
+            </div>
+
+            {/* Latest contact highlight */}
+            {data.messages[0] && (
+              <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
                 <h3 className="font-serif text-lg font-semibold text-foreground mb-4">
                   Dernier message reçu
                 </h3>
-                {data.messages[0] ? (
-                  <LatestMessageCard message={data.messages[0]} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">Aucun message pour le moment.</p>
-                )}
+                <LatestMessageCard message={data.messages[0]} />
               </div>
-            </div>
+            )}
 
             {/* Messages table */}
-            <MessagesTable messages={data.messages} />
+            <MessagesTable
+              messages={data.messages}
+              onMessageUpdated={handleLocalUpdate}
+            />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -291,7 +465,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   );
 }
 
-function LatestMessageCard({ message }: { message: DashboardData["messages"][0] }) {
+function LatestMessageCard({ message }: { message: ContactMessage }) {
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3">
@@ -353,6 +527,11 @@ function DashboardSkeleton() {
       </div>
       <div className="grid lg:grid-cols-3 gap-4">
         <Skeleton className="lg:col-span-2 h-80 rounded-2xl" />
+        <Skeleton className="h-80 rounded-2xl" />
+      </div>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <Skeleton className="h-80 rounded-2xl" />
+        <Skeleton className="h-80 rounded-2xl" />
         <Skeleton className="h-80 rounded-2xl" />
       </div>
       <Skeleton className="h-96 rounded-2xl" />

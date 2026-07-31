@@ -1,3 +1,6 @@
+export type MessageStatus = "new" | "in_progress" | "treated" | "archived";
+export type MessageStage = "received" | "qualified" | "meeting" | "client";
+
 export type ContactMessage = {
   id: string;
   name: string;
@@ -6,7 +9,13 @@ export type ContactMessage = {
   phone: string | null;
   subject: string;
   message: string;
+  productId: string | null;
+  status: string; // MessageStatus
+  stage: string; // MessageStage
+  tags: string | null; // comma-separated
+  notes: string | null; // internal notes
   createdAt: string;
+  updatedAt: string;
 };
 
 export type DashboardData = {
@@ -21,6 +30,9 @@ export type DashboardData = {
   byDay: { date: string; label: string; count: number }[];
   bySubject: { name: string; value: number }[];
   byDow: { name: string; count: number }[];
+  byStatus: { status: string; count: number }[];
+  byStage: { stage: string; count: number }[];
+  byProduct: { productId: string | null; count: number }[];
 };
 
 export const SUBJECT_COLORS: Record<string, string> = {

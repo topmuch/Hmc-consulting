@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSettings, maybeCreateNotification } from "@/lib/settings-server";
+import { sendAutoReply, sendNewMessageNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,10 @@ export async function POST(req: NextRequest) {
         : null;
     const phone =
       typeof body?.phone === "string" && body.phone.trim() ? body.phone.trim() : null;
+    const productId =
+      typeof body?.productId === "string" && body.productId.trim()
+        ? body.productId.trim()
+        : null;
 
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
@@ -48,6 +53,7 @@ export async function POST(req: NextRequest) {
         phone,
         subject,
         message,
+        productId,
       },
     });
 
@@ -60,6 +66,20 @@ export async function POST(req: NextRequest) {
       `/?view=dashboard`,
       settings.notifyOnNewMessage
     );
+
+    // Send auto-reply to the contact form submitter (respects autoReplyEnabled)
+    try {
+      await sendAutoReply(name, email, subject);
+    } catch (err) {
+      console.error("[api/contact] sendAutoReply error", err);
+    }
+
+    // Notify the team about the new message (respects notifyOnNewMessage)
+    try {
+      await sendNewMessageNotification(name, subject, company);
+    } catch (err) {
+      console.error("[api/contact] sendNewMessageNotification error", err);
+    }
 
     return NextResponse.json({ ok: true, id: record.id });
   } catch (err) {

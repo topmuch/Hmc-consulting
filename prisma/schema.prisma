@@ -39,7 +39,13 @@ model ContactMessage {
   phone     String?
   subject   String
   message   String
+  productId String?
+  status    String   @default("new") // new | in_progress | treated | archived
+  stage     String   @default("received") // received | qualified | meeting | client (funnel)
+  tags      String?  // comma-separated
+  notes     String?  // internal notes
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SiteSetting {
@@ -48,7 +54,7 @@ model SiteSetting {
   siteName            String   @default("HMC")
   siteFullName        String   @default("Horizon Management Consulting")
   tagline             String   @default("Votre partenaire en conseil et management des entreprises")
-  email               String   @default("contact@hmc-consulting.com")
+  email               String   @default("contact@hmc-consulting.pro")
   phone               String   @default("+221 77 455 11 36")
   partner             String   @default("Cheikh Lam")
   partnerRole         String   @default("Partner")
@@ -67,6 +73,16 @@ model SiteSetting {
   twitter             String?
   facebook            String?
   instagram           String?
+  // SMTP (email)
+  smtpHost            String?
+  smtpPort            String?
+  smtpUser            String?
+  smtpPass            String?
+  smtpFrom            String?
+  // Auth
+  adminPassword       String?
+  // Auto-reply
+  autoReplyEnabled    Boolean  @default(true)
 
   updatedAt DateTime @updatedAt
 }
@@ -78,5 +94,16 @@ model Notification {
   message   String
   link      String?
   read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  body      String
+  type      String   // auto_reply | notification | reply
+  status    String   @default("logged") // logged | sent | failed
+  messageId String?  // related ContactMessage id
   createdAt DateTime @default(now())
 }
