@@ -23,10 +23,7 @@ export function MessagesView({
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div
         className="flex flex-col sm:flex-row sm:items-end justify-between gap-3"
       >
         <div className="min-w-0">
@@ -47,13 +44,10 @@ export function MessagesView({
             Tous les messages reçus via le formulaire de contact
           </p>
         </div>
-      </motion.div>
+      </div>
 
       {/* Info banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
+      <div
         className="rounded-xl border border-sky-200/60 bg-sky-50 px-4 py-3 text-sm text-sky-800 flex items-center gap-2.5"
       >
         <Mail className="h-4 w-4 shrink-0" />
@@ -61,7 +55,7 @@ export function MessagesView({
           Tous les messages envoyés via le formulaire de contact arrivent ici
           automatiquement.
         </span>
-      </motion.div>
+      </div>
 
       {loading ? (
         <MessagesViewSkeleton />

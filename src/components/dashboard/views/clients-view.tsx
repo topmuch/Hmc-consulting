@@ -356,11 +356,8 @@ export function ClientsView({ refreshSignal = 0 }: { refreshSignal?: number } = 
               </thead>
               <tbody>
                 {filtered.map((c, i) => (
-                  <motion.tr
+                  <tr
                     key={c.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.25, delay: Math.min(i * 0.02, 0.3) }}
                     className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors"
                   >
                     <td className="px-5 py-3.5">
@@ -440,7 +437,7 @@ export function ClientsView({ refreshSignal = 0 }: { refreshSignal?: number } = 
                         </Button>
                       </div>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
               </tbody>
             </table>

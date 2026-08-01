@@ -256,17 +256,14 @@ export function UsersView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
       />
 
       {/* Warning banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
+      <div
         className="rounded-xl border border-amber-200/60 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-center gap-2.5"
       >
         <ShieldAlert className="h-4 w-4 shrink-0" />
         <span>
           Seuls les administrateurs peuvent gérer les utilisateurs.
         </span>
-      </motion.div>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -331,11 +328,8 @@ export function UsersView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                 {filtered.map((u, i) => {
                   const RoleIcon = roleIcon(u.role);
                   return (
-                    <motion.tr
+                    <tr
                       key={u.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.25, delay: Math.min(i * 0.02, 0.3) }}
                       className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors"
                     >
                       <td className="px-5 py-3.5">
@@ -408,7 +402,7 @@ export function UsersView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                           </Button>
                         </div>
                       </td>
-                    </motion.tr>
+                    </tr>
                   );
                 })}
               </tbody>

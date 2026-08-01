@@ -282,11 +282,8 @@ export function ReportsView({ refreshSignal = 0 }: { refreshSignal?: number } = 
                   const meta = ACTIVITY_META[a.type] || ACTIVITY_META.message;
                   const Icon = meta.icon;
                   return (
-                    <motion.li
+                    <li
                       key={`${a.type}-${i}-${a.date}`}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3) }}
                       className="flex items-center gap-3 py-3"
                     >
                       <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${meta.color}`}>
@@ -310,7 +307,7 @@ export function ReportsView({ refreshSignal = 0 }: { refreshSignal?: number } = 
                             : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                         }
                       />
-                    </motion.li>
+                    </li>
                   );
                 })}
               </ul>
@@ -334,10 +331,7 @@ function ReportSection({
   children: React.ReactNode;
 }) {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+    <section
       className="bg-card rounded-2xl border border-border p-5 sm:p-6"
     >
       <h3 className="font-serif text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -347,7 +341,7 @@ function ReportSection({
         {title}
       </h3>
       {children}
-    </motion.section>
+    </section>
   );
 }
 
@@ -381,12 +375,7 @@ function SimpleBarChart({
             const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
             const widthPct = (d.value / maxCount) * 100;
             return (
-              <motion.div
-                key={d.key}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: idx * 0.04 }}
-              >
+              <div key={d.key}>
                 <div className="flex items-center justify-between gap-3 mb-1">
                   <div className="flex items-center gap-2 min-w-0">
                     {Icon && (
@@ -409,15 +398,12 @@ function SimpleBarChart({
                   </div>
                 </div>
                 <div className="h-2 w-full rounded-full bg-secondary/60 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${widthPct}%` }}
-                    transition={{ duration: 0.5, delay: idx * 0.04 + 0.05, ease: "easeOut" }}
+                  <div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: d.color }}
+                    style={{ backgroundColor: d.color, width: `${widthPct}%` }}
                   />
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

@@ -1181,11 +1181,8 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                         ? getProductById(lead.productId)
                         : undefined;
                       return (
-                        <motion.tr
+                        <tr
                           key={lead.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.25, delay: Math.min(i * 0.02, 0.3) }}
                           className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors cursor-pointer"
                           onClick={() => openDetail(lead)}
                         >
@@ -1275,7 +1272,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                               </Button>
                             </div>
                           </td>
-                        </motion.tr>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -1356,11 +1353,8 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                     {allAppointments.map((appt, i) => {
                       const lead = leads.find((l) => l.id === appt.leadId);
                       return (
-                        <motion.tr
+                        <tr
                           key={appt.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.25, delay: Math.min(i * 0.02, 0.3) }}
                           className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors cursor-pointer"
                           onClick={() => lead && openDetail(lead)}
                         >
@@ -1445,7 +1439,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                               </Button>
                             </div>
                           </td>
-                        </motion.tr>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -1521,11 +1515,8 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                     {allOrders.map((order, i) => {
                       const lead = leads.find((l) => l.id === order.leadId);
                       return (
-                        <motion.tr
+                        <tr
                           key={order.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.25, delay: Math.min(i * 0.02, 0.3) }}
                           className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors cursor-pointer"
                           onClick={() => lead && openDetail(lead)}
                         >
@@ -1596,7 +1587,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                               </Button>
                             </div>
                           </td>
-                        </motion.tr>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -1699,11 +1690,8 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
             ) : (
               <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
                 {reports.map((report, i) => (
-                  <motion.div
+                  <div
                     key={report.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3) }}
                     className="p-4 hover:bg-secondary/30 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -1743,7 +1731,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
