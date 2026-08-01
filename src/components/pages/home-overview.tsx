@@ -6,6 +6,9 @@ import { ArrowRight } from "lucide-react";
 import { PAGES } from "@/lib/site-data";
 import { SectionHeading } from "@/components/sections/section-heading";
 
+// Only show these pages on the homepage overview section
+const HOME_OVERVIEW_IDS = ["services", "produits"];
+
 export function HomeOverview() {
   return (
     <section className="py-20 sm:py-28 bg-background">
@@ -22,8 +25,8 @@ export function HomeOverview() {
           className="mx-auto"
         />
 
-        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {PAGES.map((page, i) => (
+        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-2 gap-5">
+          {PAGES.filter((p) => HOME_OVERVIEW_IDS.includes(p.id)).map((page, i) => (
             <motion.div
               key={page.id}
               initial={{ opacity: 0, y: 28 }}
