@@ -77,11 +77,18 @@ export function OverviewView({
 
           {/* Latest contact highlight */}
           {data.messages[0] && (
-            <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
-              <h3 className="font-serif text-lg font-semibold text-foreground mb-4">
-                Dernier message reçu
-              </h3>
-              <LatestMessageCard message={data.messages[0]} />
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+              <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-0">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="h-8 w-1.5 rounded-full shrink-0 bg-gradient-to-b from-rose-500 to-orange-500" />
+                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                    Dernier message reçu
+                  </h3>
+                </div>
+              </div>
+              <div className="p-5 sm:p-6 pt-3">
+                <LatestMessageCard message={data.messages[0]} />
+              </div>
             </div>
           )}
 

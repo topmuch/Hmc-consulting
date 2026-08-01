@@ -40,19 +40,30 @@ function ChartCard({
   subtitle,
   children,
   className,
+  accentColor,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
   className?: string;
+  accentColor?: string;
 }) {
   return (
-    <div className={`bg-card rounded-2xl border border-border p-5 sm:p-6 ${className || ""}`}>
-      <div className="mb-4">
-        <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+    <div className={`bg-card rounded-2xl border border-border overflow-hidden ${className || ""}`}>
+      <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-0">
+        <div className="flex items-center gap-3 mb-1">
+          {accentColor && (
+            <span className="h-8 w-1.5 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
+          )}
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
+            {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+          </div>
+        </div>
       </div>
-      {children}
+      <div className="p-5 sm:p-6 pt-3">
+        {children}
+      </div>
     </div>
   );
 }
@@ -74,6 +85,7 @@ export function MessagesAreaChart({ data }: { data: DayPoint[] }) {
       title="Demandes reçues"
       subtitle="30 derniers jours"
       className="lg:col-span-2"
+      accentColor="#3b82f6"
     >
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -120,7 +132,7 @@ export function MessagesAreaChart({ data }: { data: DayPoint[] }) {
 
 export function SubjectPieChart({ data }: { data: SubjectPoint[] }) {
   return (
-    <ChartCard title="Par thématique" subtitle="Répartition des demandes">
+    <ChartCard title="Par thématique" subtitle="Répartition des demandes" accentColor="#8b5cf6">
       <ResponsiveContainer width="100%" height={260}>
         <PieChart>
           <Pie
@@ -166,7 +178,7 @@ export function SubjectPieChart({ data }: { data: SubjectPoint[] }) {
 
 export function DowBarChart({ data }: { data: DowPoint[] }) {
   return (
-    <ChartCard title="Par jour de la semaine" subtitle="Activité cumulée">
+    <ChartCard title="Par jour de la semaine" subtitle="Activité cumulée" accentColor="#10b981">
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" vertical={false} />

@@ -210,14 +210,17 @@ export function MessagesTable({
   return (
     <div className="bg-card rounded-2xl border border-border overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-border">
-        <div>
-          <h3 className="font-serif text-lg font-semibold text-foreground">
-            Demandes récentes
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {filtered.length} message{filtered.length > 1 ? "s" : ""}{" "}
-            {(query || statusFilter !== "all") && `(sur ${messages.length})`}
-          </p>
+        <div className="flex items-center gap-3">
+          <span className="h-8 w-1.5 rounded-full shrink-0 bg-gradient-to-b from-indigo-500 to-blue-500" />
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-foreground">
+              Demandes récentes
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {filtered.length} message{filtered.length > 1 ? "s" : ""}{" "}
+              {(query || statusFilter !== "all") && `(sur ${messages.length})`}
+            </p>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
           <div className="relative w-full sm:w-56">
