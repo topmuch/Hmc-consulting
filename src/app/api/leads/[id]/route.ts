@@ -39,6 +39,18 @@ export async function GET(
             user: { select: { id: true, name: true, role: true } },
           },
         },
+        appointments: {
+          orderBy: { date: "desc" },
+          include: {
+            employee: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
+        orders: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            employee: { select: { id: true, name: true, email: true, role: true } },
+          },
+        },
       },
     });
 

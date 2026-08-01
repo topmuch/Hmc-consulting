@@ -23,10 +23,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdLeads   Lead[]        @relation("CreatedLeads")
-  assignedLeads  Lead[]        @relation("AssignedLeads")
-  leadActivities LeadActivity[]
-  dailyReports   DailyReport[]
+  createdLeads    Lead[]        @relation("CreatedLeads")
+  assignedLeads   Lead[]        @relation("AssignedLeads")
+  leadActivities  LeadActivity[]
+  dailyReports    DailyReport[]
+  appointments    Appointment[] @relation("AppointmentEmployee")
+  orders          Order[]       @relation("OrderEmployee")
 }
 
 model Post {
@@ -70,9 +72,11 @@ model Lead {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  createdBy   User?         @relation("CreatedLeads", fields: [createdById], references: [id])
-  assignedTo  User?         @relation("AssignedLeads", fields: [assignedToId], references: [id])
-  activities  LeadActivity[]
+  createdBy    User?         @relation("CreatedLeads", fields: [createdById], references: [id])
+  assignedTo   User?         @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  activities   LeadActivity[]
+  appointments Appointment[]
+  orders       Order[]
 }
 
 model LeadActivity {
@@ -87,6 +91,42 @@ model LeadActivity {
 
   lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id])
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  leadId      String   // lead associé au rendez-vous
+  date        DateTime // date du rendez-vous
+  time        String?  // heure du rendez-vous
+  location    String?  // lieu du rendez-vous
+  contactName String?  // nom du contact
+  company     String?  // société
+  notes       String?  // notes
+  employeeId  String?  // employé qui a pris le rendez-vous
+  status      String   @default("planned") // planned | completed | cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lead     Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  employee User? @relation("AppointmentEmployee", fields: [employeeId], references: [id])
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  leadId          String   // lead associé à la commande
+  contactName     String   // nom de la personne
+  company         String?  // société
+  products        String   // produits commandés
+  quantity        Int      @default(1) // nombre de produits
+  packagePrice    String?  // prix du package commandé
+  deliveryDate    DateTime? // date de livraison
+  status          String   @default("in_progress") // in_progress | delivered
+  employeeId      String?  // nom de l'employé
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  lead     Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  employee User? @relation("OrderEmployee", fields: [employeeId], references: [id])
 }
 
 model DailyReport {
