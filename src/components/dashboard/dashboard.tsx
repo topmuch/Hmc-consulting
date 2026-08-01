@@ -62,16 +62,21 @@ const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon }[] = [
   { id: "reports", label: "Rapports", icon: BarChart3 },
 ];
 
+type AuthUser = { id: string; email: string; name: string; role: string } | null;
+
 function useAuth() {
   const [state, setState] = useState<AuthState>("checking");
+  const [user, setUser] = useState<AuthUser>(null);
 
   const reload = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/me", { cache: "no-store" });
       const data = await res.json();
       setState(data?.authenticated ? "authenticated" : "unauthenticated");
+      setUser(data?.user || null);
     } catch {
       setState("unauthenticated");
+      setUser(null);
     }
   }, []);
 
@@ -83,9 +88,13 @@ function useAuth() {
         const data = await res.json();
         if (!cancelled) {
           setState(data?.authenticated ? "authenticated" : "unauthenticated");
+          setUser(data?.user || null);
         }
       } catch {
-        if (!cancelled) setState("unauthenticated");
+        if (!cancelled) {
+          setState("unauthenticated");
+          setUser(null);
+        }
       }
     })();
     return () => {
@@ -93,11 +102,11 @@ function useAuth() {
     };
   }, []);
 
-  return { state, reload };
+  return { state, user, reload };
 }
 
 export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
-  const { state: authState, reload: reloadAuth } = useAuth();
+  const { state: authState, user: authUser, reload: reloadAuth } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -311,6 +320,16 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
 
         {/* Sidebar footer actions */}
         <div className="border-t border-white/10 p-3 space-y-1">
+          {/* Connected user info */}
+          {authUser && (
+            <div className="px-3 py-2 mb-1 rounded-lg bg-white/5">
+              <div className="text-xs font-medium text-white truncate">{authUser.name}</div>
+              <div className="text-[10px] text-white/50 truncate">{authUser.email}</div>
+              <div className="mt-1 inline-block rounded bg-sky/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-sky-light">
+                {authUser.role}
+              </div>
+            </div>
+          )}
           {onGoSettings && (
             <button
               onClick={onGoSettings}

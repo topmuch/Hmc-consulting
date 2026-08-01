@@ -2,31 +2,32 @@
 
 import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Lock, Loader2, ShieldCheck, ArrowRight } from "lucide-react";
+import { Lock, Loader2, ShieldCheck, ArrowRight, Mail } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function LoginView({ onSuccess }: { onSuccess: () => void }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!password || loading) return;
+    if (!email || !password || loading) return;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok || !data?.ok) {
-        setError(data?.error || "Mot de passe incorrect");
+        setError(data?.error || "Identifiants incorrects");
         setLoading(false);
         return;
       }
@@ -84,11 +85,34 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
                   Accès au tableau de bord
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">
-                  Entrez votre mot de passe administrateur pour accéder au suivi des demandes.
+                  Connectez-vous avec vos identifiants pour accéder au suivi des demandes.
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="admin@hmc-consulting.pro"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      className="pl-9 h-11"
+                      autoFocus
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm font-medium text-foreground">
                     Mot de passe
@@ -106,7 +130,6 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
                         if (error) setError(null);
                       }}
                       className="pl-9 h-11"
-                      autoFocus
                       disabled={loading}
                     />
                   </div>
@@ -124,7 +147,7 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
 
                 <Button
                   type="submit"
-                  disabled={loading || !password}
+                  disabled={loading || !email || !password}
                   className="w-full h-11 bg-[#003070] hover:bg-[#003a82] text-white"
                 >
                   {loading ? (
@@ -140,15 +163,6 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
                   )}
                 </Button>
               </form>
-
-              {process.env.NODE_ENV !== "production" && (
-              <div className="mt-6 rounded-md bg-sky-50 border border-sky-200/60 px-3 py-2.5 text-xs text-sky-800">
-                <span className="font-medium">Astuce :</span> mot de passe par défaut{" "}
-                <code className="font-mono bg-white/70 border border-sky-200 rounded px-1 py-0.5">
-                  hmc2024
-                </code>
-              </div>
-              )}
             </div>
           </div>
 

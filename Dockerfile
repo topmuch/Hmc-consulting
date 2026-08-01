@@ -17,4 +17,4 @@ RUN mkdir -p /app/data
 
 EXPOSE 3000
 
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/hmc.db && export PORT=3000 && export HOSTNAME=0.0.0.0 && npx prisma db push --skip-generate 2>/dev/null || true && node .next/standalone/server.js"
+CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/hmc.db && export PORT=3000 && export HOSTNAME=0.0.0.0 && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/create-admin.cjs 2>/dev/null || true && node .next/standalone/server.js"

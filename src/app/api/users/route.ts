@@ -16,12 +16,6 @@ const userSelect = {
 
 const VALID_ROLES = new Set(["admin", "manager", "agent"]);
 
-function hashPassword(password: string): string {
-  // Simple base64 hash — reused from auth.ts createToken pattern.
-  // NOT cryptographically secure, but consistent with the existing auth flow.
-  return Buffer.from(password).toString("base64");
-}
-
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession(req);
@@ -76,11 +70,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (!password || password.length < 4) {
+    if (!password || password.length < 6) {
       return NextResponse.json(
         {
           ok: false,
-          error: "Le mot de passe doit contenir au moins 4 caractères.",
+          error: "Le mot de passe doit contenir au moins 6 caractères.",
         },
         { status: 400 }
       );
@@ -92,11 +86,15 @@ export async function POST(req: NextRequest) {
         : "agent";
     const active = typeof body?.active === "boolean" ? body.active : true;
 
+    // Hash password with bcrypt
+    const bcrypt = await import("bcryptjs");
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const created = await db.user.create({
       data: {
         name,
         email,
-        password: hashPassword(password),
+        password: hashedPassword,
         role,
         active,
       },

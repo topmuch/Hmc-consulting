@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSettings } from "@/lib/settings-server";
 import { createHmac, randomBytes } from "crypto";
 
 const COOKIE_NAME = "hmc_admin_session";
@@ -8,13 +7,10 @@ const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 // ─── Secret key for HMAC tokens ───────────────────────────────
 function getSecret(): string {
-  // Use a dedicated env var, or derive from ADMIN_PASSWORD, or fallback
   return process.env.AUTH_SECRET || process.env.ADMIN_PASSWORD || "hmc2024-secret-key";
 }
 
 // ─── Token creation (HMAC-based, no password leakage) ────────
-// Token format: <randomId>.<hmacSignature>
-// The signature covers the randomId + timestamp, NOT the password.
 function createToken(): string {
   const id = randomBytes(24).toString("hex");
   const ts = Date.now().toString(36);
@@ -32,7 +28,7 @@ function verifyToken(token: string): boolean {
     const sig = parts[1];
     const expectedSig = createHmac("sha256", getSecret()).update(payload).digest("hex");
 
-    // Constant-time comparison to prevent timing attacks
+    // Constant-time comparison
     if (sig.length !== expectedSig.length) return false;
     let diff = 0;
     for (let i = 0; i < sig.length; i++) {
@@ -44,43 +40,76 @@ function verifyToken(token: string): boolean {
   }
 }
 
-// ─── Password helpers ────────────────────────────────────────
-function getDefaultPassword(): string {
-  return process.env.ADMIN_PASSWORD || "hmc2024";
-}
-
 // ─── Session check ───────────────────────────────────────────
-export async function getSession(req: NextRequest): Promise<{ authenticated: boolean }> {
+export async function getSession(req: NextRequest): Promise<{
+  authenticated: boolean;
+  user?: { id: string; email: string; name: string; role: string };
+}> {
   const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return { authenticated: false };
+  if (!token || !verifyToken(token)) return { authenticated: false };
 
-  if (!verifyToken(token)) return { authenticated: false };
+  // Decode user info from a second cookie
+  const userCookie = req.cookies.get("hmc_admin_user")?.value;
+  if (userCookie) {
+    try {
+      const user = JSON.parse(Buffer.from(userCookie, "base64").toString());
+      return { authenticated: true, user };
+    } catch {
+      return { authenticated: true };
+    }
+  }
 
   return { authenticated: true };
 }
 
-// ─── Login ───────────────────────────────────────────────────
+// ─── Login (email + password) ────────────────────────────────
 export async function login(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
+    const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
     const password = typeof body?.password === "string" ? body.password : "";
 
-    // Rate limiting: check X-Forwarded-For or fall back
-    // (basic protection — for production, use a proper rate limiter)
-
-    const settings = await getSettings();
-    const expectedPassword = settings.adminPassword || getDefaultPassword();
-
-    // Constant-time comparison for password
-    if (password.length !== expectedPassword.length || !timingSafeEqual(password, expectedPassword)) {
+    if (!email || !password) {
       return NextResponse.json(
-        { ok: false, error: "Mot de passe incorrect" },
+        { ok: false, error: "Email et mot de passe requis." },
+        { status: 400 }
+      );
+    }
+
+    // Find user by email
+    const user = await db.user.findUnique({ where: { email } });
+
+    if (!user || !user.active) {
+      return NextResponse.json(
+        { ok: false, error: "Identifiants incorrects." },
         { status: 401 }
       );
     }
 
+    // Verify password with bcrypt
+    const bcrypt = await import("bcryptjs");
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) {
+      return NextResponse.json(
+        { ok: false, error: "Identifiants incorrects." },
+        { status: 401 }
+      );
+    }
+
+    // Create session token
     const token = createToken();
-    const res = NextResponse.json({ ok: true });
+
+    // Store minimal user info in a separate cookie (non-httpOnly for client read, but signed)
+    const userInfo = Buffer.from(
+      JSON.stringify({ id: user.id, email: user.email, name: user.name, role: user.role })
+    ).toString("base64");
+
+    const res = NextResponse.json({
+      ok: true,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+    });
+
     res.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -88,6 +117,15 @@ export async function login(req: NextRequest): Promise<NextResponse> {
       maxAge: SESSION_DURATION,
       path: "/",
     });
+
+    res.cookies.set("hmc_admin_user", userInfo, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SESSION_DURATION,
+      path: "/",
+    });
+
     return res;
   } catch (err) {
     console.error("[auth login] error", err);
@@ -99,10 +137,11 @@ export async function login(req: NextRequest): Promise<NextResponse> {
 export function logout(): NextResponse {
   const res = NextResponse.json({ ok: true });
   res.cookies.delete(COOKIE_NAME);
+  res.cookies.delete("hmc_admin_user");
   return res;
 }
 
-// ─── Require auth helper (for API routes) ────────────────────
+// ─── Require auth helper ─────────────────────────────────────
 export function requireAuth(req: NextRequest): NextResponse | null {
   const token = req.cookies.get(COOKIE_NAME)?.value;
   if (!token || !verifyToken(token)) {
@@ -111,17 +150,7 @@ export function requireAuth(req: NextRequest): NextResponse | null {
       { status: 401 }
     );
   }
-  return null; // authenticated
-}
-
-// ─── Timing-safe string comparison ───────────────────────────
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return diff === 0;
+  return null;
 }
 
 export { COOKIE_NAME };
