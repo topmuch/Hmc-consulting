@@ -54,7 +54,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
               className="ml-2 text-foreground/80 hover:text-accent"
             >
               <LayoutDashboard className="h-4 w-4 mr-1.5" />
-              Dashboard
+              Connexion
             </Button>
           )}
           <Button asChild size="sm" className="ml-2 bg-accent text-accent-foreground hover:bg-accent/90">
@@ -68,7 +68,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
             <button
               className="inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
               onClick={onGoDashboard}
-              aria-label="Ouvrir le tableau de bord"
+              aria-label="Connexion"
             >
               <LayoutDashboard className="h-5 w-5" />
             </button>
@@ -114,7 +114,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
                 className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-secondary hover:text-accent transition-colors flex items-center gap-2"
               >
                 <LayoutDashboard className="h-4 w-4" />
-                Dashboard
+                Connexion
               </button>
             )}
             <Button asChild className="mt-2 bg-accent text-accent-foreground hover:bg-accent/90">

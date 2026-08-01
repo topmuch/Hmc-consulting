@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Phone, Mail, User, Briefcase, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, User, Briefcase, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { COMPANY } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
@@ -100,20 +100,29 @@ export function Contact() {
               <ContactCard
                 icon={<User className="h-5 w-5" />}
                 label="Interlocuteur"
-                value={`${COMPANY.partner}`}
-                sub={COMPANY.partnerRole}
-              />
-              <ContactCard
-                icon={<Phone className="h-5 w-5" />}
-                label="Téléphone"
-                value={COMPANY.phone}
-                href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}
+                value="HMC"
+                sub="Horizon Management Consulting"
               />
               <ContactCard
                 icon={<Mail className="h-5 w-5" />}
                 label="E-mail"
                 value={COMPANY.email}
                 href={`mailto:${COMPANY.email}`}
+              />
+            </div>
+
+            {/* Google Maps */}
+            <div className="mt-8 rounded-xl overflow-hidden border border-white/10">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d123208.04086554913!2d-17.49336885!3d14.6936803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec172f5b3c5bb71%3A0xbfc6c55c5e0e7f3e!2sDakar%2C%20S%C3%A9n%C3%A9gal!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr"
+                width="100%"
+                height="220"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="HMC — Dakar, Sénégal"
+                className="w-full"
               />
             </div>
 
