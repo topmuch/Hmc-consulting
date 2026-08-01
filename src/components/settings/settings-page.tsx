@@ -15,6 +15,7 @@ import {
   Save,
   Mail,
   Lock,
+  ShieldCheck,
 } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import type { SiteSettings } from "@/lib/settings-types";
@@ -29,6 +30,7 @@ import { NotificationsTab } from "./tabs/notifications-tab";
 import { SocialTab } from "./tabs/social-tab";
 import { EmailTab } from "./tabs/email-tab";
 import { SecurityTab } from "./tabs/security-tab";
+import { LoginView } from "@/components/dashboard/login-view";
 
 type TabId = "general" | "seo" | "notifications" | "social" | "email" | "security";
 
@@ -41,13 +43,52 @@ const TABS: { id: TabId; label: string; icon: typeof Building2 }[] = [
   { id: "social", label: "Réseaux sociaux", icon: Share2 },
 ];
 
+type AuthState = "checking" | "authenticated" | "unauthenticated";
+
+function useSettingsAuth() {
+  const [state, setState] = useState<AuthState>("checking");
+
+  const reload = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      const data = await res.json();
+      setState(data?.authenticated ? "authenticated" : "unauthenticated");
+    } catch {
+      setState("unauthenticated");
+    }
+  }, []);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  return { state, reload };
+}
+
 export function SettingsPage() {
+  const { state: authState, reload: reloadAuth } = useSettingsAuth();
   const { toast } = useToast();
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [original, setOriginal] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("general");
+
+  // Auth gate
+  if (authState === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-7 w-7 animate-spin text-accent" />
+          <p className="text-sm">Vérification de la session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authState === "unauthenticated") {
+    return <LoginView onSuccess={reloadAuth} />;
+  }
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);

@@ -141,12 +141,14 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
                 </Button>
               </form>
 
+              {process.env.NODE_ENV !== "production" && (
               <div className="mt-6 rounded-md bg-sky-50 border border-sky-200/60 px-3 py-2.5 text-xs text-sky-800">
                 <span className="font-medium">Astuce :</span> mot de passe par défaut{" "}
                 <code className="font-mono bg-white/70 border border-sky-200 rounded px-1 py-0.5">
                   hmc2024
                 </code>
               </div>
+              )}
             </div>
           </div>
 

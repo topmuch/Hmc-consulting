@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) return authError;
+
   const url = new URL(req.url);
   const unreadOnly = url.searchParams.get("unreadOnly") === "true";
   const limit = Math.min(
@@ -22,6 +26,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) return authError;
+
   try {
     const body = await req.json();
     const { id, markAllRead } = body;
@@ -52,7 +59,10 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) return authError;
+
   await db.notification.deleteMany({});
   return NextResponse.json({ ok: true });
 }
