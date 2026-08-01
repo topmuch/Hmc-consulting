@@ -68,3 +68,4 @@ verify-*/
 
 # OS
 Thumbs.db
+prisma/data/

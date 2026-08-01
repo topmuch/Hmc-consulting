@@ -22,6 +22,11 @@ model User {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  createdLeads   Lead[]        @relation("CreatedLeads")
+  assignedLeads  Lead[]        @relation("AssignedLeads")
+  leadActivities LeadActivity[]
+  dailyReports   DailyReport[]
 }
 
 model Post {
@@ -49,18 +54,55 @@ model Client {
 }
 
 model Lead {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  source        String   @default("website") // website | referral | campaign | other
+  status        String   @default("new") // new | contacted | callback | interested | ordered | lost
+  productId     String?
+  value         String?  // estimated value
+  notes         String?
+  nextFollowUp  DateTime? // date de prochain rappel
+  createdById   String?  // employé qui a créé le lead
+  assignedToId  String?  // employé assigné au lead
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy   User?         @relation("CreatedLeads", fields: [createdById], references: [id])
+  assignedTo  User?         @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  activities  LeadActivity[]
+}
+
+model LeadActivity {
   id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  company   String?
-  source    String   @default("website") // website | referral | campaign | other
-  status    String   @default("new") // new | contacted | qualified | converted | lost
-  productId String?
-  value     String?  // estimated value
-  notes     String?
+  leadId    String
+  userId    String?  // employé qui a fait l'action
+  type      String   // status_change | note | call | email | meeting | assignment
+  content   String   // description de l'action
+  oldValue  String?  // ancienne valeur (ex: ancien statut)
+  newValue  String?  // nouvelle valeur (ex: nouveau statut)
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model DailyReport {
+  id        String   @id @default(cuid())
+  userId    String   // employé qui rédige le rapport
+  date      DateTime // date du rapport
+  content   String   // contenu du rapport
+  leadsCount Int     @default(0) // nombre de leads traités
+  callsCount Int     @default(0) // nombre d'appels
+  meetingsCount Int  @default(0) // nombre de rendez-vous
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date]) // un seul rapport par jour par employé
 }
 
 model ContactMessage {

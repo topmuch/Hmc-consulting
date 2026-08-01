@@ -7,8 +7,9 @@ const VALID_SOURCES = new Set(["website", "referral", "campaign", "other"]);
 const VALID_STATUSES = new Set([
   "new",
   "contacted",
-  "qualified",
-  "converted",
+  "callback",
+  "interested",
+  "ordered",
   "lost",
 ]);
 
@@ -27,7 +28,19 @@ export async function GET(
 
     const { id } = await params;
 
-    const lead = await db.lead.findUnique({ where: { id } });
+    const lead = await db.lead.findUnique({
+      where: { id },
+      include: {
+        createdBy: { select: { id: true, name: true, email: true, role: true } },
+        assignedTo: { select: { id: true, name: true, email: true, role: true } },
+        activities: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            user: { select: { id: true, name: true, role: true } },
+          },
+        },
+      },
+    });
 
     if (!lead) {
       return NextResponse.json(
@@ -60,6 +73,16 @@ export async function PATCH(
     }
 
     const { id } = await params;
+    const userId = session.user?.id || null;
+
+    // Get current lead for activity tracking
+    const currentLead = await db.lead.findUnique({ where: { id } });
+    if (!currentLead) {
+      return NextResponse.json(
+        { ok: false, error: "Lead introuvable." },
+        { status: 404 }
+      );
+    }
 
     const body = await req.json();
     const data: Record<string, unknown> = {};
@@ -141,6 +164,20 @@ export async function PATCH(
           : null;
     }
 
+    if (body?.assignedToId !== undefined) {
+      data.assignedToId =
+        typeof body.assignedToId === "string" && body.assignedToId.trim()
+          ? body.assignedToId.trim()
+          : null;
+    }
+
+    if (body?.nextFollowUp !== undefined) {
+      data.nextFollowUp =
+        typeof body.nextFollowUp === "string" && body.nextFollowUp.trim()
+          ? new Date(body.nextFollowUp)
+          : null;
+    }
+
     if (Object.keys(data).length === 0) {
       return NextResponse.json(
         { ok: false, error: "Aucun champ à mettre à jour." },
@@ -151,7 +188,39 @@ export async function PATCH(
     const updated = await db.lead.update({
       where: { id },
       data,
+      include: {
+        createdBy: { select: { id: true, name: true, email: true, role: true } },
+        assignedTo: { select: { id: true, name: true, email: true, role: true } },
+      },
     });
+
+    // Log status change activity
+    if (data.status && data.status !== currentLead.status) {
+      await db.leadActivity.create({
+        data: {
+          leadId: id,
+          userId,
+          type: "status_change",
+          content: `Statut changé`,
+          oldValue: currentLead.status,
+          newValue: data.status as string,
+        },
+      });
+    }
+
+    // Log assignment change
+    if (data.assignedToId !== undefined && data.assignedToId !== currentLead.assignedToId) {
+      await db.leadActivity.create({
+        data: {
+          leadId: id,
+          userId,
+          type: "assignment",
+          content: `Lead assigné`,
+          oldValue: currentLead.assignedToId || null,
+          newValue: (data.assignedToId as string) || null,
+        },
+      });
+    }
 
     return NextResponse.json({ ok: true, lead: updated });
   } catch (err) {
