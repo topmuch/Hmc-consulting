@@ -1,0 +1,31 @@
+# ============================================================
+# Docker Compose for local Coolify-like testing
+# Usage:  docker compose up --build
+# ============================================================
+services:
+  hmc-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hmc-consulting
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./data/hmc.db
+      - ADMIN_PASSWORD=hmc2024
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+    volumes:
+      # Persist SQLite database across restarts
+      - hmc-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  hmc-data:
+    driver: local

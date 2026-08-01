@@ -1,17 +1,21 @@
-:81 {
-	@transform_port_query {
-		query XTransformPort=*
+# ============================================================
+# Caddyfile for Coolify deployment
+# Coolify handles SSL/TLS and external routing automatically.
+# This Caddyfile is for local reverse proxy or custom setups.
+#
+# In Coolify:
+#   - Set the container port to 3000
+#   - Coolify's Traefik handles HTTPS & domain routing
+#   - You do NOT need this file in Coolify's default setup
+# ============================================================
+
+:{$PORT:3000} {
+	# Health check endpoint (Coolify probes this)
+	handle /api/health {
+		reverse_proxy localhost:3000
 	}
 
-	handle @transform_port_query {
-		reverse_proxy localhost:{query.XTransformPort} {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
-
+	# All other requests
 	handle {
 		reverse_proxy localhost:3000 {
 			header_up Host {host}
@@ -20,4 +24,11 @@
 			header_up X-Real-IP {remote_host}
 		}
 	}
+
+	# Compression
+	encode gzip zstd
+
+	# Static file caching
+	@static path *.js *.css *.svg *.png *.jpg *.jpeg *.webp *.ico *.woff2
+	header @static Cache-Control "public, max-age=31536000, immutable"
 }
