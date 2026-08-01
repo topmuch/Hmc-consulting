@@ -20,6 +20,17 @@ const NAVY = "#003070";
 const SKY = "#50b0e0";
 const SKY_LIGHT = "#7fc8ed";
 
+// Distinct colors per day of the week
+const DOW_COLORS = [
+  "#3b82f6", // Lundi - blue
+  "#8b5cf6", // Mardi - violet
+  "#10b981", // Mercredi - emerald
+  "#f59e0b", // Jeudi - amber
+  "#ef4444", // Vendredi - red
+  "#ec4899", // Samedi - pink
+  "#06b6d4", // Dimanche - cyan
+];
+
 type DayPoint = { date: string; label: string; count: number };
 type SubjectPoint = { name: string; value: number };
 type DowPoint = { name: string; count: number };
@@ -179,8 +190,11 @@ export function DowBarChart({ data }: { data: DowPoint[] }) {
             formatter={(v: number) => [`${v} demande${v > 1 ? "s" : ""}`, "Reçues"]}
           />
           <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={40}>
-            {data.map((entry) => (
-              <Cell key={entry.name} fill={entry.count > 0 ? NAVY : "rgba(0,48,112,0.2)"} />
+            {data.map((entry, idx) => (
+              <Cell
+                key={entry.name}
+                fill={entry.count > 0 ? DOW_COLORS[idx % DOW_COLORS.length] : "rgba(0,0,0,0.08)"}
+              />
             ))}
           </Bar>
         </BarChart>

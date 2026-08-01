@@ -7,8 +7,9 @@ type StagePoint = { stage: string; count: number };
 
 const STAGE_ORDER = ["received", "qualified", "meeting", "client"] as const;
 
-// Navy → sky blue gradient through the 4 stages
-const STAGE_COLORS = ["#003070", "#1f5fa8", "#3a93c8", "#50b0e0"] as const;
+// Distinct colors per stage
+const STAGE_COLORS = ["#3b82f6", "#f59e0b", "#8b5cf6", "#10b981"] as const;
+const STAGE_BG = ["bg-blue-500", "bg-amber-500", "bg-violet-500", "bg-emerald-500"] as const;
 
 export function FunnelChart({ data }: { data: StagePoint[] }) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
@@ -33,17 +34,17 @@ export function FunnelChart({ data }: { data: StagePoint[] }) {
 
       {total === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <span className="text-muted-foreground">∅</span>
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+            <span className="text-2xl">📊</span>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">Aucune donnée disponible</p>
+          <p className="mt-3 text-sm font-medium text-foreground">Aucune donnée disponible</p>
+          <p className="mt-1 text-xs text-muted-foreground">Les données apparaîtront ici dès les premières demandes</p>
         </div>
       ) : (
         <div className="space-y-3">
           {ordered.map((item, idx) => {
             const label = STAGE_LABELS[item.stage] || item.stage;
             const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
-            // Funnel effect: each subsequent bar is narrower in max width
             const maxWidthPct = 100 - idx * 8;
             const widthPct =
               item.count === 0 ? 0 : Math.max(8, (item.count / maxCount) * maxWidthPct);

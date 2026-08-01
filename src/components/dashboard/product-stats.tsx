@@ -6,9 +6,17 @@ import { getProductById } from "@/lib/products-data";
 
 type ProductPoint = { productId: string | null; count: number };
 
-// Navy → sky blue palette for unknown / fallback bars
-const NAVY = "#003070";
-const SKY = "#50b0e0";
+// Distinct colors for each product slot
+const PRODUCT_COLORS = [
+  "#3b82f6", // blue
+  "#f59e0b", // amber
+  "#10b981", // emerald
+  "#8b5cf6", // violet
+  "#ef4444", // red
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#84cc16", // lime
+];
 
 export function ProductStats({ data }: { data: ProductPoint[] }) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
@@ -35,10 +43,11 @@ export function ProductStats({ data }: { data: ProductPoint[] }) {
 
       {sorted.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Package className="h-6 w-6 text-muted-foreground" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/20 to-emerald-500/20">
+            <Package className="h-6 w-6 text-amber-500" />
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">Aucune donnée produit</p>
+          <p className="mt-3 text-sm font-medium text-foreground">Aucune donnée produit</p>
+          <p className="mt-1 text-xs text-muted-foreground">Les stats produit apparaîtront ici</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -49,7 +58,7 @@ export function ProductStats({ data }: { data: ProductPoint[] }) {
             const accentHex = product?.accentHex;
             const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
             const widthPct = (item.count / maxCount) * 100;
-            const color = accentHex || (idx % 2 === 0 ? NAVY : SKY);
+            const color = accentHex || PRODUCT_COLORS[idx % PRODUCT_COLORS.length];
 
             return (
               <motion.div
@@ -80,7 +89,7 @@ export function ProductStats({ data }: { data: ProductPoint[] }) {
                     </span>
                   </div>
                 </div>
-                <div className="h-2 w-full rounded-full bg-secondary/60 overflow-hidden">
+                <div className="h-2.5 w-full rounded-full bg-secondary/60 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${widthPct}%` }}
