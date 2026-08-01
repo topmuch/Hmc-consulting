@@ -298,7 +298,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
       {/* Sidebar — blue background, white text */}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-navy text-white flex flex-col shrink-0 transition-transform duration-300",
+          "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-navy text-white flex flex-col shrink-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -343,7 +343,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
                   setSidebarOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
                   isActive
                     ? `${tab.activeBg} ${tab.activeText} shadow-md`
                     : "text-white/75 hover:bg-white/10 hover:text-white"

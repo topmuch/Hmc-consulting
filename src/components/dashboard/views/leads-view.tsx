@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, FormEvent, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Search,
@@ -1032,7 +1031,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
       <div className="bg-card rounded-2xl border border-border p-1 flex gap-1 overflow-x-auto">
         <button
           onClick={() => setActiveTab("leads")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
             activeTab === "leads"
               ? "bg-blue-500 text-white shadow-md shadow-blue-500/25"
               : "text-muted-foreground hover:text-blue-600 hover:bg-blue-500/10"
@@ -1043,7 +1042,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("appointments")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
             activeTab === "appointments"
               ? "bg-orange-500 text-white shadow-md shadow-orange-500/25"
               : "text-muted-foreground hover:text-orange-600 hover:bg-orange-500/10"
@@ -1054,7 +1053,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("orders")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
             activeTab === "orders"
               ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
               : "text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10"
@@ -1065,7 +1064,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("reports")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
             activeTab === "reports"
               ? "bg-purple-500 text-white shadow-md shadow-purple-500/25"
               : "text-muted-foreground hover:text-purple-600 hover:bg-purple-500/10"
@@ -2130,27 +2129,18 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
       </AlertDialog>
 
       {/* ──────────────────────────── DETAIL SLIDE-OVER ─────────────────── */}
-      <AnimatePresence>
-        {detailLead && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/40 z-40"
-              onClick={closeDetail}
-            />
+      {detailLead && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 z-40"
+            onClick={closeDetail}
+          />
 
-            {/* Panel */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-lg bg-background border-l border-border shadow-2xl overflow-y-auto"
-            >
+          {/* Panel */}
+          <div
+            className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-lg bg-background border-l border-border shadow-2xl overflow-y-auto"
+          >
               {/* Header */}
               <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border px-5 py-4 flex items-center justify-between gap-3 z-10">
                 <div className="min-w-0">
@@ -2334,7 +2324,7 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
                                 key={s}
                                 onClick={() => !isActive && handleStatusChange(detailLead.id, s)}
                                 disabled={changingStatus || isActive}
-                                className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                                className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                                   isActive
                                     ? LEAD_STATUS_COLORS[s] + " ring-2 ring-offset-1 ring-current/20"
                                     : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
@@ -2724,10 +2714,9 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
 
                 </div>
               )}
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
     </>
   );
 }
