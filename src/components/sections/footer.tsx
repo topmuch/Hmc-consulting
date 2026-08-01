@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { COMPANY, NAV_LINKS } from "@/lib/site-data";
 
 export function SiteFooter() {
@@ -10,14 +10,14 @@ export function SiteFooter() {
   return (
     <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid gap-10 md:grid-cols-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
           {/* Brand */}
-          <div className="md:col-span-5">
+          <div className="lg:col-span-5">
             <Link href="#top" className="inline-flex items-center">
               <img
                 src="/hmc-logo.png"
                 alt={`${COMPANY.name} — ${COMPANY.fullName}`}
-                className="h-16 w-auto sm:h-20"
+                className="h-14 w-auto sm:h-16"
               />
             </Link>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
@@ -31,7 +31,7 @@ export function SiteFooter() {
           </div>
 
           {/* Nav */}
-          <div className="md:col-span-3">
+          <div className="lg:col-span-3">
             <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
               Navigation
             </h4>
@@ -68,36 +68,25 @@ export function SiteFooter() {
           </div>
 
           {/* Contact */}
-          <div className="md:col-span-4">
+          <div className="lg:col-span-4">
             <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
               Contact
             </h4>
-            <ul className="mt-4 space-y-3 text-sm">
-              <li>
-                <span className="block text-muted-foreground text-xs uppercase tracking-wider">
-                  Interlocuteur
-                </span>
-                <span className="text-foreground">
-                  {COMPANY.partner} — {COMPANY.partnerRole}
-                </span>
-              </li>
-              <li>
-                <a
-                  href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}
-                  className="group inline-flex items-center gap-1.5 text-foreground hover:text-accent transition-colors"
-                >
-                  {COMPANY.phone}
-                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </a>
-              </li>
-              <li>
+            <ul className="mt-4 space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <Mail className="h-4 w-4 text-accent mt-0.5 shrink-0" />
                 <a
                   href={`mailto:${COMPANY.email}`}
-                  className="group inline-flex items-center gap-1.5 text-foreground hover:text-accent transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   {COMPANY.email}
-                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                <span className="text-muted-foreground">
+                  Dakar, Sénégal
+                </span>
               </li>
             </ul>
           </div>
@@ -105,7 +94,7 @@ export function SiteFooter() {
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            © {year} {COMPANY.fullName}. Tous droits réservés.
+            &copy; {year} {COMPANY.fullName}. Tous droits réservés.
           </p>
           <p className="text-xs text-muted-foreground">
             Conseil et management des entreprises.
