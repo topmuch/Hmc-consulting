@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Inbox, Mail } from "lucide-react";
 import type { ContactMessage, DashboardData } from "@/lib/dashboard-types";
 import { MessagesTable } from "../messages-table";

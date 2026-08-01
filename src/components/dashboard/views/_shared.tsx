@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
 import { Loader2, type LucideIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -88,10 +87,7 @@ export function ViewHeader({
   actions?: ReactNode;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 1, y: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0 }}
+    <div
       className="flex flex-col sm:flex-row sm:items-end justify-between gap-3"
     >
       <div className="min-w-0">
@@ -103,7 +99,7 @@ export function ViewHeader({
         )}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
-    </motion.div>
+    </div>
   );
 }
 
@@ -121,10 +117,7 @@ export function MiniStatCard({
   delay?: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 1, y: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0 }}
+    <div
       className="bg-card rounded-xl border border-border p-4 flex items-center gap-3"
     >
       <div
@@ -143,7 +136,7 @@ export function MiniStatCard({
           {label}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Mail, Phone, User } from "lucide-react";
 import type { ContactMessage, DashboardData } from "@/lib/dashboard-types";
 import { StatsCards } from "../stats-cards";

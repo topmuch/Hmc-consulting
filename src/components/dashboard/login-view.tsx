@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { motion } from "framer-motion";
 import { Lock, Loader2, ShieldCheck, ArrowRight, Mail } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
@@ -69,10 +68,7 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
       </header>
 
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+        <div
           className="w-full max-w-md"
         >
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -139,13 +135,11 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
                 </div>
 
                 {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
+                  <div
                     className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-xs text-red-600"
                   >
                     {error}
-                  </motion.div>
+                  </div>
                 )}
 
                 <Button
@@ -172,7 +166,7 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
           <p className="text-center text-xs text-sky-100/80 mt-6">
             © {new Date().getFullYear()} {COMPANY.fullName} — Espace réservé à l&apos;administration
           </p>
-        </motion.div>
+        </div>
       </main>
     </div>
   );

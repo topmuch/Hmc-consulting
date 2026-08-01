@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Inbox, CalendarDays, CalendarRange, Clock, TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
@@ -83,11 +82,8 @@ export function StatsCards({
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {items.map((item) => (
-        <motion.div
+        <div
           key={item.label}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: item.delay }}
           className={cn(
             "relative rounded-2xl p-5 overflow-hidden group bg-gradient-to-br shadow-lg hover:shadow-xl transition-shadow",
             item.gradient
@@ -138,7 +134,7 @@ export function StatsCards({
             <div className="mt-1 text-sm font-medium text-white/95">{item.label}</div>
             <div className="text-xs text-white/70">{item.sub}</div>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

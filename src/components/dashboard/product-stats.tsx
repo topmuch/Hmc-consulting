@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Package } from "lucide-react";
 import { getProductById } from "@/lib/products-data";
 
@@ -66,11 +65,8 @@ export function ProductStats({ data }: { data: ProductPoint[] }) {
               const color = accentHex || PRODUCT_COLORS[idx % PRODUCT_COLORS.length];
 
               return (
-                <motion.div
+                <div
                   key={item.productId || "__none__"}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: idx * 0.05 }}
                   className="group"
                 >
                   <div className="flex items-center justify-between gap-3 mb-1.5">
@@ -95,15 +91,12 @@ export function ProductStats({ data }: { data: ProductPoint[] }) {
                     </div>
                   </div>
                   <div className="h-2.5 w-full rounded-full bg-secondary/60 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${widthPct}%` }}
-                      transition={{ duration: 0.5, delay: idx * 0.05 + 0.05, ease: "easeOut" }}
+                    <div
                       className="h-full rounded-full"
-                      style={{ backgroundColor: color }}
+                      style={{ width: `${widthPct}%`, backgroundColor: color }}
                     />
                   </div>
-                </motion.div>
+                </div>
               );
             })}
 

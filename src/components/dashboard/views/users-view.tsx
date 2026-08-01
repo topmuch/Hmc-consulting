@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, FormEvent } from "react";
-import { motion } from "framer-motion";
 import {
   Plus,
   Search,

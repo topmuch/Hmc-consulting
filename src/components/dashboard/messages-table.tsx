@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, FormEvent } from "react";
-import { motion } from "framer-motion";
 import {
   Search,
   Mail,
@@ -278,11 +277,8 @@ export function MessagesTable({
             </thead>
             <tbody>
               {filtered.map((m, i) => (
-                <motion.tr
+                <tr
                   key={m.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
                   className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors cursor-pointer"
                   onClick={() => setSelected(m)}
                 >
@@ -362,7 +358,7 @@ export function MessagesTable({
                       <Eye className="h-4 w-4" />
                     </Button>
                   </td>
-                </motion.tr>
+                </tr>
               ))}
             </tbody>
           </table>

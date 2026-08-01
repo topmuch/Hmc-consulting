@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { STAGE_LABELS } from "@/lib/settings-types";
 
 type StagePoint = { stage: string; count: number };
@@ -55,11 +54,8 @@ export function FunnelChart({ data }: { data: StagePoint[] }) {
               const color = STAGE_COLORS[idx];
 
               return (
-                <motion.div
+                <div
                   key={item.stage}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: idx * 0.08 }}
                   className="relative"
                 >
                   <div className="flex items-center justify-between mb-1.5">
@@ -82,17 +78,15 @@ export function FunnelChart({ data }: { data: StagePoint[] }) {
                     </div>
                   </div>
                   <div className="h-7 w-full rounded-md bg-secondary/60 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${widthPct}%` }}
-                      transition={{ duration: 0.6, delay: idx * 0.08 + 0.1, ease: "easeOut" }}
+                    <div
                       className="h-full rounded-md flex items-center justify-end px-2"
                       style={{
+                        width: `${widthPct}%`,
                         background: `linear-gradient(90deg, ${color}, ${color}cc)`,
                       }}
                     />
                   </div>
-                </motion.div>
+                </div>
               );
             })}
 
