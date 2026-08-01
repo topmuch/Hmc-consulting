@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSettings, maybeCreateNotification } from "@/lib/settings-server";
-import { sendAutoReply, sendNewMessageNotification } from "@/lib/email";
+import { sendAutoReply, sendNewMessageNotification, sendNewLeadNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 1. Save the contact message
     const record = await db.contactMessage.create({
       data: {
         name,
@@ -57,8 +58,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create an in-app notification if enabled in settings
     const settings = await getSettings();
+
+    // 2. Create an in-app notification
     await maybeCreateNotification(
       "new_message",
       `Nouveau message de ${name}`,
@@ -67,21 +69,87 @@ export async function POST(req: NextRequest) {
       settings.notifyOnNewMessage
     );
 
-    // Send auto-reply to the contact form submitter (respects autoReplyEnabled)
+    // 3. Auto-create a lead from the contact form if it looks like a business inquiry
+    let leadCreated = false;
+    try {
+      // Check if a lead with the same email already exists
+      const existingLead = await db.lead.findFirst({
+        where: { email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (!existingLead) {
+        // Determine source based on productId
+        const source = productId ? "produit" : "contact_form";
+        const lead = await db.lead.create({
+          data: {
+            name,
+            email,
+            phone: phone || null,
+            company: company || null,
+            source,
+            status: "new",
+            productId: productId || null,
+            notes: `Créé automatiquement depuis le formulaire de contact.\nSujet : ${subject}\nMessage : ${message.substring(0, 200)}${message.length > 200 ? "..." : ""}`,
+          },
+        });
+
+        // Log activity
+        await db.leadActivity.create({
+          data: {
+            leadId: lead.id,
+            type: "note",
+            description: "Lead créé automatiquement depuis le formulaire de contact",
+          },
+        });
+
+        leadCreated = true;
+
+        // Create in-app notification for new lead
+        await maybeCreateNotification(
+          "new_lead",
+          `Nouveau lead : ${name}`,
+          `Source : ${productId ? "Produit" : "Contact"}${company ? ` · ${company}` : ""}`,
+          `/?view=dashboard`,
+          settings.notifyOnNewMessage
+        );
+
+        // Send email notification about new lead
+        try {
+          await sendNewLeadNotification(name, email, company, phone, productId);
+        } catch (err) {
+          console.error("[api/contact] sendNewLeadNotification error", err);
+        }
+      } else {
+        // Lead exists — log the new contact as an activity on the existing lead
+        await db.leadActivity.create({
+          data: {
+            leadId: existingLead.id,
+            type: "note",
+            description: `Nouveau message contact : ${subject}`,
+          },
+        });
+      }
+    } catch (leadErr) {
+      console.error("[api/contact] lead creation error", leadErr);
+      // Don't fail the contact form if lead creation fails
+    }
+
+    // 4. Send auto-reply to the contact form submitter (respects autoReplyEnabled)
     try {
       await sendAutoReply(name, email, subject);
     } catch (err) {
       console.error("[api/contact] sendAutoReply error", err);
     }
 
-    // Notify the team about the new message (respects notifyOnNewMessage)
+    // 5. Notify the team about the new message (respects notifyOnNewMessage)
     try {
       await sendNewMessageNotification(name, subject, company);
     } catch (err) {
       console.error("[api/contact] sendNewMessageNotification error", err);
     }
 
-    return NextResponse.json({ ok: true, id: record.id });
+    return NextResponse.json({ ok: true, id: record.id, leadCreated });
   } catch (err) {
     console.error("[api/contact] error", err);
     return NextResponse.json(

@@ -5,7 +5,7 @@ type SendEmailParams = {
   to: string;
   subject: string;
   body: string;
-  type: string; // auto_reply | notification | reply
+  type: string; // auto_reply | notification | reply | lead_notification
   messageId?: string;
 };
 
@@ -144,5 +144,49 @@ export async function sendNewMessageNotification(
     subject: `Nouveau message de ${name}`,
     body,
     type: "notification",
+  });
+}
+
+/**
+ * Send a notification email to the team about a new lead created from contact form.
+ */
+export async function sendNewLeadNotification(
+  name: string,
+  email: string,
+  company: string | null,
+  phone: string | null,
+  productId: string | null
+) {
+  const settings = await getSettings();
+  if (!settings.notifyOnNewMessage) return null;
+
+  const to = settings.notifyEmail || settings.email;
+  const body = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: #003070; padding: 24px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #fff; margin: 0; font-size: 20px;">🎯 Nouveau lead créé</h1>
+        <p style="color: #50b0e0; margin: 4px 0 0; font-size: 13px;">Un lead a été automatiquement créé depuis le formulaire de contact</p>
+      </div>
+      <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+        <table style="width: 100%; font-size: 14px; color: #333;">
+          <tr><td style="padding: 4px 0; font-weight: 600; width: 100px;">Nom:</td><td>${name}</td></tr>
+          <tr><td style="padding: 4px 0; font-weight: 600;">Email:</td><td><a href="mailto:${email}" style="color: #003070;">${email}</a></td></tr>
+          ${phone ? `<tr><td style="padding: 4px 0; font-weight: 600;">Téléphone:</td><td>${phone}</td></tr>` : ""}
+          ${company ? `<tr><td style="padding: 4px 0; font-weight: 600;">Société:</td><td>${company}</td></tr>` : ""}
+          <tr><td style="padding: 4px 0; font-weight: 600;">Source:</td><td>${productId ? "Produit (" + productId + ")" : "Formulaire de contact"}</td></tr>
+        </table>
+        <p style="margin-top: 20px;">
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/?view=dashboard" style="background: #003070; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; margin-right: 8px;">Voir le lead</a>
+          <a href="mailto:${email}" style="background: #50b0e0; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Répondre</a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `🎯 Nouveau lead : ${name}${company ? ` (${company})` : ""}`,
+    body,
+    type: "lead_notification",
   });
 }

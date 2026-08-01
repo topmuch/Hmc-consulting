@@ -8,6 +8,7 @@ import { PRODUCTS } from "@/lib/products-data";
 import { PageLayout } from "./page-layout";
 import { PageBanner } from "./page-banner";
 import { PAGES } from "@/lib/site-data";
+import { breadcrumbJsonLd } from "@/lib/jsonld";
 
 export function ProductDetail({
   product,
@@ -20,7 +21,35 @@ export function ProductDetail({
   const otherProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
 
   return (
-    <PageLayout onGoDashboard={onGoDashboard}>
+    <>
+      {/* JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.description,
+            category: product.category,
+            url: `https://hmc-consulting.pro/?product=${product.id}`,
+            brand: { "@type": "Brand", name: "HMC — Horizon Management Consulting" },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Accueil", url: "https://hmc-consulting.pro" },
+              { name: "Produits", url: "https://hmc-consulting.pro/?page=produits" },
+              { name: product.name, url: `https://hmc-consulting.pro/?product=${product.id}` },
+            ])
+          ),
+        }}
+      />
+      <PageLayout onGoDashboard={onGoDashboard}>
       {/* Breadcrumb banner */}
       <section className="relative pt-28 pb-12 sm:pt-32 sm:pb-16 bg-secondary/50 border-b border-border overflow-hidden">
         <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-accent/5 blur-3xl" />
@@ -286,5 +315,6 @@ export function ProductDetail({
         </div>
       </section>
     </PageLayout>
+    </>
   );
 }

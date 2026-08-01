@@ -7,12 +7,30 @@ import { PRODUCTS } from "@/lib/products-data";
 import { PageBanner } from "./page-banner";
 import { PageLayout } from "./page-layout";
 import { PAGES } from "@/lib/site-data";
+import { productsJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 
 export function ProductsOverview({ onGoDashboard }: { onGoDashboard?: () => void }) {
   const page = PAGES.find((p) => p.id === "produits")!;
 
   return (
-    <PageLayout onGoDashboard={onGoDashboard}>
+    <>
+      {/* JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Accueil", url: "https://hmc-consulting.pro" },
+              { name: "Produits", url: "https://hmc-consulting.pro/?page=produits" },
+            ])
+          ),
+        }}
+      />
+      <PageLayout onGoDashboard={onGoDashboard}>
       <PageBanner page={page} />
 
       <section className="py-16 sm:py-24 bg-background">
@@ -105,5 +123,6 @@ export function ProductsOverview({ onGoDashboard }: { onGoDashboard?: () => void
         </div>
       </section>
     </PageLayout>
+    </>
   );
 }

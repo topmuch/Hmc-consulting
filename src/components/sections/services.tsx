@@ -4,10 +4,28 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { SERVICES, SUPPORT_ITEMS } from "@/lib/site-data";
+import { servicesJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 
 export function Services() {
   return (
-    <section id="services" className="py-20 sm:py-28 bg-background">
+    <>
+      {/* JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Accueil", url: "https://hmc-consulting.pro" },
+              { name: "Services", url: "https://hmc-consulting.pro/?page=services" },
+            ])
+          ),
+        }}
+      />
+      <section id="services" className="py-20 sm:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Services"
@@ -99,5 +117,6 @@ export function Services() {
         </motion.div>
       </div>
     </section>
+    </>
   );
 }
