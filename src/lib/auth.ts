@@ -79,7 +79,16 @@ export async function login(req: NextRequest): Promise<NextResponse> {
     // Find user by email
     const user = await db.user.findUnique({ where: { email } });
 
-    if (!user || !user.active) {
+    if (!user) {
+      console.warn(`[auth login] No user found for email: ${email}`);
+      return NextResponse.json(
+        { ok: false, error: "Identifiants incorrects." },
+        { status: 401 }
+      );
+    }
+
+    if (!user.active) {
+      console.warn(`[auth login] User account inactive: ${email} (role=${user.role})`);
       return NextResponse.json(
         { ok: false, error: "Identifiants incorrects." },
         { status: 401 }
@@ -91,11 +100,14 @@ export async function login(req: NextRequest): Promise<NextResponse> {
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
+      console.warn(`[auth login] Invalid password for: ${email}`);
       return NextResponse.json(
         { ok: false, error: "Identifiants incorrects." },
         { status: 401 }
       );
     }
+
+    console.info(`[auth login] Success: ${email} (role=${user.role})`);
 
     // Create session token
     const token = createToken();
