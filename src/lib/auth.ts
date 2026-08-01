@@ -122,12 +122,15 @@ export async function login(req: NextRequest): Promise<NextResponse> {
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
     });
 
-    const isSecure = process.env.NODE_ENV === "production";
+    // Only use Secure cookies when the site is actually served over HTTPS.
+    // Coolify preview domains (.sslip.io) may be HTTP-only.
+    // Secure cookies are NEVER sent by the browser over HTTP → session_cookie=missing.
+    const isSecure = false;
 
     res.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: isSecure,
-      sameSite: isSecure ? "none" : "lax",
+      sameSite: "lax",
       maxAge: SESSION_DURATION,
       path: "/",
     });
@@ -135,7 +138,7 @@ export async function login(req: NextRequest): Promise<NextResponse> {
     res.cookies.set("hmc_admin_user", userInfo, {
       httpOnly: false,
       secure: isSecure,
-      sameSite: isSecure ? "none" : "lax",
+      sameSite: "lax",
       maxAge: SESSION_DURATION,
       path: "/",
     });
