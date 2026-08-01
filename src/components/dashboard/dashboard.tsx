@@ -55,13 +55,13 @@ type ViewId =
   | "users"
   | "reports";
 
-const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon }[] = [
-  { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard },
-  { id: "messages", label: "Messages", icon: Inbox },
-  { id: "leads", label: "Leads", icon: Target },
-  { id: "clients", label: "Clients", icon: Users },
-  { id: "users", label: "Utilisateurs", icon: UserIcon },
-  { id: "reports", label: "Rapports", icon: BarChart3 },
+const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon; color: string; activeBg: string; activeText: string }[] = [
+  { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard, color: "text-blue-400", activeBg: "bg-blue-500", activeText: "text-white" },
+  { id: "messages", label: "Messages", icon: Inbox, color: "text-purple-400", activeBg: "bg-purple-500", activeText: "text-white" },
+  { id: "leads", label: "Leads", icon: Target, color: "text-orange-400", activeBg: "bg-orange-500", activeText: "text-white" },
+  { id: "clients", label: "Clients", icon: Users, color: "text-emerald-400", activeBg: "bg-emerald-500", activeText: "text-white" },
+  { id: "users", label: "Utilisateurs", icon: UserIcon, color: "text-pink-400", activeBg: "bg-pink-500", activeText: "text-white" },
+  { id: "reports", label: "Rapports", icon: BarChart3, color: "text-indigo-400", activeBg: "bg-indigo-500", activeText: "text-white" },
 ];
 
 type AuthUser = { id: string; email: string; name: string; role: string } | null;
@@ -343,14 +343,14 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
                   setSidebarOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-sky text-navy shadow-md"
+                    ? `${tab.activeBg} ${tab.activeText} shadow-md`
                     : "text-white/75 hover:bg-white/10 hover:text-white"
                 )}
                 aria-current={isActive ? "page" : undefined}
               >
-                <tab.icon className="h-4.5 w-4.5 shrink-0" strokeWidth={1.8} />
+                <tab.icon className={cn("h-4.5 w-4.5 shrink-0", isActive ? "text-white" : tab.color)} strokeWidth={1.8} />
                 <span>{tab.label}</span>
               </button>
             );

@@ -1028,14 +1028,14 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         }
       />
 
-      {/* Tab switcher */}
+      {/* Tab switcher — multicolored */}
       <div className="bg-card rounded-2xl border border-border p-1 flex gap-1 overflow-x-auto">
         <button
           onClick={() => setActiveTab("leads")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             activeTab === "leads"
-              ? "bg-accent text-accent-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              ? "bg-blue-500 text-white shadow-md shadow-blue-500/25"
+              : "text-muted-foreground hover:text-blue-600 hover:bg-blue-500/10"
           }`}
         >
           <Target className="h-4 w-4 inline mr-1.5 -mt-0.5" />
@@ -1043,10 +1043,10 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("appointments")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             activeTab === "appointments"
-              ? "bg-accent text-accent-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              ? "bg-orange-500 text-white shadow-md shadow-orange-500/25"
+              : "text-muted-foreground hover:text-orange-600 hover:bg-orange-500/10"
           }`}
         >
           <CalendarClock className="h-4 w-4 inline mr-1.5 -mt-0.5" />
@@ -1054,10 +1054,10 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("orders")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             activeTab === "orders"
-              ? "bg-accent text-accent-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
+              : "text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10"
           }`}
         >
           <ShoppingBag className="h-4 w-4 inline mr-1.5 -mt-0.5" />
@@ -1065,10 +1065,10 @@ export function LeadsView({ refreshSignal = 0 }: { refreshSignal?: number } = {}
         </button>
         <button
           onClick={() => setActiveTab("reports")}
-          className={`flex-1 sm:flex-none rounded-xl px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+          className={`flex-1 sm:flex-none rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             activeTab === "reports"
-              ? "bg-accent text-accent-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              ? "bg-purple-500 text-white shadow-md shadow-purple-500/25"
+              : "text-muted-foreground hover:text-purple-600 hover:bg-purple-500/10"
           }`}
         >
           <ClipboardList className="h-4 w-4 inline mr-1.5 -mt-0.5" />
