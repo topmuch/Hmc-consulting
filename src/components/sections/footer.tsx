@@ -37,13 +37,31 @@ export function SiteFooter() {
             </h4>
             <ul className="mt-4 space-y-2.5">
               {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                  >
-                    {link.label}
-                  </Link>
+                <li key={link.id || link.label}>
+                  {link.href ? (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <span className="text-sm text-foreground font-medium">{link.label}</span>
+                  )}
+                  {link.children && (
+                    <ul className="ml-4 mt-1.5 space-y-1.5">
+                      {link.children.map((child) => (
+                        <li key={child.id}>
+                          <Link
+                            href={child.href}
+                            className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>

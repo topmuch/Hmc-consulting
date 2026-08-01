@@ -113,7 +113,29 @@ export const PAGES: PageMeta[] = [
   },
 ];
 
-export const NAV_LINKS = PAGES.map((p) => ({ href: p.href, label: p.label, id: p.id }));
+export type NavLink = {
+  href?: string;
+  label: string;
+  id?: string;
+  children?: { href: string; label: string; id: string }[];
+};
+
+export const NAV_LINKS: NavLink[] = [
+  { href: "/", label: "Accueil", id: "accueil" },
+  {
+    label: "À propos",
+    id: "histoire",
+    href: "/?page=histoire",
+    children: [
+      { href: "/?page=valeurs", label: "Valeurs", id: "valeurs" },
+      { href: "/?page=experience", label: "Expérience", id: "experience" },
+      { href: "/?page=expertise", label: "Expertise", id: "expertise" },
+    ],
+  },
+  { href: "/?page=produits", label: "Produits", id: "produits" },
+  { href: "/?page=services", label: "Services", id: "services" },
+  { href: "/?page=contact", label: "Contact", id: "contact" },
+];
 
 export type Value = {
   icon: LucideIcon;
