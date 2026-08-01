@@ -17,6 +17,8 @@ import {
   Users,
   User as UserIcon,
   BarChart3,
+  Menu,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
@@ -100,6 +102,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeView, setActiveView] = useState<ViewId>("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -243,240 +246,284 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Dashboard Header */}
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+    <div className="min-h-screen flex bg-background">
+      {/* Sidebar — blue background, white text */}
+      <aside
+        className={cn(
+          "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-navy text-white flex flex-col shrink-0 transition-transform duration-300",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+        {/* Logo area */}
+        <div className="flex items-center justify-between gap-2 px-5 py-5 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-2.5 group min-w-0">
             <img
               src="/hmc-logo.png"
               alt={`${COMPANY.name} — ${COMPANY.fullName}`}
-              className="h-12 w-auto"
+              className="h-10 w-auto shrink-0"
             />
-            <div className="hidden sm:flex flex-col leading-tight min-w-0">
-              <span className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4 text-accent shrink-0" />
-                Tableau de bord
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="font-serif text-sm font-semibold text-white truncate">
+                {COMPANY.name}
               </span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground truncate">
-                {COMPANY.fullName}
+              <span className="text-[9px] uppercase tracking-[0.16em] text-sky-light/80 truncate">
+                Dashboard
               </span>
             </div>
+          </Link>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white/70 hover:text-white p-1"
+            aria-label="Fermer le menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            Navigation
           </div>
+          {NAV_TABS.map((tab) => {
+            const isActive = activeView === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveView(tab.id);
+                  setSidebarOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-sky text-navy shadow-md"
+                    : "text-white/75 hover:bg-white/10 hover:text-white"
+                )}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <tab.icon className="h-4.5 w-4.5 shrink-0" strokeWidth={1.8} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-          <div className="flex items-center gap-1.5">
-            {/* Notifications bell */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-9 w-9"
-                  aria-label="Notifications"
-                >
-                  <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <div className="flex items-center justify-between px-2 py-1.5">
-                  <DropdownMenuLabel className="p-0 text-sm">
-                    Notifications
-                  </DropdownMenuLabel>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={markAllRead}
-                      className="text-xs text-accent hover:underline"
-                    >
-                      Tout marquer lu
-                    </button>
-                  )}
-                </div>
-                <DropdownMenuSeparator />
-                {notifications.length === 0 ? (
-                  <div className="py-6 text-center">
-                    <Bell className="h-6 w-6 mx-auto text-muted-foreground/50 mb-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Aucune notification
-                    </p>
+        {/* Sidebar footer actions */}
+        <div className="border-t border-white/10 p-3 space-y-1">
+          {onGoSettings && (
+            <button
+              onClick={onGoSettings}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <Settings2 className="h-4 w-4 shrink-0" />
+              <span>Paramètres</span>
+            </button>
+          )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span>Déconnexion</span>
+          </button>
+          <Link
+            href="/"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            <span>Retour au site</span>
+          </Link>
+        </div>
+      </aside>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top header bar */}
+        <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border">
+          <div className="flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
+            {/* Left: mobile menu + title */}
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-foreground hover:bg-secondary transition-colors"
+                aria-label="Ouvrir le menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="font-serif text-base sm:text-lg font-semibold text-foreground truncate">
+                  {NAV_TABS.find((t) => t.id === activeView)?.label}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground truncate hidden sm:block">
+                  {COMPANY.fullName}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: actions */}
+            <div className="flex items-center gap-1.5">
+              {/* Notifications bell */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative h-9 w-9"
+                    aria-label="Notifications"
+                  >
+                    <Bell className="h-4 w-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <div className="flex items-center justify-between px-2 py-1.5">
+                    <DropdownMenuLabel className="p-0 text-sm">
+                      Notifications
+                    </DropdownMenuLabel>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllRead}
+                        className="text-xs text-accent hover:underline"
+                      >
+                        Tout marquer lu
+                      </button>
+                    )}
                   </div>
-                ) : (
-                  notifications.slice(0, 6).map((n) => (
-                    <DropdownMenuItem
-                      key={n.id}
-                      className="flex items-start gap-2.5 py-2.5 cursor-pointer"
-                    >
-                      <span
-                        className={cn(
-                          "mt-1.5 h-2 w-2 rounded-full shrink-0",
-                          n.read ? "bg-muted-foreground/30" : "bg-accent"
-                        )}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-foreground truncate">
-                          {n.title}
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <div className="py-6 text-center">
+                      <Bell className="h-6 w-6 mx-auto text-muted-foreground/50 mb-2" />
+                      <p className="text-xs text-muted-foreground">
+                        Aucune notification
+                      </p>
+                    </div>
+                  ) : (
+                    notifications.slice(0, 6).map((n) => (
+                      <DropdownMenuItem
+                        key={n.id}
+                        className="flex items-start gap-2.5 py-2.5 cursor-pointer"
+                      >
+                        <span
+                          className={cn(
+                            "mt-1.5 h-2 w-2 rounded-full shrink-0",
+                            n.read ? "bg-muted-foreground/30" : "bg-accent"
+                          )}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {n.title}
+                          </div>
+                          <div className="text-xs text-muted-foreground line-clamp-1">
+                            {n.message}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground line-clamp-1">
-                          {n.message}
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))
-                )}
-                {onGoSettings && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={onGoSettings}
-                      className="text-accent cursor-pointer"
-                    >
-                      <Settings2 className="h-4 w-4 mr-2" />
-                      Gérer les notifications
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                  {onGoSettings && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={onGoSettings}
+                        className="text-accent cursor-pointer"
+                      >
+                        <Settings2 className="h-4 w-4 mr-2" />
+                        Gérer les notifications
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="text-muted-foreground"
-            >
-              <RefreshCw
-                className={`h-4 w-4 sm:mr-1.5 ${refreshing ? "animate-spin" : ""}`}
-              />
-              <span className="hidden sm:inline">Actualiser</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleExportCsv}
-              disabled={exporting}
-              className="text-muted-foreground hover:text-accent"
-            >
-              {exporting ? (
-                <Loader2 className="h-4 w-4 sm:mr-1.5 animate-spin" />
-              ) : (
-                <Download className="h-4 w-4 sm:mr-1.5" />
-              )}
-              <span className="hidden sm:inline">Exporter CSV</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMonthlyReport}
-              className="text-muted-foreground hover:text-accent"
-            >
-              <FileText className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">Rapport</span>
-            </Button>
-
-            {onGoSettings && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onGoSettings}
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="text-muted-foreground"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 sm:mr-1.5 ${refreshing ? "animate-spin" : ""}`}
+                />
+                <span className="hidden md:inline">Actualiser</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleExportCsv}
+                disabled={exporting}
                 className="text-muted-foreground hover:text-accent"
               >
-                <Settings2 className="h-4 w-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">Paramètres</span>
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 sm:mr-1.5 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 sm:mr-1.5" />
+                )}
+                <span className="hidden md:inline">Export CSV</span>
               </Button>
-            )}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-muted-foreground hover:text-red-600"
-            >
-              <LogOut className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </Button>
-
-            <Button
-              asChild
-              size="sm"
-              className="bg-accent text-accent-foreground hover:bg-accent/90"
-            >
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-1.5" />
-                <span className="hidden sm:inline">Site</span>
-              </Link>
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMonthlyReport}
+                className="text-muted-foreground hover:text-accent"
+              >
+                <FileText className="h-4 w-4 sm:mr-1.5" />
+                <span className="hidden md:inline">Rapport</span>
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Internal nav tabs */}
-      <nav className="sticky top-[73px] z-30 bg-background/90 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar -mb-px">
-            {NAV_TABS.map((tab) => {
-              const isActive = activeView === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveView(tab.id)}
-                  className={cn(
-                    "relative flex items-center gap-1.5 px-3 sm:px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2",
-                    isActive
-                      ? "border-accent text-accent"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                  )}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <tab.icon className="h-4 w-4 shrink-0" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+        {/* Active view content */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 overflow-x-hidden">
+          {activeView === "overview" && (
+            <OverviewView
+              data={data}
+              loading={loading}
+              onMessageUpdated={handleLocalUpdate}
+              onRetry={() => fetchData()}
+            />
+          )}
+          {activeView === "messages" && (
+            <MessagesView
+              data={data}
+              loading={loading}
+              onMessageUpdated={handleLocalUpdate}
+              onRetry={() => fetchData()}
+            />
+          )}
+          {activeView === "leads" && <LeadsView refreshSignal={refreshSignal} />}
+          {activeView === "clients" && (
+            <ClientsView refreshSignal={refreshSignal} />
+          )}
+          {activeView === "users" && <UsersView refreshSignal={refreshSignal} />}
+          {activeView === "reports" && (
+            <ReportsView refreshSignal={refreshSignal} />
+          )}
+        </main>
+
+        <footer className="border-t border-border py-5">
+          <div className="px-4 sm:px-6 lg:px-8 text-center text-xs text-muted-foreground">
+            © {new Date().getFullYear()} {COMPANY.fullName} — Tableau de bord
+            interne
           </div>
-        </div>
-      </nav>
-
-      {/* Active view */}
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-        {activeView === "overview" && (
-          <OverviewView
-            data={data}
-            loading={loading}
-            onMessageUpdated={handleLocalUpdate}
-            onRetry={() => fetchData()}
-          />
-        )}
-        {activeView === "messages" && (
-          <MessagesView
-            data={data}
-            loading={loading}
-            onMessageUpdated={handleLocalUpdate}
-            onRetry={() => fetchData()}
-          />
-        )}
-        {activeView === "leads" && <LeadsView refreshSignal={refreshSignal} />}
-        {activeView === "clients" && (
-          <ClientsView refreshSignal={refreshSignal} />
-        )}
-        {activeView === "users" && <UsersView refreshSignal={refreshSignal} />}
-        {activeView === "reports" && (
-          <ReportsView refreshSignal={refreshSignal} />
-        )}
-      </main>
-
-      <footer className="border-t border-border py-5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {COMPANY.fullName} — Tableau de bord
-          interne
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
