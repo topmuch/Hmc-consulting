@@ -1,8 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, MapPin } from "lucide-react";
-import { COMPANY, NAV_LINKS } from "@/lib/site-data";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { COMPANY } from "@/lib/site-data";
+
+const FOOTER_NAV = [
+  { href: "/", label: "Accueil" },
+  { href: "/?page=histoire", label: "À propos" },
+  { href: "/?page=services", label: "Services" },
+  { href: "/?page=produits", label: "Produits" },
+  { href: "/?page=contact", label: "Contact" },
+];
+
+const FOOTER_ABOUT = [
+  { href: "/?page=valeurs", label: "Nos valeurs" },
+  { href: "/?page=experience", label: "Notre expérience" },
+  { href: "/?page=expertise", label: "Notre expertise" },
+];
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -10,17 +24,17 @@ export function SiteFooter() {
   return (
     <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
-          <div className="lg:col-span-5">
-            <Link href="#top" className="inline-flex items-center">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link href="/" className="inline-flex items-center">
               <img
                 src="/hmc-logo.png"
                 alt={`${COMPANY.name} — ${COMPANY.fullName}`}
                 className="h-14 w-auto sm:h-16"
               />
             </Link>
-            <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
+            <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-xs">
               {COMPANY.fullName} — cabinet de conseil et de management dédié aux
               entreprises. {COMPANY.tagline}.
             </p>
@@ -30,45 +44,46 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Nav */}
-          <div className="lg:col-span-3">
+          {/* Navigation */}
+          <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
               Navigation
             </h4>
             <ul className="mt-4 space-y-2.5">
-              {NAV_LINKS.map((link) => (
-                <li key={link.id || link.label}>
-                  {link.href ? (
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <span className="text-sm text-foreground font-medium">{link.label}</span>
-                  )}
-                  {link.children && (
-                    <ul className="ml-4 mt-1.5 space-y-1.5">
-                      {link.children.map((child) => (
-                        <li key={child.id}>
-                          <Link
-                            href={child.href}
-                            className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                          >
-                            {child.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+              {FOOTER_NAV.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* À propos */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
+              À propos
+            </h4>
+            <ul className="mt-4 space-y-2.5">
+              {FOOTER_ABOUT.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Contact */}
-          <div className="lg:col-span-4">
+          <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
               Contact
             </h4>
@@ -77,9 +92,18 @@ export function SiteFooter() {
                 <Mail className="h-4 w-4 text-accent mt-0.5 shrink-0" />
                 <a
                   href={`mailto:${COMPANY.email}`}
-                  className="text-muted-foreground hover:text-accent transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors break-all"
                 >
                   {COMPANY.email}
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <Phone className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                <a
+                  href={`tel:${COMPANY.phone}`}
+                  className="text-muted-foreground hover:text-accent transition-colors"
+                >
+                  {COMPANY.phone}
                 </a>
               </li>
               <li className="flex items-start gap-3">
