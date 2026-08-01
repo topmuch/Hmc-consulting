@@ -19,6 +19,8 @@ import {
   BarChart3,
   Menu,
   X,
+  Sun,
+  Moon,
   type LucideIcon,
 } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
@@ -64,6 +66,42 @@ const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon }[] = [
 
 type AuthUser = { id: string; email: string; name: string; role: string } | null;
 
+// ─── Dark mode hook ─────────────────────────────────────────────────────────
+function useDarkMode() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("hmc-theme");
+    if (stored === "dark") {
+      setDark(true);
+      document.documentElement.classList.add("dark");
+    } else if (stored === "light") {
+      setDark(false);
+      document.documentElement.classList.remove("dark");
+    } else {
+      // default: light
+      setDark(false);
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggle = useCallback(() => {
+    setDark((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("hmc-theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("hmc-theme", "light");
+      }
+      return next;
+    });
+  }, []);
+
+  return { dark, toggle };
+}
+
 function useAuth() {
   const [state, setState] = useState<AuthState>("checking");
   const [user, setUser] = useState<AuthUser>(null);
@@ -107,6 +145,7 @@ function useAuth() {
 
 export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   const { state: authState, user: authUser, reload: reloadAuth } = useAuth();
+  const { dark, toggle: toggleDarkMode } = useDarkMode();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -289,7 +328,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation — includes main tabs + footer actions */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
           <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
             Navigation
@@ -316,10 +355,10 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               </button>
             );
           })}
-        </nav>
 
-        {/* Sidebar footer actions */}
-        <div className="border-t border-white/10 p-3 space-y-1">
+          {/* Divider */}
+          <div className="my-3 border-t border-white/10" />
+
           {/* Connected user info */}
           {authUser && (
             <div className="px-3 py-2 mb-1 rounded-lg bg-white/5">
@@ -330,6 +369,21 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               </div>
             </div>
           )}
+
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            {dark ? (
+              <Sun className="h-4 w-4 shrink-0" />
+            ) : (
+              <Moon className="h-4 w-4 shrink-0" />
+            )}
+            <span>{dark ? "Mode clair" : "Mode sombre"}</span>
+          </button>
+
+          {/* Settings */}
           {onGoSettings && (
             <button
               onClick={onGoSettings}
@@ -339,6 +393,8 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               <span>Paramètres</span>
             </button>
           )}
+
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-red-500/20 hover:text-red-300 transition-colors"
@@ -346,6 +402,8 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Déconnexion</span>
           </button>
+
+          {/* Back to site */}
           <Link
             href="/"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-colors"
@@ -353,7 +411,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
             <ArrowLeft className="h-4 w-4 shrink-0" />
             <span>Retour au site</span>
           </Link>
-        </div>
+        </nav>
       </aside>
 
       {/* Mobile overlay */}
@@ -390,6 +448,17 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
 
             {/* Right: actions */}
             <div className="flex items-center gap-1.5">
+              {/* Dark mode toggle (top bar) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleDarkMode}
+                className="h-9 w-9 text-muted-foreground"
+                aria-label={dark ? "Mode clair" : "Mode sombre"}
+              >
+                {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+
               {/* Notifications bell */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -508,7 +577,7 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
           </div>
         </header>
 
-        {/* Active view content */}
+        {/* Active view content — no animation flash */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 overflow-x-hidden">
           {activeView === "overview" && (
             <OverviewView

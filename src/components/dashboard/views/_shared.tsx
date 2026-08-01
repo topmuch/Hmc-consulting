@@ -89,9 +89,9 @@ export function ViewHeader({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 1, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0 }}
       className="flex flex-col sm:flex-row sm:items-end justify-between gap-3"
     >
       <div className="min-w-0">
@@ -122,9 +122,9 @@ export function MiniStatCard({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 1, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+      transition={{ duration: 0 }}
       className="bg-card rounded-xl border border-border p-4 flex items-center gap-3"
     >
       <div

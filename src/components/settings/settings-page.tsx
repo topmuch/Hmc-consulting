@@ -74,22 +74,6 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("general");
 
-  // Auth gate
-  if (authState === "checking") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="h-7 w-7 animate-spin text-accent" />
-          <p className="text-sm">Vérification de la session…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (authState === "unauthenticated") {
-    return <LoginView onSuccess={reloadAuth} />;
-  }
-
   const fetchSettings = useCallback(async () => {
     setLoading(true);
     try {
@@ -111,8 +95,26 @@ export function SettingsPage() {
   }, [toast]);
 
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+    if (authState === "authenticated") {
+      fetchSettings();
+    }
+  }, [authState, fetchSettings]);
+
+  // Auth gate
+  if (authState === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-7 w-7 animate-spin text-accent" />
+          <p className="text-sm">Vérification de la session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authState === "unauthenticated") {
+    return <LoginView onSuccess={reloadAuth} />;
+  }
 
   const dirty = JSON.stringify(settings) !== JSON.stringify(original);
 
