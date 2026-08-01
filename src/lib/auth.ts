@@ -122,18 +122,20 @@ export async function login(req: NextRequest): Promise<NextResponse> {
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
     });
 
+    const isSecure = process.env.NODE_ENV === "production";
+
     res.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isSecure,
+      sameSite: isSecure ? "none" : "lax",
       maxAge: SESSION_DURATION,
       path: "/",
     });
 
     res.cookies.set("hmc_admin_user", userInfo, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isSecure,
+      sameSite: isSecure ? "none" : "lax",
       maxAge: SESSION_DURATION,
       path: "/",
     });

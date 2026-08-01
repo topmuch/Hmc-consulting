@@ -31,7 +31,10 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
         setLoading(false);
         return;
       }
-      onSuccess();
+      // Login succeeded — don't reset loading (parent will switch view on success)
+      // But add a small delay to let the browser process the Set-Cookie headers
+      // before the parent re-checks the session
+      setTimeout(() => onSuccess(), 100);
     } catch (err) {
       console.error("[login] error", err);
       setError("Impossible de contacter le serveur. Réessayez.");
