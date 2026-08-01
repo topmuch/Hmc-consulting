@@ -24,7 +24,5 @@ CMD sh -c "\
   export HOSTNAME=0.0.0.0 && \
   echo '[startup] Running prisma db push...' && \
   npx prisma db push --skip-generate 2>&1 || { echo '[startup] WARNING: prisma db push failed, continuing...'; } && \
-  echo '[startup] Running create-admin...' && \
-  node scripts/create-admin.cjs 2>&1 || { echo '[startup] WARNING: create-admin failed, continuing...'; } && \
-  echo '[startup] Starting server...' && \
+  echo '[startup] Starting server (admin users seeded via instrumentation)...' && \
   node .next/standalone/server.js"
