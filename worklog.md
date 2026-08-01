@@ -223,3 +223,204 @@ All 10 dashboard UI features implemented. `bun run lint` passes with no errors. 
 ### Verification:
 - `bun run lint` → passes with no errors (exit code 0)
 - `bunx tsc --noEmit` → no errors in any dashboard, types, or lib file touched by this task (pre-existing unrelated errors in `src/lib/auth.ts`, `src/lib/email.ts`, `skills/`, `examples/` remain)
+
+---
+Task ID: phase2-setup
+Agent: main
+Task: Add Users, Clients, Leads, Reports, Messages connection
+
+Work Log:
+- Updated Prisma schema: User now has password+role+active fields; new models Client and Lead created
+- Pushed schema to DB (db:push)
+
+Stage Summary:
+- User model: { id, email, name, password, role (admin|manager|agent), active, timestamps }
+- Client model: { id, name, company?, email, phone?, type (prospect|client|partner), status (active|inactive|archived), address?, notes?, timestamps }
+- Lead model: { id, name, email, phone?, company?, source (website|referral|campaign|other), status (new|contacted|qualified|converted|lost), productId?, value?, notes?, timestamps }
+- ContactMessage already connected to contact form (POST /api/contact creates message + auto-reply + notification)
+- Default admin password still "hmc2024" (from SiteSetting.adminPassword or env ADMIN_PASSWORD)
+
+---
+Task ID: api-crud
+Agent: sub-agent (general-purpose)
+Task: Build CRUD API routes for users / clients / leads + reports overview
+
+Work Log:
+- Read existing patterns from `src/app/api/messages/route.ts`, `src/app/api/messages/[id]/route.ts`, `src/lib/auth.ts`, `src/lib/db.ts`, and Prisma schema.
+- Created 7 new route files (8 routes total, including GET/POST + GET/PATCH/DELETE pairs).
+
+### Files created:
+
+1. `src/app/api/users/route.ts` — GET, POST
+   - GET: list all users ordered by createdAt desc, EXCLUDES password via shared `userSelect` object
+   - POST: create user. Validates name (non-empty), email (regex), password (>=4 chars). Role defaults to "agent" (validated against {admin|manager|agent}). active defaults to true. Password hashed with `Buffer.from(password).toString("base64")` (matches auth.ts createToken pattern). Catches Prisma P2002 → 409 with descriptive French error.
+
+2. `src/app/api/users/[id]/route.ts` — GET, PATCH, DELETE
+   - GET: returns user without password (404 if not found)
+   - PATCH: partial update of {name?, email?, password?, role?, active?}. If password provided (non-empty), re-hashes it. Validates role against {admin|manager|agent} and email format. Catches P2002 → 409, P2025 → 404
+   - DELETE: removes user (P2025 → 404)
+   - Dynamic params declared as `Promise<{ id: string }>` and awaited (Next.js 16 pattern)
+
+3. `src/app/api/clients/route.ts` — GET, POST
+   - GET: list ordered by createdAt desc. Supports `?search=` (filters by name/email/company via OR + contains), `?type=prospect|client|partner`, `?status=active|inactive|archived`. Uses typed `Prisma.ClientWhereInput` (no `any`/eslint-disable)
+   - POST: creates client. Required: name, email (validated). Optional: company, phone, type (default prospect), status (default active), address, notes. Empty strings coerced to null for optional fields.
+
+4. `src/app/api/clients/[id]/route.ts` — GET, PATCH, DELETE
+   - GET: 404 if not found
+   - PATCH: partial update of any of {name, email, company, phone, type, status, address, notes}. Optional fields accept null to clear. Validates type/status enums and email format
+   - DELETE: P2025 → 404
+
+5. `src/app/api/leads/route.ts` — GET, POST
+   - GET: list ordered by createdAt desc. Supports `?search=` (name/email/company) and `?status=new|contacted|qualified|converted|lost`. Also accepts `?source=` filter (not required by spec but harmless and consistent). Uses typed `Prisma.LeadWhereInput`
+   - POST: creates lead. Required: name, email (validated). Optional: phone, company, source (default website), status (default new), productId, value, notes. Empty strings → null
+
+6. `src/app/api/leads/[id]/route.ts` — GET, PATCH, DELETE
+   - GET: 404 if not found
+   - PATCH: partial update of {name, email, phone, company, source, status, productId, value, notes}. Validates source against {website|referral|campaign|other} and status against {new|contacted|qualified|converted|lost}
+   - DELETE: P2025 → 404
+
+7. `src/app/api/reports/overview/route.ts` — GET (auth-gated)
+   - Single GET handler that runs 4 prisma queries in parallel via `Promise.all` (messages, leads, clients, users)
+   - Returns the exact JSON shape from the spec:
+     ```
+     {
+       messages: { total, new, inProgress, treated, archived },
+       leads: { total, new, contacted, qualified, converted, lost,
+                bySource: [{source,count}], byProduct: [{productId,count}] },
+       clients: { total, prospects, clients, partners, active, inactive },
+       users: { total, active },
+       recentActivity: [{ type, label, date }]  // last 10 across messages+leads+clients, sorted desc
+     }
+     ```
+   - Status/source/type buckets computed via Maps with fixed ordering (status order: new→in_progress→treated→archived; lead status order: new→contacted→qualified→converted→lost; lead sources: website/referral/campaign/other; client types: prospect/client/partner; client statuses: active/inactive/archived)
+   - byProduct uses `__none__` sentinel internally, exposed as `productId: null` in response
+   - recentActivity merges all 3 lists with human-readable French labels ("Nouveau message de X", "Nouveau lead : X", "Nouveau client : X"), sorts by ISO date desc, takes top 10
+
+### Patterns / decisions:
+- All routes use the EXACT same auth gate pattern as `messages/route.ts`: `const session = await getSession(req); if (!session.authenticated) return NextResponse.json({ok:false,error:"Non authentifié"},{status:401})`
+- All responses follow the existing `{ ok: boolean, error?: string, ...payload }` envelope
+- User routes NEVER leak the `password` field — uses a shared `userSelect` const object passed to both findMany/findUnique/create/update
+- Password hashing uses `Buffer.from(password).toString("base64")` (consistent with auth.ts createToken — not cryptographically secure, but matches the existing pattern; future migration to bcrypt can replace in one place)
+- Email is normalized to lowercase on User create/update (consistent uniqueness check)
+- Empty optional string fields coerced to null on write (so the DB columns stay null, not empty strings)
+- Prisma unique-constraint violations (P2002) on User email are caught and surfaced as 409 with French message
+- Record-not-found errors (P2025) on PATCH/DELETE are caught and surfaced as 404
+- All dynamic route handlers use `params: Promise<{ id: string }>` and `const { id } = await params` (Next.js 16 requirement)
+- Used `Prisma.ClientWhereInput` / `Prisma.LeadWhereInput` for the `where` objects in GET list handlers — avoids `any` and the unused eslint-disable warning that an earlier draft produced
+- All French error messages (consistent with existing `messages/[id]` route)
+- No UI/components touched; no existing files modified
+
+### Verification:
+- `bun run lint` → passes with 0 errors, 0 warnings (clean exit)
+- `bunx tsc --noEmit` → no new errors in any of the 7 created files. Pre-existing errors remain only in `examples/websocket/*` (missing socket.io modules) and `skills/*` (unrelated to dashboard) — same as before this task
+
+---
+Task ID: ui-views
+Agent: sub-agent (general-purpose)
+Task: Build dashboard nav + 5 new views (Messages, Leads, Clients, Users, Reports)
+
+Work Log:
+- Read existing `dashboard.tsx`, `messages-table.tsx`, `stats-cards.tsx`, `product-stats.tsx`, `login-view.tsx`, `dashboard-types.ts`, `settings-types.ts`, `products-data.ts`, and the API routes for `/api/leads`, `/api/clients`, `/api/reports/overview` to confirm contracts before writing UI.
+- Created 7 new files in `src/components/dashboard/views/` and rewrote `dashboard.tsx`. Existing components (`messages-table`, `stats-cards`, `funnel-chart`, `charts`, `product-stats`, `login-view`) were reused unchanged.
+- Added a small `.no-scrollbar` utility to `globals.css` for the horizontal nav tabs.
+
+### Files created:
+
+1. `src/components/dashboard/views/_shared.tsx` — shared helpers
+   - Label/color maps for: lead status (`LEAD_STATUS_LABELS`, `LEAD_STATUS_COLORS`), lead source, client type, client status, user role.
+   - `ViewHeader({title, subtitle, actions})` — animated page header.
+   - `MiniStatCard({icon, label, value, color, delay})` — compact stat card used in stat grids.
+   - `EmptyState({icon, title, description, action})` — empty-state placeholder.
+   - `ErrorState({onRetry, message})` — error with retry button.
+   - `TableSkeleton({rows})` — table-loading skeleton (avatar + lines + pill).
+   - `NativeSelect` — styled native `<select>` with focus ring (simpler than shadcn Select for dense forms).
+   - `Pill({label, colorClass})` — colored pill for badges (used instead of shadcn Badge so the bg+text+border classes from the color maps apply cleanly).
+   - Date helpers: `formatDate`, `formatDateTime`, `timeAgo`, `LoadingIcon`.
+
+2. `src/components/dashboard/views/overview-view.tsx` — Overview tab
+   - Extracted the existing dashboard content (stats cards, area chart, subject pie, funnel, product stats, dow bar, latest-message card, messages table) from `dashboard.tsx`.
+   - Takes `data: DashboardData | null`, `loading`, `onMessageUpdated`, `onRetry` as props.
+   - Renders `OverviewSkeleton` (3 rows of placeholders) while loading and `ErrorState` when no data.
+   - `LatestMessageCard` and `DashboardSkeleton` helpers moved here from `dashboard.tsx`.
+
+3. `src/components/dashboard/views/messages-view.tsx` — Messages tab
+   - Title "Messages" + subtitle "Tous les messages reçus via le formulaire de contact".
+   - Count badge next to the title showing total messages.
+   - Sky-blue info banner: "📨 Tous les messages envoyés via le formulaire de contact arrivent ici automatiquement".
+   - Reuses the existing `MessagesTable` component (no edits to it).
+   - Shares `data`/`loading`/`onMessageUpdated` props with OverviewView (parent `dashboard.tsx` fetches once).
+
+4. `src/components/dashboard/views/leads-view.tsx` — Leads tab (full CRUD)
+   - Stats row (5 cards): Total, Nouveaux, Contactés, Qualifiés, Convertis.
+   - Search bar + status filter (`NativeSelect` with 5 status options + "Tous les statuts").
+   - "Ajouter un lead" button → Dialog form (name*, email*, phone, company, source dropdown, status dropdown, productId dropdown with all `PRODUCTS`, value, notes).
+   - Edit via the same dialog (PATCH `/api/leads/[id]`).
+   - Delete via `AlertDialog` confirmation (DELETE `/api/leads/[id]`).
+   - Table columns: name (with email + phone), company, source pill, status pill, product (icon + name), date, actions (edit, delete).
+   - All write operations are optimistic: local state is updated immediately and reverted on API failure with an error toast.
+   - Loading (`TableSkeleton`), error (`ErrorState` with retry), and empty (`EmptyState` with CTA) states handled.
+   - `refreshSignal` prop drives a `useEffect([refreshSignal])` so the header "Actualiser" button re-fetches.
+
+5. `src/components/dashboard/views/clients-view.tsx` — Clients tab (full CRUD)
+   - Stats row (4 cards): Total, Prospects, Clients, Partenaires.
+   - Search + type filter + status filter (3 controls in the filter bar).
+   - "Ajouter un client" → Dialog form (name*, email*, company, phone, type dropdown, status dropdown, address, notes).
+   - Edit/delete flow same pattern as Leads.
+   - Table columns: name (with initials avatar), company, contact (email + phone), type pill, status pill, date, actions.
+   - Same optimistic-update + revert-on-error + toast pattern.
+   - `refreshSignal` prop drives refetch.
+
+6. `src/components/dashboard/views/users-view.tsx` — Users tab (full CRUD)
+   - Amber warning banner: "Seuls les administrateurs peuvent gérer les utilisateurs."
+   - Stats row (3 cards): Total, Actifs, Administrateurs.
+   - Search bar.
+   - "Ajouter un utilisateur" → Dialog form (name*, email*, password* / optional-on-edit, role dropdown, active toggle via `Switch`).
+   - Edit via same dialog (PATCH `/api/users/[id]`); password is optional on edit (left blank = unchanged), required on create.
+   - Delete via `AlertDialog`.
+   - Table columns: name (with initials avatar), email, role pill (with role-specific icon: ShieldAlert for admin (red), UserCog for manager (blue), ShieldUser for agent (gray)), active/inactive status dot, date, actions.
+   - Same optimistic + revert + toast pattern.
+   - `refreshSignal` prop drives refetch.
+
+7. `src/components/dashboard/views/reports-view.tsx` — Reports tab
+   - Fetches `/api/reports/overview`.
+   - 4 stat sections (Messages, Leads, Clients, Users) — each with a colored header icon and a grid of `MiniStatCard`s.
+   - "Activité récente" list with last-10 events from `recentActivity` — colored icon per type (message=sky, lead=amber, client=emerald), label, `timeAgo` timestamp, and a type pill.
+   - Buttons in the header: "Exporter les messages (CSV)" (fetches `/api/messages/export`, builds Blob, hidden `<a download>`, revokes URL) + "Rapport mensuel (PDF)" (computes `YYYY-MM` for current month, `window.open('/api/messages/report?month=YYYY-MM', '_blank')`).
+   - Two simple bar charts in the Leads section: "Leads par source" (color-coded bars by source) and "Leads par produit" (bars colored by `product.accentHex`, falls back to navy).
+   - Loading skeleton (4 stat-section skeletons + activity skeleton), error state with retry, empty state for no activity.
+
+### Files updated:
+
+8. `src/components/dashboard/dashboard.tsx` — REWROTE
+   - Auth guard (`useAuth` hook) preserved exactly (checking → spinner / unauthenticated → `<LoginView>` / authenticated → dashboard).
+   - Header preserved with the same button order: `[Bell] [Actualiser] [Exporter CSV] [Rapport] [Paramètres] [Déconnexion] [Site]`.
+   - Added `ViewId` type + `NAV_TABS` constant (6 tabs: Vue d'ensemble, Messages, Leads, Clients, Utilisateurs, Rapports) with lucide icons.
+   - Added `activeView` state (default `"overview"`) and `refreshSignal` state.
+   - New `<nav>` element below the header: horizontal tab bar with sticky positioning (`top-[73px]`), `no-scrollbar` utility for clean overflow on mobile, animated active underline (border-b-2 in accent color), responsive icon-only labels on small screens.
+   - `handleRefresh()` now bumps `refreshSignal` AND calls `fetchData(true)` so all views refetch.
+   - `<main>` renders the active view based on `activeView`:
+     - `overview`/`messages` → parent-fetched `data`/`loading`/`onMessageUpdated`/`onRetry` passed in.
+     - `leads`/`clients`/`users`/`reports` → self-contained views with `refreshSignal` prop.
+   - Removed inline `LatestMessageCard` + `DashboardSkeleton` (moved into `overview-view.tsx`).
+   - Removed the page-title `<motion.div>` block (now lives in each view's `ViewHeader`).
+
+9. `src/app/globals.css` — ADDED `.no-scrollbar` utility
+   - `scrollbar-width: none` (Firefox) + `::-webkit-scrollbar { display: none }` (Chrome/Safari) + `-ms-overflow-style: none` (IE/Edge legacy) so the horizontal nav tabs scroll cleanly on mobile without showing a scrollbar.
+
+### Patterns / decisions:
+- **Native `<select>`** is used in all form dialogs (Lead/Client/User create+edit) per spec — simpler and more accessible than the shadcn Select for dense forms. Wrapped in a `NativeSelect` helper that applies Tailwind classes for borders, padding, focus ring.
+- **Pill component** (plain `<span>` with bg+text+border classes) used for status/source/type/role badges. Same approach as the existing `StatusBadge` in `messages-table.tsx` — chosen over the shadcn `Badge` because the color maps already include both `bg-*` and `text-*` classes.
+- **Optimistic updates** with revert-on-error for all CRUD operations. The previous state is captured before the local mutation; on API failure, state is restored and an error toast is shown.
+- **`AlertDialog`** (shadcn) used for delete confirmations across Leads/Clients/Users — consistent, accessible, keyboard-navigable.
+- **`refreshSignal`** prop pattern: each self-contained view has `useEffect(() => { fetchX(); }, [refreshSignal])`. On mount this fires once (refreshSignal starts at 0). When the header "Actualiser" button is clicked, the parent bumps `refreshSignal` and ALL currently-mounted views refetch. (Only the active view is mounted, so this is efficient.)
+- **Shared `data` for Overview + Messages**: the parent `dashboard.tsx` fetches `/api/messages` once on auth success and passes the result to both `OverviewView` and `MessagesView` as props. This avoids a duplicate fetch when switching between those two tabs.
+- **Header button order** preserved exactly as the spec mandates.
+- **Mobile responsiveness**: nav tabs horizontally scrollable on narrow viewports (icons remain visible, labels truncate), filter bars stack vertically on mobile, tables hide non-essential columns at smaller breakpoints (`hidden md:table-cell`, `hidden lg:table-cell`, `hidden xl:table-cell`).
+- **Role icons**: `ShieldAlert` (admin, red), `UserCog` (manager, blue), `ShieldUser` (agent, gray) — gives a quick visual cue of permission level.
+- **Status colors** are consistent with the existing `STATUS_COLORS` map pattern in `settings-types.ts`: blue (new), amber (in-progress/contacted), emerald (treated/converted/active), violet (qualified/partner), gray (archived/lost/other), red (admin).
+- **Reports bar charts** are simple horizontal bars implemented inline (no chart library needed). Reuses the same motion-animated width fill pattern as `product-stats.tsx`.
+
+### Verification:
+- `bun run lint` → passes with 0 errors, 0 warnings (exit code 0).
+- `bunx tsc --noEmit` → no new errors in any file created or modified by this task. Pre-existing errors remain only in `examples/websocket/*` (missing socket.io modules) and `skills/*` (unrelated) — same baseline as before.
+- `bun run build` → ✅ Compiled successfully in ~16s. All 21 routes (including the new `/api/clients`, `/api/clients/[id]`, `/api/leads`, `/api/leads/[id]`, `/api/users`, `/api/users/[id]`, `/api/reports/overview`) generated cleanly. No build warnings related to the dashboard.

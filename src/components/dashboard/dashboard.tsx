@@ -2,32 +2,28 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   LayoutDashboard,
   RefreshCw,
-  Mail,
-  Phone,
-  User,
   Settings2,
   Bell,
   Download,
   FileText,
   LogOut,
   Loader2,
+  Inbox,
+  Target,
+  Users,
+  User as UserIcon,
+  BarChart3,
+  type LucideIcon,
 } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
 import type { ContactMessage, DashboardData } from "@/lib/dashboard-types";
 import type { NotificationItem } from "@/lib/settings-types";
-import { StatsCards } from "./stats-cards";
-import { MessagesAreaChart, SubjectPieChart, DowBarChart } from "./charts";
-import { MessagesTable } from "./messages-table";
-import { FunnelChart } from "./funnel-chart";
-import { ProductStats } from "./product-stats";
 import { LoginView } from "./login-view";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,8 +34,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { OverviewView } from "./views/overview-view";
+import { MessagesView } from "./views/messages-view";
+import { LeadsView } from "./views/leads-view";
+import { ClientsView } from "./views/clients-view";
+import { UsersView } from "./views/users-view";
+import { ReportsView } from "./views/reports-view";
 
 type AuthState = "checking" | "authenticated" | "unauthenticated";
+
+type ViewId =
+  | "overview"
+  | "messages"
+  | "leads"
+  | "clients"
+  | "users"
+  | "reports";
+
+const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon }[] = [
+  { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard },
+  { id: "messages", label: "Messages", icon: Inbox },
+  { id: "leads", label: "Leads", icon: Target },
+  { id: "clients", label: "Clients", icon: Users },
+  { id: "users", label: "Utilisateurs", icon: UserIcon },
+  { id: "reports", label: "Rapports", icon: BarChart3 },
+];
 
 function useAuth() {
   const [state, setState] = useState<AuthState>("checking");
@@ -80,34 +99,41 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeView, setActiveView] = useState<ViewId>("overview");
+  const [refreshSignal, setRefreshSignal] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [exporting, setExporting] = useState(false);
   const { toast } = useToast();
 
-  const fetchData = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    else setRefreshing(true);
-    try {
-      const res = await fetch("/api/messages", { cache: "no-store" });
-      if (res.status === 401) {
-        // Session expired
-        reloadAuth();
-        return;
+  const fetchData = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
+      try {
+        const res = await fetch("/api/messages", { cache: "no-store" });
+        if (res.status === 401) {
+          // Session expired
+          reloadAuth();
+          return;
+        }
+        const json = await res.json();
+        setData(json as DashboardData);
+      } catch (err) {
+        console.error("Failed to load dashboard", err);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-      const json = await res.json();
-      setData(json as DashboardData);
-    } catch (err) {
-      console.error("Failed to load dashboard", err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [reloadAuth]);
+    },
+    [reloadAuth]
+  );
 
   const fetchNotifs = async () => {
     try {
-      const res = await fetch("/api/notifications?limit=10", { cache: "no-store" });
+      const res = await fetch("/api/notifications?limit=10", {
+        cache: "no-store",
+      });
       const data = await res.json();
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
@@ -141,6 +167,11 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
       // ignore
     }
     reloadAuth();
+  };
+
+  const handleRefresh = () => {
+    setRefreshSignal((n) => n + 1);
+    fetchData(true);
   };
 
   const handleExportCsv = async () => {
@@ -178,14 +209,19 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
 
   const handleMonthlyReport = () => {
     const now = new Date();
-    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
     window.open(`/api/messages/report?month=${month}`, "_blank");
   };
 
   const handleLocalUpdate = (updated: ContactMessage) => {
     setData((prev) => {
       if (!prev) return prev;
-      const messages = prev.messages.map((m) => (m.id === updated.id ? updated : m));
+      const messages = prev.messages.map((m) =>
+        m.id === updated.id ? updated : m
+      );
       return { ...prev, messages };
     });
   };
@@ -211,18 +247,18 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
       {/* Dashboard Header */}
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <img
               src="/hmc-logo.png"
               alt={`${COMPANY.name} — ${COMPANY.fullName}`}
               className="h-12 w-auto"
             />
-            <div className="hidden sm:flex flex-col leading-tight">
+            <div className="hidden sm:flex flex-col leading-tight min-w-0">
               <span className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4 text-accent" />
+                <LayoutDashboard className="h-4 w-4 text-accent shrink-0" />
                 Tableau de bord
               </span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground truncate">
                 {COMPANY.fullName}
               </span>
             </div>
@@ -264,7 +300,9 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
                 {notifications.length === 0 ? (
                   <div className="py-6 text-center">
                     <Bell className="h-6 w-6 mx-auto text-muted-foreground/50 mb-2" />
-                    <p className="text-xs text-muted-foreground">Aucune notification</p>
+                    <p className="text-xs text-muted-foreground">
+                      Aucune notification
+                    </p>
                   </div>
                 ) : (
                   notifications.slice(0, 6).map((n) => (
@@ -307,11 +345,13 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => fetchData(true)}
+              onClick={handleRefresh}
               disabled={refreshing}
               className="text-muted-foreground"
             >
-              <RefreshCw className={`h-4 w-4 sm:mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 sm:mr-1.5 ${refreshing ? "animate-spin" : ""}`}
+              />
               <span className="hidden sm:inline">Actualiser</span>
             </Button>
 
@@ -362,7 +402,11 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               <span className="hidden sm:inline">Déconnexion</span>
             </Button>
 
-            <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button
+              asChild
+              size="sm"
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
               <Link href="/">
                 <ArrowLeft className="h-4 w-4 mr-1.5" />
                 <span className="hidden sm:inline">Site</span>
@@ -372,169 +416,67 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
         </div>
       </header>
 
+      {/* Internal nav tabs */}
+      <nav className="sticky top-[73px] z-30 bg-background/90 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar -mb-px">
+            {NAV_TABS.map((tab) => {
+              const isActive = activeView === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id)}
+                  className={cn(
+                    "relative flex items-center gap-1.5 px-3 sm:px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2",
+                    isActive
+                      ? "border-accent text-accent"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <tab.icon className="h-4 w-4 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
+
+      {/* Active view */}
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-        {/* Page title */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-2"
-        >
-          <div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-foreground">
-              Vue d&apos;ensemble des demandes
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Suivi en temps réel des messages reçus via le formulaire de contact.
-            </p>
-          </div>
-          {data && data.messages.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Dernière mise à jour :{" "}
-              {new Date().toLocaleTimeString("fr-FR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          )}
-        </motion.div>
-
-        {loading ? (
-          <DashboardSkeleton />
-        ) : data ? (
-          <>
-            {/* Stats */}
-            <StatsCards
-              total={data.stats.total}
-              thisMonth={data.stats.thisMonth}
-              thisWeek={data.stats.thisWeek}
-              today={data.stats.today}
-              monthGrowth={data.stats.monthGrowth}
-            />
-
-            {/* Charts row 1: Area (2/3) + Pie by subject (1/3) */}
-            <div className="grid lg:grid-cols-3 gap-4">
-              <MessagesAreaChart data={data.byDay} />
-              <SubjectPieChart data={data.bySubject} />
-            </div>
-
-            {/* Charts row 2: Funnel + Product stats + Dow bar */}
-            <div className="grid lg:grid-cols-3 gap-4">
-              <FunnelChart data={data.byStage} />
-              <ProductStats data={data.byProduct} />
-              <DowBarChart data={data.byDow} />
-            </div>
-
-            {/* Latest contact highlight */}
-            {data.messages[0] && (
-              <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
-                <h3 className="font-serif text-lg font-semibold text-foreground mb-4">
-                  Dernier message reçu
-                </h3>
-                <LatestMessageCard message={data.messages[0]} />
-              </div>
-            )}
-
-            {/* Messages table */}
-            <MessagesTable
-              messages={data.messages}
-              onMessageUpdated={handleLocalUpdate}
-            />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-sm text-muted-foreground">
-              Impossible de charger les données.{" "}
-              <button
-                onClick={() => fetchData()}
-                className="text-accent underline underline-offset-2"
-              >
-                Réessayer
-              </button>
-            </p>
-          </div>
+        {activeView === "overview" && (
+          <OverviewView
+            data={data}
+            loading={loading}
+            onMessageUpdated={handleLocalUpdate}
+            onRetry={() => fetchData()}
+          />
+        )}
+        {activeView === "messages" && (
+          <MessagesView
+            data={data}
+            loading={loading}
+            onMessageUpdated={handleLocalUpdate}
+            onRetry={() => fetchData()}
+          />
+        )}
+        {activeView === "leads" && <LeadsView refreshSignal={refreshSignal} />}
+        {activeView === "clients" && (
+          <ClientsView refreshSignal={refreshSignal} />
+        )}
+        {activeView === "users" && <UsersView refreshSignal={refreshSignal} />}
+        {activeView === "reports" && (
+          <ReportsView refreshSignal={refreshSignal} />
         )}
       </main>
 
       <footer className="border-t border-border py-5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {COMPANY.fullName} — Tableau de bord interne
+          © {new Date().getFullYear()} {COMPANY.fullName} — Tableau de bord
+          interne
         </div>
       </footer>
-    </div>
-  );
-}
-
-function LatestMessageCard({ message }: { message: ContactMessage }) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-accent font-medium shrink-0">
-          {message.name
-            .split(" ")
-            .map((w) => w[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase()}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <div className="font-medium text-foreground truncate">{message.name}</div>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {new Date(message.createdAt).toLocaleDateString("fr-FR", {
-                day: "2-digit",
-                month: "short",
-              })}
-            </span>
-          </div>
-          <div className="text-sm text-accent font-medium truncate">{message.subject}</div>
-        </div>
-      </div>
-
-      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-        {message.message}
-      </p>
-
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground pt-2 border-t border-border">
-        {message.company && (
-          <span className="inline-flex items-center gap-1">
-            <User className="h-3.5 w-3.5" />
-            {message.company}
-          </span>
-        )}
-        <span className="inline-flex items-center gap-1">
-          <Mail className="h-3.5 w-3.5" />
-          {message.email}
-        </span>
-        {message.phone && (
-          <span className="inline-flex items-center gap-1">
-            <Phone className="h-3.5 w-3.5" />
-            {message.phone}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-2xl" />
-        ))}
-      </div>
-      <div className="grid lg:grid-cols-3 gap-4">
-        <Skeleton className="lg:col-span-2 h-80 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
-      </div>
-      <div className="grid lg:grid-cols-3 gap-4">
-        <Skeleton className="h-80 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
-      </div>
-      <Skeleton className="h-96 rounded-2xl" />
     </div>
   );
 }

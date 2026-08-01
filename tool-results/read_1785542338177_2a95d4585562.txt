@@ -1,0 +1,778 @@
+     1→"use client";
+     2→
+     3→import { useState, useMemo, useEffect, useRef, FormEvent } from "react";
+     4→import { motion } from "framer-motion";
+     5→import {
+     6→  Search,
+     7→  Mail,
+     8→  Phone,
+     9→  Building2,
+    10→  Calendar,
+    11→  Eye,
+    12→  Inbox,
+    13→  Send,
+    14→  Loader2,
+    15→  X,
+    16→  Plus,
+    17→  Tag as TagIcon,
+    18→  StickyNote,
+    19→  CheckCircle2,
+    20→  Filter,
+    21→} from "lucide-react";
+    22→import type { ContactMessage } from "@/lib/dashboard-types";
+    23→import {
+    24→  STATUS_LABELS,
+    25→  STATUS_COLORS,
+    26→  STAGE_LABELS,
+    27→} from "@/lib/settings-types";
+    28→import { getProductById } from "@/lib/products-data";
+    29→import { Input } from "@/components/ui/input";
+    30→import { Button } from "@/components/ui/button";
+    31→import { Textarea } from "@/components/ui/textarea";
+    32→import { Label } from "@/components/ui/label";
+    33→import {
+    34→  Dialog,
+    35→  DialogContent,
+    36→  DialogHeader,
+    37→  DialogTitle,
+    38→} from "@/components/ui/dialog";
+    39→import {
+    40→  Select,
+    41→  SelectContent,
+    42→  SelectItem,
+    43→  SelectTrigger,
+    44→  SelectValue,
+    45→} from "@/components/ui/select";
+    46→import {
+    47→  DropdownMenu,
+    48→  DropdownMenuContent,
+    49→  DropdownMenuItem,
+    50→  DropdownMenuLabel,
+    51→  DropdownMenuSeparator,
+    52→  DropdownMenuTrigger,
+    53→} from "@/components/ui/dropdown-menu";
+    54→import { Badge } from "@/components/ui/badge";
+    55→import { useToast } from "@/hooks/use-toast";
+    56→
+    57→const STATUS_OPTIONS = ["new", "in_progress", "treated", "archived"] as const;
+    58→const STAGE_OPTIONS = ["received", "qualified", "meeting", "client"] as const;
+    59→
+    60→function formatDate(iso: string) {
+    61→  const d = new Date(iso);
+    62→  return d.toLocaleDateString("fr-FR", {
+    63→    day: "2-digit",
+    64→    month: "short",
+    65→    year: "numeric",
+    66→  });
+    67→}
+    68→
+    69→function formatDateTime(iso: string) {
+    70→  const d = new Date(iso);
+    71→  return d.toLocaleDateString("fr-FR", {
+    72→    day: "2-digit",
+    73→    month: "long",
+    74→    year: "numeric",
+    75→    hour: "2-digit",
+    76→    minute: "2-digit",
+    77→  });
+    78→}
+    79→
+    80→function timeAgo(iso: string) {
+    81→  const diff = Date.now() - new Date(iso).getTime();
+    82→  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    83→  if (days === 0) return "Aujourd'hui";
+    84→  if (days === 1) return "Hier";
+    85→  if (days < 7) return `Il y a ${days} jours`;
+    86→  if (days < 30) return `Il y a ${Math.floor(days / 7)} sem.`;
+    87→  return `Il y a ${Math.floor(days / 30)} mois`;
+    88→}
+    89→
+    90→function parseTags(tags: string | null | undefined): string[] {
+    91→  if (!tags) return [];
+    92→  return tags
+    93→    .split(",")
+    94→    .map((t) => t.trim())
+    95→    .filter(Boolean);
+    96→}
+    97→
+    98→function StatusBadge({ status }: { status: string }) {
+    99→  const cls = STATUS_COLORS[status] || STATUS_COLORS.new;
+   100→  const label = STATUS_LABELS[status] || status;
+   101→  return (
+   102→    <span
+   103→      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${cls}`}
+   104→    >
+   105→      {label}
+   106→    </span>
+   107→  );
+   108→}
+   109→
+   110→export function MessagesTable({
+   111→  messages,
+   112→  onMessageUpdated,
+   113→}: {
+   114→  messages: ContactMessage[];
+   115→  onMessageUpdated?: (updated: ContactMessage) => void;
+   116→}) {
+   117→  const { toast } = useToast();
+   118→  const [query, setQuery] = useState("");
+   119→  const [statusFilter, setStatusFilter] = useState<string>("all");
+   120→  const [selected, setSelected] = useState<ContactMessage | null>(null);
+   121→
+   122→  const filtered = useMemo(() => {
+   123→    const q = query.toLowerCase().trim();
+   124→    return messages.filter((m) => {
+   125→      if (statusFilter !== "all" && m.status !== statusFilter) return false;
+   126→      if (!q) return true;
+   127→      return [m.name, m.email, m.company, m.subject, m.message]
+   128→        .filter(Boolean)
+   129→        .some((v) => v!.toLowerCase().includes(q));
+   130→    });
+   131→  }, [messages, query, statusFilter]);
+   132→
+   133→  const updateMessage = (id: string, patch: Partial<ContactMessage>) => {
+   134→    onMessageUpdated?.({ ...(messages.find((m) => m.id === id) as ContactMessage), ...patch, updatedAt: new Date().toISOString() } as ContactMessage);
+   135→  };
+   136→
+   137→  const patchMessage = async (
+   138→    id: string,
+   139→    body: Record<string, unknown>,
+   140→    opts?: { silent?: boolean }
+   141→  ) => {
+   142→    try {
+   143→      const res = await fetch(`/api/messages/${id}`, {
+   144→        method: "PATCH",
+   145→        headers: { "Content-Type": "application/json" },
+   146→        body: JSON.stringify(body),
+   147→      });
+   148→      const data = await res.json();
+   149→      if (!res.ok || !data?.ok) {
+   150→        throw new Error(data?.error || "Échec de la mise à jour");
+   151→      }
+   152→      if (!opts?.silent) {
+   153→        toast({
+   154→          title: "Mis à jour",
+   155→          description: "Les modifications ont été enregistrées.",
+   156→        });
+   157→      }
+   158→      return data.message as ContactMessage;
+   159→    } catch (err) {
+   160→      console.error("[patchMessage]", err);
+   161→      toast({
+   162→        title: "Erreur",
+   163→        description: err instanceof Error ? err.message : "Échec de la mise à jour",
+   164→        variant: "destructive",
+   165→      });
+   166→      throw err;
+   167→    }
+   168→  };
+   169→
+   170→  const handleStatusChange = async (
+   171→    message: ContactMessage,
+   172→    newStatus: string
+   173→  ) => {
+   174→    // Optimistic local update
+   175→    updateMessage(message.id, { status: newStatus });
+   176→    if (selected?.id === message.id) {
+   177→      setSelected({ ...selected, status: newStatus });
+   178→    }
+   179→    try {
+   180→      const updated = await patchMessage(message.id, { status: newStatus });
+   181→      onMessageUpdated?.(updated);
+   182→    } catch {
+   183→      // Revert optimistic update on failure
+   184→      updateMessage(message.id, { status: message.status });
+   185→      if (selected?.id === message.id) {
+   186→        setSelected({ ...selected, status: message.status });
+   187→      }
+   188→    }
+   189→  };
+   190→
+   191→  const handleStageChange = async (
+   192→    message: ContactMessage,
+   193→    newStage: string
+   194→  ) => {
+   195→    updateMessage(message.id, { stage: newStage });
+   196→    if (selected?.id === message.id) {
+   197→      setSelected({ ...selected, stage: newStage });
+   198→    }
+   199→    try {
+   200→      const updated = await patchMessage(message.id, { stage: newStage });
+   201→      onMessageUpdated?.(updated);
+   202→    } catch {
+   203→      updateMessage(message.id, { stage: message.stage });
+   204→      if (selected?.id === message.id) {
+   205→        setSelected({ ...selected, stage: message.stage });
+   206→      }
+   207→    }
+   208→  };
+   209→
+   210→  return (
+   211→    <div className="bg-card rounded-2xl border border-border overflow-hidden">
+   212→      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-border">
+   213→        <div>
+   214→          <h3 className="font-serif text-lg font-semibold text-foreground">
+   215→            Demandes récentes
+   216→          </h3>
+   217→          <p className="text-xs text-muted-foreground mt-0.5">
+   218→            {filtered.length} message{filtered.length > 1 ? "s" : ""}{" "}
+   219→            {(query || statusFilter !== "all") && `(sur ${messages.length})`}
+   220→          </p>
+   221→        </div>
+   222→        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+   223→          <div className="relative w-full sm:w-56">
+   224→            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+   225→            <Select value={statusFilter} onValueChange={setStatusFilter}>
+   226→              <SelectTrigger className="pl-8 w-full sm:w-56 h-9" size="sm">
+   227→                <SelectValue placeholder="Tous les statuts" />
+   228→              </SelectTrigger>
+   229→              <SelectContent>
+   230→                <SelectItem value="all">Tous les statuts</SelectItem>
+   231→                {STATUS_OPTIONS.map((s) => (
+   232→                  <SelectItem key={s} value={s}>
+   233→                    {STATUS_LABELS[s]}
+   234→                  </SelectItem>
+   235→                ))}
+   236→              </SelectContent>
+   237→            </Select>
+   238→          </div>
+   239→          <div className="relative w-full sm:w-64">
+   240→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+   241→            <Input
+   242→              value={query}
+   243→              onChange={(e) => setQuery(e.target.value)}
+   244→              placeholder="Rechercher (nom, société, sujet…)"
+   245→              className="pl-9"
+   246→            />
+   247→          </div>
+   248→        </div>
+   249→      </div>
+   250→
+   251→      {filtered.length === 0 ? (
+   252→        <div className="flex flex-col items-center justify-center py-16 text-center">
+   253→          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+   254→            <Inbox className="h-7 w-7 text-muted-foreground" />
+   255→          </div>
+   256→          <p className="mt-4 text-sm font-medium text-foreground">Aucun message trouvé</p>
+   257→          <p className="text-xs text-muted-foreground">
+   258→            {query || statusFilter !== "all"
+   259→              ? "Essayez une autre recherche ou filtre."
+   260→              : "Les demandes apparaîtront ici."}
+   261→          </p>
+   262→        </div>
+   263→      ) : (
+   264→        <div className="max-h-[480px] overflow-y-auto">
+   265→          <table className="w-full text-sm">
+   266→            <thead className="sticky top-0 bg-card z-10">
+   267→              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
+   268→                <th className="px-5 py-3 font-medium">Contact</th>
+   269→                <th className="px-5 py-3 font-medium hidden md:table-cell">Sujet</th>
+   270→                <th className="px-5 py-3 font-medium hidden lg:table-cell">Société</th>
+   271→                <th className="px-5 py-3 font-medium">Statut</th>
+   272→                <th className="px-5 py-3 font-medium whitespace-nowrap">Date</th>
+   273→                <th className="px-5 py-3 font-medium text-right">Action</th>
+   274→              </tr>
+   275→            </thead>
+   276→            <tbody>
+   277→              {filtered.map((m, i) => (
+   278→                <motion.tr
+   279→                  key={m.id}
+   280→                  initial={{ opacity: 0 }}
+   281→                  animate={{ opacity: 1 }}
+   282→                  transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
+   283→                  className="border-b border-border last:border-0 hover:bg-secondary/40 transition-colors cursor-pointer"
+   284→                  onClick={() => setSelected(m)}
+   285→                >
+   286→                  <td className="px-5 py-3.5">
+   287→                    <div className="flex items-center gap-3">
+   288→                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent font-medium text-xs shrink-0">
+   289→                        {m.name
+   290→                          .split(" ")
+   291→                          .map((w) => w[0])
+   292→                          .slice(0, 2)
+   293→                          .join("")
+   294→                          .toUpperCase()}
+   295→                      </div>
+   296→                      <div className="min-w-0">
+   297→                        <div className="font-medium text-foreground truncate">{m.name}</div>
+   298→                        <div className="text-xs text-muted-foreground truncate">{m.email}</div>
+   299→                      </div>
+   300→                    </div>
+   301→                  </td>
+   302→                  <td className="px-5 py-3.5 hidden md:table-cell">
+   303→                    <span className="text-foreground/80 line-clamp-1">{m.subject}</span>
+   304→                  </td>
+   305→                  <td className="px-5 py-3.5 hidden lg:table-cell">
+   306→                    {m.company ? (
+   307→                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+   308→                        <Building2 className="h-3.5 w-3.5" />
+   309→                        {m.company}
+   310→                      </span>
+   311→                    ) : (
+   312→                      <span className="text-xs text-muted-foreground/50">—</span>
+   313→                    )}
+   314→                  </td>
+   315→                  <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+   316→                    <DropdownMenu>
+   317→                      <DropdownMenuTrigger asChild>
+   318→                        <button className="inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full">
+   319→                          <StatusBadge status={m.status} />
+   320→                        </button>
+   321→                      </DropdownMenuTrigger>
+   322→                      <DropdownMenuContent align="start" className="w-44">
+   323→                        <DropdownMenuLabel className="text-xs">
+   324→                          Changer le statut
+   325→                        </DropdownMenuLabel>
+   326→                        <DropdownMenuSeparator />
+   327→                        {STATUS_OPTIONS.map((s) => (
+   328→                          <DropdownMenuItem
+   329→                            key={s}
+   330→                            onClick={() => handleStatusChange(m, s)}
+   331→                            className="gap-2 cursor-pointer"
+   332→                          >
+   333→                            <span
+   334→                              className={`inline-flex h-2 w-2 rounded-full ${STATUS_COLORS[s]?.split(" ")[0] || "bg-muted"}`}
+   335→                            />
+   336→                            {STATUS_LABELS[s]}
+   337→                            {m.status === s && (
+   338→                              <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-accent" />
+   339→                            )}
+   340→                          </DropdownMenuItem>
+   341→                        ))}
+   342→                      </DropdownMenuContent>
+   343→                    </DropdownMenu>
+   344→                  </td>
+   345→                  <td className="px-5 py-3.5 whitespace-nowrap">
+   346→                    <div className="text-xs text-foreground/80">{formatDate(m.createdAt)}</div>
+   347→                    <div className="text-xs text-muted-foreground">{timeAgo(m.createdAt)}</div>
+   348→                  </td>
+   349→                  <td className="px-5 py-3.5 text-right">
+   350→                    <Button
+   351→                      size="sm"
+   352→                      variant="ghost"
+   353→                      className="h-8 w-8 p-0"
+   354→                      onClick={(e) => {
+   355→                        e.stopPropagation();
+   356→                        setSelected(m);
+   357→                      }}
+   358→                    >
+   359→                      <Eye className="h-4 w-4" />
+   360→                    </Button>
+   361→                  </td>
+   362→                </motion.tr>
+   363→              ))}
+   364→            </tbody>
+   365→          </table>
+   366→        </div>
+   367→      )}
+   368→
+   369→      <MessageDetailDialog
+   370→        message={selected}
+   371→        onClose={() => setSelected(null)}
+   372→        onPatch={patchMessage}
+   373→        onLocalUpdate={(updated) => {
+   374→          onMessageUpdated?.(updated);
+   375→          setSelected(updated);
+   376→        }}
+   377→        onStageChange={handleStageChange}
+   378→        onStatusChange={handleStatusChange}
+   379→      />
+   380→    </div>
+   381→  );
+   382→}
+   383→
+   384→function MessageDetailDialog({
+   385→  message,
+   386→  onClose,
+   387→  onPatch,
+   388→  onLocalUpdate,
+   389→  onStageChange,
+   390→  onStatusChange,
+   391→}: {
+   392→  message: ContactMessage | null;
+   393→  onClose: () => void;
+   394→  onPatch: (id: string, body: Record<string, unknown>, opts?: { silent?: boolean }) => Promise<ContactMessage>;
+   395→  onLocalUpdate: (updated: ContactMessage) => void;
+   396→  onStageChange: (m: ContactMessage, stage: string) => Promise<void>;
+   397→  onStatusChange: (m: ContactMessage, status: string) => Promise<void>;
+   398→}) {
+   399→  // Local editing state — re-synced when `message` changes
+   400→  const [tags, setTags] = useState<string[]>([]);
+   401→  const [newTag, setNewTag] = useState("");
+   402→  const [notes, setNotes] = useState("");
+   403→  const [replyBody, setReplyBody] = useState("");
+   404→  const [sendingReply, setSendingReply] = useState(false);
+   405→  const [savingTags, setSavingTags] = useState(false);
+   406→  const [savingNotes, setSavingNotes] = useState(false);
+   407→  const notesRef = useRef<HTMLTextAreaElement>(null);
+   408→  const { toast } = useToast();
+   409→
+   410→  useEffect(() => {
+   411→    if (message) {
+   412→      setTags(parseTags(message.tags));
+   413→      setNewTag("");
+   414→      setNotes(message.notes || "");
+   415→      setReplyBody("");
+   416→    }
+   417→  }, [message?.id]);
+   418→
+   419→  if (!message) return null;
+   420→
+   421→  const product = message.productId ? getProductById(message.productId) : undefined;
+   422→
+   423→  const handleAddTag = async () => {
+   424→    const t = newTag.trim();
+   425→    if (!t || tags.includes(t)) {
+   426→      setNewTag("");
+   427→      return;
+   428→    }
+   429→    const next = [...tags, t];
+   430→    setTags(next);
+   431→    setNewTag("");
+   432→    setSavingTags(true);
+   433→    try {
+   434→      const updated = await onPatch(message.id, { tags: next.join(",") }, { silent: true });
+   435→      onLocalUpdate(updated);
+   436→    } catch {
+   437→      // revert
+   438→      setTags(tags);
+   439→    } finally {
+   440→      setSavingTags(false);
+   441→    }
+   442→  };
+   443→
+   444→  const handleRemoveTag = async (tag: string) => {
+   445→    const next = tags.filter((t) => t !== tag);
+   446→    setTags(next);
+   447→    setSavingTags(true);
+   448→    try {
+   449→      const updated = await onPatch(message.id, { tags: next.join(",") }, { silent: true });
+   450→      onLocalUpdate(updated);
+   451→    } catch {
+   452→      setTags(tags);
+   453→    } finally {
+   454→      setSavingTags(false);
+   455→    }
+   456→  };
+   457→
+   458→  const handleNotesBlur = async () => {
+   459→    if (notes === (message.notes || "")) return;
+   460→    setSavingNotes(true);
+   461→    try {
+   462→      const updated = await onPatch(message.id, { notes }, { silent: true });
+   463→      onLocalUpdate(updated);
+   464→    } catch {
+   465→      setNotes(message.notes || "");
+   466→    } finally {
+   467→      setSavingNotes(false);
+   468→    }
+   469→  };
+   470→
+   471→  const handleSendReply = async (e: FormEvent) => {
+   472→    e.preventDefault();
+   473→    if (!replyBody.trim() || sendingReply) return;
+   474→    setSendingReply(true);
+   475→    try {
+   476→      const res = await fetch(`/api/messages/${message.id}/reply`, {
+   477→        method: "POST",
+   478→        headers: { "Content-Type": "application/json" },
+   479→        body: JSON.stringify({ body: replyBody.trim() }),
+   480→      });
+   481→      const data = await res.json();
+   482→      if (!res.ok || !data?.ok) {
+   483→        throw new Error(data?.error || "Échec de l'envoi");
+   484→      }
+   485→      toast({
+   486→        title: "Réponse envoyée",
+   487→        description: `Un email a été envoyé à ${message.email}.`,
+   488→      });
+   489→      setReplyBody("");
+   490→    } catch (err) {
+   491→      console.error("[reply]", err);
+   492→      toast({
+   493→        title: "Erreur",
+   494→        description:
+   495→          err instanceof Error ? err.message : "Impossible d'envoyer la réponse.",
+   496→        variant: "destructive",
+   497→      });
+   498→    } finally {
+   499→      setSendingReply(false);
+   500→    }
+   501→  };
+   502→
+   503→  return (
+   504→    <Dialog open={!!message} onOpenChange={(open) => !open && onClose()}>
+   505→      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+   506→        <DialogHeader>
+   507→          <DialogTitle className="flex items-center gap-2">
+   508→            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent font-medium text-xs">
+   509→              {message.name
+   510→                .split(" ")
+   511→                .map((w) => w[0])
+   512→                .slice(0, 2)
+   513→                .join("")
+   514→                .toUpperCase()}
+   515→            </span>
+   516→            <span>{message.name}</span>
+   517→          </DialogTitle>
+   518→        </DialogHeader>
+   519→
+   520→        <div className="space-y-5 mt-2">
+   521→          {/* Badges & metadata */}
+   522→          <div className="flex flex-wrap gap-2 items-center">
+   523→            <Badge variant="secondary" className="font-normal">
+   524→              {message.subject}
+   525→            </Badge>
+   526→            <Badge variant="outline" className="font-normal">
+   527→              <Calendar className="h-3 w-3 mr-1" />
+   528→              {formatDateTime(message.createdAt)}
+   529→            </Badge>
+   530→            {product && (
+   531→              <Badge variant="outline" className="font-normal">
+   532→                <product.icon className="h-3 w-3 mr-1" />
+   533→                {product.name}
+   534→              </Badge>
+   535→            )}
+   536→          </div>
+   537→
+   538→          {/* Contact info */}
+   539→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   540→            <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={message.email} />
+   541→            {message.phone && (
+   542→              <InfoRow
+   543→                icon={<Phone className="h-4 w-4" />}
+   544→                label="Téléphone"
+   545→                value={message.phone}
+   546→              />
+   547→            )}
+   548→            {message.company && (
+   549→              <InfoRow
+   550→                icon={<Building2 className="h-4 w-4" />}
+   551→                label="Société"
+   552→                value={message.company}
+   553→              />
+   554→            )}
+   555→          </div>
+   556→
+   557→          {/* Message */}
+   558→          <div>
+   559→            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
+   560→              Message
+   561→            </div>
+   562→            <div className="rounded-xl bg-secondary/50 p-4 text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+   563→              {message.message}
+   564→            </div>
+   565→          </div>
+   566→
+   567→          {/* Status & Stage selectors */}
+   568→          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   569→            <div className="space-y-1.5">
+   570→              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+   571→                Statut
+   572→              </Label>
+   573→              <Select
+   574→                value={message.status}
+   575→                onValueChange={(v) => onStatusChange(message, v)}
+   576→              >
+   577→                <SelectTrigger className="w-full">
+   578→                  <SelectValue />
+   579→                </SelectTrigger>
+   580→                <SelectContent>
+   581→                  {STATUS_OPTIONS.map((s) => (
+   582→                    <SelectItem key={s} value={s}>
+   583→                      {STATUS_LABELS[s]}
+   584→                    </SelectItem>
+   585→                  ))}
+   586→                </SelectContent>
+   587→              </Select>
+   588→            </div>
+   589→            <div className="space-y-1.5">
+   590→              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+   591→                Étape (tunnel)
+   592→              </Label>
+   593→              <Select
+   594→                value={message.stage}
+   595→                onValueChange={(v) => onStageChange(message, v)}
+   596→              >
+   597→                <SelectTrigger className="w-full">
+   598→                  <SelectValue />
+   599→                </SelectTrigger>
+   600→                <SelectContent>
+   601→                  {STAGE_OPTIONS.map((s) => (
+   602→                    <SelectItem key={s} value={s}>
+   603→                      {STAGE_LABELS[s]}
+   604→                    </SelectItem>
+   605→                  ))}
+   606→                </SelectContent>
+   607→              </Select>
+   608→            </div>
+   609→          </div>
+   610→
+   611→          {/* Tags */}
+   612→          <div>
+   613→            <div className="flex items-center justify-between mb-2">
+   614→              <Label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+   615→                <TagIcon className="h-3.5 w-3.5" />
+   616→                Tags
+   617→                {savingTags && <Loader2 className="h-3 w-3 animate-spin ml-1" />}
+   618→              </Label>
+   619→            </div>
+   620→            <div className="flex flex-wrap gap-1.5 mb-2">
+   621→              {tags.length === 0 && (
+   622→                <span className="text-xs text-muted-foreground">Aucun tag</span>
+   623→              )}
+   624→              {tags.map((tag) => (
+   625→                <Badge
+   626→                  key={tag}
+   627→                  variant="secondary"
+   628→                  className="gap-1 pr-1.5 font-normal"
+   629→                >
+   630→                  {tag}
+   631→                  <button
+   632→                    onClick={() => handleRemoveTag(tag)}
+   633→                    className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-muted-foreground/20 transition-colors"
+   634→                    aria-label={`Retirer ${tag}`}
+   635→                  >
+   636→                    <X className="h-3 w-3" />
+   637→                  </button>
+   638→                </Badge>
+   639→              ))}
+   640→            </div>
+   641→            <div className="flex gap-2">
+   642→              <Input
+   643→                value={newTag}
+   644→                onChange={(e) => setNewTag(e.target.value)}
+   645→                onKeyDown={(e) => {
+   646→                  if (e.key === "Enter") {
+   647→                    e.preventDefault();
+   648→                    handleAddTag();
+   649→                  }
+   650→                }}
+   651→                placeholder="Ajouter un tag (Entrée pour valider)"
+   652→                className="h-8 text-sm"
+   653→              />
+   654→              <Button
+   655→                size="sm"
+   656→                variant="outline"
+   657→                onClick={handleAddTag}
+   658→                disabled={!newTag.trim() || savingTags}
+   659→                className="h-8"
+   660→              >
+   661→                <Plus className="h-3.5 w-3.5" />
+   662→                Ajouter
+   663→              </Button>
+   664→            </div>
+   665→          </div>
+   666→
+   667→          {/* Internal notes */}
+   668→          <div>
+   669→            <div className="flex items-center justify-between mb-2">
+   670→              <Label
+   671→                htmlFor="notes"
+   672→                className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"
+   673→              >
+   674→                <StickyNote className="h-3.5 w-3.5" />
+   675→                Notes internes
+   676→                {savingNotes && <Loader2 className="h-3 w-3 animate-spin ml-1" />}
+   677→                {!savingNotes && notes !== (message.notes || "") && (
+   678→                  <span className="text-[10px] text-amber-600 ml-1">Non enregistré</span>
+   679→                )}
+   680→              </Label>
+   681→              <span className="text-[10px] text-muted-foreground">
+   682→                Sauvegarde auto. à la perte de focus
+   683→              </span>
+   684→            </div>
+   685→            <Textarea
+   686→              ref={notesRef}
+   687→              id="notes"
+   688→              value={notes}
+   689→              onChange={(e) => setNotes(e.target.value)}
+   690→              onBlur={handleNotesBlur}
+   691→              placeholder="Ajoutez vos notes internes (visibles uniquement ici)…"
+   692→              className="text-sm min-h-24"
+   693→            />
+   694→          </div>
+   695→
+   696→          {/* Reply section */}
+   697→          <div className="rounded-xl border border-border p-4 bg-secondary/20">
+   698→            <div className="flex items-center justify-between mb-2">
+   699→              <Label
+   700→                htmlFor="reply"
+   701→                className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5"
+   702→              >
+   703→                <Send className="h-3.5 w-3.5" />
+   704→                Répondre par email
+   705→              </Label>
+   706→              <span className="text-[10px] text-muted-foreground truncate max-w-[240px]">
+   707→                Re: {message.subject}
+   708→              </span>
+   709→            </div>
+   710→            <Textarea
+   711→              id="reply"
+   712→              value={replyBody}
+   713→              onChange={(e) => setReplyBody(e.target.value)}
+   714→              placeholder={`Bonjour ${message.name.split(" ")[0]},\n\nMerci pour votre message…`}
+   715→              className="text-sm min-h-28 bg-background"
+   716→            />
+   717→            <div className="flex flex-col sm:flex-row gap-2 mt-3">
+   718→              <Button
+   719→                onClick={handleSendReply}
+   720→                disabled={!replyBody.trim() || sendingReply}
+   721→                className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90"
+   722→              >
+   723→                {sendingReply ? (
+   724→                  <>
+   725→                    <Loader2 className="h-4 w-4 animate-spin" />
+   726→                    Envoi en cours…
+   727→                  </>
+   728→                ) : (
+   729→                  <>
+   730→                    <Send className="h-4 w-4" />
+   731→                    Envoyer la réponse
+   732→                  </>
+   733→                )}
+   734→              </Button>
+   735→              <Button asChild size="sm" variant="outline">
+   736→                <a
+   737→                  href={`mailto:${message.email}?subject=Re: ${encodeURIComponent(message.subject)}`}
+   738→                >
+   739→                  <Mail className="h-4 w-4" />
+   740→                  Ouvrir dans le client mail
+   741→                </a>
+   742→              </Button>
+   743→              {message.phone && (
+   744→                <Button asChild size="sm" variant="ghost">
+   745→                  <a href={`tel:${message.phone.replace(/\s/g, "")}`}>
+   746→                    <Phone className="h-4 w-4" />
+   747→                    Appeler
+   748→                  </a>
+   749→                </Button>
+   750→              )}
+   751→            </div>
+   752→          </div>
+   753→        </div>
+   754→      </DialogContent>
+   755→    </Dialog>
+   756→  );
+   757→}
+   758→
+   759→function InfoRow({
+   760→  icon,
+   761→  label,
+   762→  value,
+   763→}: {
+   764→  icon: React.ReactNode;
+   765→  label: string;
+   766→  value: string;
+   767→}) {
+   768→  return (
+   769→    <div className="flex items-start gap-2.5">
+   770→      <span className="text-muted-foreground mt-0.5">{icon}</span>
+   771→      <div className="min-w-0">
+   772→        <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+   773→        <div className="text-sm text-foreground truncate">{value}</div>
+   774→      </div>
+   775→    </div>
+   776→  );
+   777→}
+   778→

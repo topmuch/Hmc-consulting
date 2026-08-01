@@ -16,7 +16,10 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  name      String?
+  name      String
+  password  String
+  role      String   @default("agent") // admin | manager | agent
+  active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -27,6 +30,35 @@ model Post {
   content   String?
   published Boolean  @default(false)
   authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  email     String
+  phone     String?
+  type      String   @default("prospect") // prospect | client | partner
+  status    String   @default("active") // active | inactive | archived
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  source    String   @default("website") // website | referral | campaign | other
+  status    String   @default("new") // new | contacted | qualified | converted | lost
+  productId String?
+  value     String?  // estimated value
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
