@@ -15,6 +15,8 @@ import {
   Newspaper,
   CheckCircle2,
   CircleDot,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +56,7 @@ type Post = {
   id: string;
   title: string;
   content: string | null;
+  imageUrl: string | null;
   published: boolean;
   authorId: string;
   authorName: string;
@@ -65,12 +68,14 @@ type Post = {
 type PostForm = {
   title: string;
   content: string;
+  imageUrl: string;
   published: boolean;
 };
 
 const EMPTY_FORM: PostForm = {
   title: "",
   content: "",
+  imageUrl: "",
   published: false,
 };
 
@@ -162,9 +167,35 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
     setForm({
       title: post.title,
       content: post.content || "",
+      imageUrl: post.imageUrl || "",
       published: post.published,
     });
     setDialogOpen(true);
+  };
+
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok || !data?.ok) throw new Error(data?.error || "Échec de l'upload");
+      setForm((f) => ({ ...f, imageUrl: data.url }));
+      toast({ title: "Image uploadée" });
+    } catch (err) {
+      toast({
+        title: "Erreur d'upload",
+        description: err instanceof Error ? err.message : "Échec de l'upload",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -182,6 +213,7 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
     const payload = {
       title: form.title.trim(),
       content: form.content.trim() || null,
+      imageUrl: form.imageUrl.trim() || null,
       published: form.published,
     };
     try {
@@ -485,13 +517,13 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
 
       {/* Add / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => !saving && setDialogOpen(o)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editing ? "Modifier l'article" : "Nouvel article"}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 min-h-0 pr-1">
             <div className="space-y-1.5">
               <Label htmlFor="post-title">Titre *</Label>
               <Input
@@ -503,6 +535,44 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
                 placeholder="Titre de l'article"
               />
             </div>
+            {/* Image upload */}
+            <div className="space-y-1.5">
+              <Label>Image de couverture</Label>
+              {form.imageUrl ? (
+                <div className="relative rounded-lg overflow-hidden border border-border">
+                  <img
+                    src={form.imageUrl}
+                    alt="Aperçu"
+                    className="w-full h-40 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, imageUrl: "" })}
+                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-32 rounded-lg border-2 border-dashed border-border hover:border-accent/50 bg-secondary/30 cursor-pointer transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
+                  ) : (
+                    <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                  )}
+                  <span className="mt-2 text-xs text-muted-foreground">
+                    {uploading ? "Upload en cours…" : "Cliquez pour ajouter une image"}
+                  </span>
+                </label>
+              )}
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="post-content">Contenu</Label>
               <Textarea
@@ -510,7 +580,7 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
                 value={form.content}
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                 placeholder="Rédigez votre article ici…&#10;&#10;Conseil : utilisez des doubles sauts de ligne pour séparer les paragraphes.&#10;Préfixez avec ## pour les sous-titres."
-                className="min-h-[240px] resize-y"
+                className="min-h-[200px] resize-y"
               />
             </div>
             <div className="space-y-1.5">
@@ -525,21 +595,21 @@ export function BlogView({ refreshSignal = 0 }: { refreshSignal?: number } = {})
                 </span>
               </div>
             </div>
-            <DialogFooter className="gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => !saving && setDialogOpen(false)}
-                disabled={saving}
-              >
-                Annuler
-              </Button>
-              <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
-                {editing ? "Enregistrer" : "Créer l'article"}
-              </Button>
-            </DialogFooter>
           </form>
+          <DialogFooter className="gap-2 pt-2 border-t border-border mt-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => !saving && setDialogOpen(false)}
+              disabled={saving}
+            >
+              Annuler
+            </Button>
+            <Button type="submit" disabled={saving} onClick={handleSubmit}>
+              {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+              {editing ? "Enregistrer" : "Créer l'article"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

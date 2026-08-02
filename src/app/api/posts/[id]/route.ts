@@ -66,13 +66,16 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const data: { title?: string; content?: string | null; published?: boolean } = {};
+    const data: { title?: string; content?: string | null; imageUrl?: string | null; published?: boolean } = {};
 
     if (typeof body?.title === "string" && body.title.trim()) {
       data.title = body.title.trim();
     }
     if (typeof body?.content === "string") {
       data.content = body.content.trim() || null;
+    }
+    if (typeof body?.imageUrl === "string") {
+      data.imageUrl = body.imageUrl.trim() || null;
     }
     if (typeof body?.published === "boolean") {
       data.published = body.published;

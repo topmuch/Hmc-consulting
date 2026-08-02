@@ -157,7 +157,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
             </Button>
           )}
           <Button asChild size="sm" className="ml-2 bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link href="/contact">{t("header.contactUs")}</Link>
+            <Link href="/?page=contact">{t("header.contactUs")}</Link>
           </Button>
         </nav>
 
@@ -305,7 +305,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
               </button>
             )}
             <Button asChild className="mt-2 bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="/contact" onClick={() => setOpen(false)}>
+              <Link href="/?page=contact" onClick={() => setOpen(false)}>
                 {t("header.contactUs")}
               </Link>
             </Button>

@@ -12,6 +12,7 @@ type Post = {
   id: string;
   title: string;
   content: string | null;
+  imageUrl: string | null;
   published: boolean;
   authorId: string;
   authorName: string;
@@ -116,7 +117,7 @@ export function Blog() {
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
-                    src={BLOG_IMAGES[idx % BLOG_IMAGES.length]}
+                    src={post.imageUrl || BLOG_IMAGES[idx % BLOG_IMAGES.length]}
                     alt={post.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"

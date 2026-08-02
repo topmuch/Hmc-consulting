@@ -37,6 +37,8 @@ export type FormationDomain = {
   name: string;
   icon: LucideIcon;
   color: string; // tailwind color class for accent
+  gradient: string; // tailwind gradient for card header
+  image: string; // image URL for card header
   description: string;
   courses: FormationCourse[];
 };
@@ -55,6 +57,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Achats et approvisionnement",
     icon: ShoppingCart,
     color: "bg-blue-500/10 text-blue-600",
+    gradient: "from-blue-600 to-cyan-500",
+    image: "/formations/achats.jpg",
     description:
       "Maîtrisez les stratégies d'achat, la gestion des fournisseurs et l'optimisation des processus d'approvisionnement pour maximiser la performance de votre chaîne d'approvisionnement.",
     courses: [
@@ -68,6 +72,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Assurance",
     icon: Shield,
     color: "bg-emerald-500/10 text-emerald-600",
+    gradient: "from-emerald-600 to-teal-500",
+    image: "/formations/assurance.jpg",
     description:
       "Développez votre expertise dans le secteur de l'assurance, de la souscription à la gestion des sinistres, en passant par la réglementation et la conformité.",
     courses: [
@@ -81,6 +87,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Audit",
     icon: Search,
     color: "bg-violet-500/10 text-violet-600",
+    gradient: "from-violet-600 to-purple-500",
+    image: "/formations/audit.jpg",
     description:
       "Acquérez les méthodologies et outils d'audit pour évaluer les processus, identifier les risques et formuler des recommandations pertinentes.",
     courses: [
@@ -94,6 +102,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Banque",
     icon: Building,
     color: "bg-amber-500/10 text-amber-600",
+    gradient: "from-amber-600 to-yellow-500",
+    image: "/formations/banque.jpg",
     description:
       "Formez-vous aux métiers bancaires, à l'analyse financière, au crédit et à la conformité réglementaire dans un secteur en pleine mutation.",
     courses: [
@@ -107,6 +117,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "BI — Business Intelligence",
     icon: BarChart3,
     color: "bg-cyan-500/10 text-cyan-600",
+    gradient: "from-cyan-600 to-sky-500",
+    image: "/formations/bi.jpg",
     description:
       "Maîtrisez les outils et techniques de la Business Intelligence pour transformer vos données en décisions stratégiques éclairées.",
     courses: [
@@ -120,6 +132,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Changement",
     icon: RefreshCw,
     color: "bg-orange-500/10 text-orange-600",
+    gradient: "from-orange-600 to-amber-500",
+    image: "/formations/changement.jpg",
     description:
       "Apprenez à piloter et accompagner le changement au sein de votre organisation pour garantir l'adhésion et la réussite de vos transformations.",
     courses: [
@@ -133,6 +147,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Communication",
     icon: MessageSquare,
     color: "bg-pink-500/10 text-pink-600",
+    gradient: "from-pink-600 to-rose-500",
+    image: "/formations/communication.jpg",
     description:
       "Développez vos compétences en communication interne et externe, en gestion de crise et en relations publiques pour renforcer l'image de votre entreprise.",
     courses: [
@@ -146,6 +162,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Comptabilité",
     icon: Calculator,
     color: "bg-slate-500/10 text-slate-600",
+    gradient: "from-slate-600 to-gray-500",
+    image: "/formations/comptabilite.jpg",
     description:
       "Perfectionnez-vous en comptabilité générale, analytique et en normes IFRS pour assurer la fiabilité et la transparence de vos états financiers.",
     courses: [
@@ -159,6 +177,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Conformité",
     icon: CheckCircle,
     color: "bg-teal-500/10 text-teal-600",
+    gradient: "from-teal-600 to-emerald-500",
+    image: "/formations/conformite.jpg",
     description:
       "Anticipez les exigences réglementaires et mettez en place des dispositifs de conformité robustes pour protéger votre organisation.",
     courses: [
@@ -172,6 +192,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Contrôle de gestion",
     icon: Gauge,
     color: "bg-indigo-500/10 text-indigo-600",
+    gradient: "from-indigo-600 to-blue-500",
+    image: "/formations/controle-gestion.jpg",
     description:
       "Maîtrisez les outils du contrôle de gestion — budgets, tableaux de bord, analyse des écarts — pour piloter la performance de votre organisation.",
     courses: [
@@ -185,6 +207,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Développement durable",
     icon: Leaf,
     color: "bg-green-500/10 text-green-600",
+    gradient: "from-green-600 to-emerald-500",
+    image: "/formations/developpement-durable.jpg",
     description:
       "Intégrez les principes du développement durable dans votre stratégie d'entreprise et répondez aux enjeux environnementaux et sociétaux actuels.",
     courses: [
@@ -198,6 +222,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Digital",
     icon: Monitor,
     color: "bg-sky-500/10 text-sky-600",
+    gradient: "from-sky-600 to-blue-500",
+    image: "/formations/digital.jpg",
     description:
       "Accompagnez la transformation digitale de votre entreprise en maîtrisant les outils, méthodes et stratégies du numérique.",
     courses: [
@@ -211,6 +237,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Droit",
     icon: Scale,
     color: "bg-rose-500/10 text-rose-600",
+    gradient: "from-rose-600 to-red-500",
+    image: "/formations/droit.jpg",
     description:
       "Renforcez vos connaissances juridiques en droit des affaires, droit du travail et réglementation pour sécuriser vos opérations.",
     courses: [
@@ -224,6 +252,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Efficacité professionnelle",
     icon: Zap,
     color: "bg-yellow-500/10 text-yellow-600",
+    gradient: "from-yellow-600 to-amber-500",
+    image: "/formations/efficacite.jpg",
     description:
       "Boostez votre productivité et celle de vos équipes grâce à des méthodes éprouvées de gestion du temps, d'organisation et de priorisation.",
     courses: [
@@ -237,6 +267,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Finance",
     icon: Wallet,
     color: "bg-emerald-500/10 text-emerald-700",
+    gradient: "from-emerald-600 to-green-500",
+    image: "/formations/finance.jpg",
     description:
       "Développez votre expertise financière, de l'analyse financière à la gestion de trésorerie, en passant par les marchés et les investissements.",
     courses: [
@@ -250,6 +282,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Fiscalité",
     icon: Receipt,
     color: "bg-red-500/10 text-red-600",
+    gradient: "from-red-600 to-rose-500",
+    image: "/formations/fiscalite.jpg",
     description:
       "Maîtrisez l'environnement fiscal, optimisez la gestion fiscale de votre entreprise et assurez la conformité avec les réglementations en vigueur.",
     courses: [
@@ -263,6 +297,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "GAR",
     icon: FileCheck,
     color: "bg-teal-500/10 text-teal-700",
+    gradient: "from-teal-600 to-cyan-500",
+    image: "/formations/gar.jpg",
     description:
       "Formez-vous à la Gestion Axée sur les Résultats (GAR) pour planifier, suivre et évaluer les performances de vos projets et programmes.",
     courses: [
@@ -276,6 +312,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "IA — Intelligence Artificielle",
     icon: Brain,
     color: "bg-purple-500/10 text-purple-600",
+    gradient: "from-purple-600 to-violet-500",
+    image: "/formations/ia.jpg",
     description:
       "Comprenez et exploitez le potentiel de l'intelligence artificielle pour transformer vos processus et créer de la valeur au sein de votre organisation.",
     courses: [
@@ -289,6 +327,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Leadership",
     icon: Crown,
     color: "bg-amber-500/10 text-amber-700",
+    gradient: "from-amber-600 to-orange-500",
+    image: "/formations/leadership.jpg",
     description:
       "Développez votre leadership et votre capacité à inspirer, motiver et guider vos équipes vers l'excellence et la performance durable.",
     courses: [
@@ -302,6 +342,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Management",
     icon: Users,
     color: "bg-blue-500/10 text-blue-700",
+    gradient: "from-blue-600 to-indigo-500",
+    image: "/formations/management.jpg",
     description:
       "Renforcez vos compétences managériales pour piloter vos équipes avec efficacité, de la planification stratégique à l'opérationnel.",
     courses: [
@@ -315,6 +357,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Marketing",
     icon: Megaphone,
     color: "bg-rose-500/10 text-rose-700",
+    gradient: "from-rose-600 to-pink-500",
+    image: "/formations/marketing.jpg",
     description:
       "Maîtrisez les stratégies marketing, du positionnement à l'exécution, en passant par l'étude de marché et le marketing digital.",
     courses: [
@@ -328,6 +372,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Négociation",
     icon: Handshake,
     color: "bg-indigo-500/10 text-indigo-700",
+    gradient: "from-indigo-600 to-violet-500",
+    image: "/formations/negociation.jpg",
     description:
       "Développez vos compétences en négociation pour conclure des accords gagnant-gagnant et défendre les intérêts de votre organisation.",
     courses: [
@@ -341,6 +387,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Projet",
     icon: FolderKanban,
     color: "bg-cyan-500/10 text-cyan-700",
+    gradient: "from-cyan-600 to-teal-500",
+    image: "/formations/projet.jpg",
     description:
       "Maîtrisez les méthodologies de gestion de projet, de la planification à la clôture, en passant par le pilotage et la gestion des risques.",
     courses: [
@@ -354,6 +402,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "QHSE",
     icon: ShieldCheck,
     color: "bg-green-500/10 text-green-700",
+    gradient: "from-green-600 to-lime-500",
+    image: "/formations/qhse.jpg",
     description:
       "Mettez en place et pilotez des systèmes de management qualité, hygiène, sécurité et environnement conformes aux normes internationales.",
     courses: [
@@ -367,6 +417,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Relation client",
     icon: Heart,
     color: "bg-pink-500/10 text-pink-700",
+    gradient: "from-pink-600 to-fuchsia-500",
+    image: "/formations/relation-client.jpg",
     description:
       "Optimisez la relation client de votre entreprise, de l'accueil à la fidélisation, en passant par la gestion des réclamations et le CRM.",
     courses: [
@@ -380,6 +432,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "RH",
     icon: UserCog,
     color: "bg-violet-500/10 text-violet-700",
+    gradient: "from-violet-600 to-purple-500",
+    image: "/formations/rh.jpg",
     description:
       "Développez vos compétences en ressources humaines, du recrutement à la gestion des carrières, en passant par le droit du travail et la paie.",
     courses: [
@@ -393,6 +447,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "RSE",
     icon: Globe,
     color: "bg-lime-500/10 text-lime-700",
+    gradient: "from-lime-600 to-green-500",
+    image: "/formations/rse.jpg",
     description:
       "Intégrez la Responsabilité Sociétale des Entreprises dans votre stratégie pour créer de la valeur durable et répondre aux attentes des parties prenantes.",
     courses: [
@@ -406,6 +462,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Vente",
     icon: TrendingUp,
     color: "bg-orange-500/10 text-orange-700",
+    gradient: "from-orange-600 to-red-500",
+    image: "/formations/vente.jpg",
     description:
       "Boostez vos performances commerciales grâce à des techniques de vente éprouvées, du prospection à la conclusion de la vente.",
     courses: [
@@ -419,6 +477,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Soft skills",
     icon: Sparkles,
     color: "bg-fuchsia-500/10 text-fuchsia-600",
+    gradient: "from-fuchsia-600 to-pink-500",
+    image: "/formations/soft-skills.jpg",
     description:
       "Développez vos compétences comportementales — intelligence émotionnelle, communication, créativité — pour exceller dans votre environnement professionnel.",
     courses: [
@@ -432,6 +492,8 @@ export const FORMATION_DOMAINS: FormationDomain[] = [
     name: "Supply chain",
     icon: Package,
     color: "bg-sky-500/10 text-sky-700",
+    gradient: "from-sky-600 to-cyan-500",
+    image: "/formations/supply-chain.jpg",
     description:
       "Maîtrisez la gestion de la chaîne logistique, de la planification à la livraison, en optimisant flux, coûts et délais.",
     courses: [

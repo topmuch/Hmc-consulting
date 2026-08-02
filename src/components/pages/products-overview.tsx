@@ -59,7 +59,7 @@ export function ProductsOverview({ onGoDashboard }: { onGoDashboard?: () => void
               de la conception au déploiement.
             </p>
             <Link
-              href="/contact"
+              href="/?page=contact"
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent text-accent-foreground px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors group"
             >
               Demander une démo

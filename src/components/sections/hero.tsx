@@ -69,7 +69,7 @@ export function Hero() {
               size="lg"
               className="bg-sky text-navy hover:bg-sky-light group font-medium"
             >
-              <Link href="/services">
+              <Link href="/?page=services">
                 {t("hero.cta1")}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -80,7 +80,7 @@ export function Hero() {
               variant="outline"
               className="border-white/60 text-white hover:bg-white/15 hover:text-white bg-white/10 backdrop-blur-sm"
             >
-              <Link href="/contact">{t("hero.cta2")}</Link>
+              <Link href="/?page=contact">{t("hero.cta2")}</Link>
             </Button>
           </motion.div>
 

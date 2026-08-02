@@ -45,7 +45,7 @@ export function HomeOverview() {
           {/* Link to full services page */}
           <div className="mt-10 text-center">
             <Link
-              href="/services"
+              href="/?page=services"
               className="inline-flex items-center gap-2 rounded-lg bg-accent text-accent-foreground px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors group"
             >
               {t("home.servicesLink")}
@@ -83,7 +83,7 @@ export function HomeOverview() {
           {/* Link to full products page */}
           <div className="mt-10 text-center">
             <Link
-              href="/produits"
+              href="/?page=produits"
               className="inline-flex items-center gap-2 rounded-lg bg-accent text-accent-foreground px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors group"
             >
               {t("home.productsLink")}
@@ -110,7 +110,7 @@ export function HomeOverview() {
                 </p>
               </div>
               <Link
-                href="/contact"
+                href="/?page=contact"
                 className="inline-flex items-center gap-2 rounded-lg bg-sky text-navy px-6 py-3 text-sm font-medium hover:bg-sky-light transition-colors group whitespace-nowrap"
               >
                 {t("home.ctaLink")}

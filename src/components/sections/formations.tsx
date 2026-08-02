@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { FEATURED_FORMATIONS, type FormationDomain } from "@/lib/formations-data";
@@ -9,40 +10,42 @@ import { useTranslation } from "@/lib/i18n";
 function FormationCard({ domain }: { domain: FormationDomain }) {
   const Icon = domain.icon;
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 hover:shadow-xl hover:border-accent/30 transition-all duration-300">
-      {/* Decorative gradient */}
-      <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-accent/5 blur-2xl group-hover:bg-accent/10 transition-colors" />
-
-      <div className="relative">
-        <div className="flex items-center gap-3">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${domain.color} border border-border`}>
-            <Icon className="h-6 w-6" strokeWidth={1.5} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-serif text-lg font-semibold text-foreground leading-snug">
-              {domain.name}
-            </h3>
-          </div>
+    <Link
+      href={`/?page=formations&domain=${domain.id}`}
+      className="group flex flex-col h-full bg-card rounded-2xl border border-border overflow-hidden hover:shadow-2xl hover:border-transparent transition-all duration-300"
+    >
+      {/* Image / gradient header */}
+      <div className={`relative h-44 bg-gradient-to-br ${domain.gradient} overflow-hidden`}>
+        <Image
+          src={domain.image}
+          alt={domain.name}
+          fill
+          className="object-cover mix-blend-overlay opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        <div className="absolute top-4 left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white">
+          <Icon className="h-6 w-6" strokeWidth={1.5} />
         </div>
+        <span className="absolute top-4 right-4 rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 text-xs font-medium text-white">
+          {domain.courses.length} formation{domain.courses.length > 1 ? "s" : ""}
+        </span>
+      </div>
 
-        <p className="mt-4 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+      {/* Content */}
+      <div className="flex flex-col flex-1 p-6">
+        <h3 className="font-serif text-xl font-semibold text-foreground">
+          {domain.name}
+        </h3>
+        <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-3">
           {domain.description}
         </p>
-
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs font-medium text-accent">
-            {domain.courses.length} formation{domain.courses.length > 1 ? "s" : ""}
-          </span>
-          <Link
-            href={`/?page=formations&domain=${domain.id}`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent/80 transition-colors group/link"
-          >
-            Découvrir
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
-          </Link>
+        <div className="mt-5 flex items-center gap-1.5 text-sm font-medium text-accent">
+          Découvrir
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

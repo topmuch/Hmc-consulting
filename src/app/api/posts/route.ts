@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
     const title = typeof body?.title === "string" ? body.title.trim() : "";
     const content =
       typeof body?.content === "string" ? body.content.trim() : null;
+    const imageUrl =
+      typeof body?.imageUrl === "string" ? body.imageUrl.trim() : null;
     const published = typeof body?.published === "boolean" ? body.published : true;
 
     if (!title) {
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
       data: {
         title,
         content,
+        imageUrl,
         published,
         authorId,
       },

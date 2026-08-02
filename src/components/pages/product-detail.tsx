@@ -62,7 +62,7 @@ export function ProductDetail({
               Accueil
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link href="/produits" className="hover:text-accent transition-colors">
+            <Link href="/?page=produits" className="hover:text-accent transition-colors">
               Nos Produits
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -272,14 +272,14 @@ export function ProductDetail({
           {/* CTA */}
           <div className="mt-12 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/contact"
+              href="/?page=contact"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky text-navy px-6 py-3 text-sm font-medium hover:bg-sky-light transition-colors group"
             >
               Demander une démo
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/produits"
+              href="/?page=produits"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 text-white px-6 py-3 text-sm font-medium hover:bg-white/10 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />

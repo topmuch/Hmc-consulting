@@ -26,6 +26,7 @@ type Post = {
   id: string;
   title: string;
   content: string | null;
+  imageUrl: string | null;
   published: boolean;
   authorId: string;
   authorName: string;
@@ -262,7 +263,7 @@ export function BlogDetailView({
   }
 
   const category = deriveCategory(post.title);
-  const heroImage = BLOG_IMAGES[post.id.charCodeAt(0) % BLOG_IMAGES.length];
+  const heroImage = post.imageUrl || BLOG_IMAGES[post.id.charCodeAt(0) % BLOG_IMAGES.length];
 
   return (
     <PageLayout onGoDashboard={onGoDashboard}>

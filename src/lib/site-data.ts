@@ -164,19 +164,19 @@ export const NAV_LINKS: NavLink[] = [
   {
     label: "À propos",
     id: "histoire",
-    href: "/histoire",
+    href: "/?page=histoire",
     children: [
-      { href: "/valeurs", label: "Valeurs", id: "valeurs" },
-      { href: "/experience", label: "Expérience", id: "experience" },
-      { href: "/expertise", label: "Expertise", id: "expertise" },
+      { href: "/?page=valeurs", label: "Valeurs", id: "valeurs" },
+      { href: "/?page=experience", label: "Expérience", id: "experience" },
+      { href: "/?page=expertise", label: "Expertise", id: "expertise" },
     ],
   },
-  { href: "/produits", label: "Produits", id: "produits" },
-  { href: "/services", label: "Services", id: "services" },
-  { href: "/formations", label: "Formations", id: "formations" },
-  { href: "/blog", label: "Blog", id: "blog" },
-  { href: "/etudes", label: "Études de cas", id: "etudes" },
-  { href: "/contact", label: "Contact", id: "contact" },
+  { href: "/?page=produits", label: "Produits", id: "produits" },
+  { href: "/?page=services", label: "Services", id: "services" },
+  { href: "/?page=formations", label: "Formations", id: "formations" },
+  { href: "/?page=blog", label: "Blog", id: "blog" },
+  { href: "/?page=etudes", label: "Études de cas", id: "etudes" },
+  { href: "/?page=contact", label: "Contact", id: "contact" },
 ];
 
 export type Value = {
