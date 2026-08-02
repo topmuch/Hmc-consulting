@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Send, CheckCircle } from "lucide-react";
+import { Mail, Send, CheckCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
-    // Simple client-side validation
+    // Client-side validation
     if (!email.trim()) {
       setError("Veuillez entrer votre adresse e-mail.");
       return;
@@ -24,9 +27,53 @@ export function Newsletter() {
       return;
     }
 
-    // Show success message
-    setSubmitted(true);
-    setEmail("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          setError("Cette adresse e-mail est déjà inscrite.");
+          toast({
+            title: "Déjà inscrit(e)",
+            description: "Cette adresse e-mail est déjà inscrite à notre newsletter.",
+            variant: "destructive",
+          });
+        } else {
+          setError(data.error || "Une erreur est survenue. Réessayez.");
+          toast({
+            title: "Erreur",
+            description: data.error || "Une erreur est survenue lors de l'inscription.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      // Success
+      setSubmitted(true);
+      setEmail("");
+      toast({
+        title: "Inscription réussie !",
+        description: data.message || "Merci ! Vous êtes inscrit(e) à notre newsletter.",
+      });
+    } catch {
+      setError("Erreur de connexion. Réessayez ultérieurement.");
+      toast({
+        title: "Erreur",
+        description: "Impossible de se connecter au serveur. Réessayez ultérieurement.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -86,7 +133,8 @@ export function Newsletter() {
                         setEmail(e.target.value);
                         if (error) setError("");
                       }}
-                      className="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                      disabled={loading}
+                      className="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="Adresse e-mail"
                     />
                     {error && (
@@ -95,10 +143,20 @@ export function Newsletter() {
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 rounded-lg bg-accent text-accent-foreground px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors whitespace-nowrap shrink-0"
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-accent text-accent-foreground px-6 py-3 text-sm font-medium hover:bg-accent/90 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    S&apos;inscrire
-                    <Send className="h-4 w-4" />
+                    {loading ? (
+                      <>
+                        Inscription...
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        S&apos;inscrire
+                        <Send className="h-4 w-4" />
+                      </>
+                    )}
                   </button>
                 </form>
               )}

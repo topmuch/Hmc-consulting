@@ -24,6 +24,7 @@ import {
   ArrowRight,
   Package,
   Newspaper,
+  MessageSquareQuote,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,7 +53,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "histoire",
     label: "À propos",
-    href: "/?page=histoire",
+    href: "/histoire",
     icon: BookOpen,
     shortDescription: "Près de 30 ans d'expertise au service de l'excellence managériale.",
     longDescription:
@@ -61,7 +62,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "valeurs",
     label: "Valeurs",
-    href: "/?page=valeurs",
+    href: "/valeurs",
     icon: Heart,
     shortDescription: "Intégrité, innovation, engagement et responsabilité.",
     longDescription:
@@ -70,7 +71,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "services",
     label: "Services",
-    href: "/?page=services",
+    href: "/services",
     icon: LayoutGrid,
     shortDescription: "Conseil stratégique, management opérationnel et transformation.",
     longDescription:
@@ -79,7 +80,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "experience",
     label: "Expérience",
-    href: "/?page=experience",
+    href: "/experience",
     icon: Compass,
     shortDescription: "Près de 20 pays couverts en Afrique et Océan Indien.",
     longDescription:
@@ -88,7 +89,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "produits",
     label: "Produits",
-    href: "/?page=produits",
+    href: "/produits",
     icon: Package,
     shortDescription: "QRbags, QRtags, QRtrans, VerifScan, MyRest — nos solutions QR code.",
     longDescription:
@@ -97,7 +98,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "expertise",
     label: "Expertise",
-    href: "/?page=expertise",
+    href: "/expertise",
     icon: Award,
     shortDescription: "Conseil & audit, management et finance & structuration.",
     longDescription:
@@ -106,7 +107,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "contact",
     label: "Contact",
-    href: "/?page=contact",
+    href: "/contact",
     icon: MessageSquare,
     shortDescription: "Parlons de votre projet et de vos enjeux stratégiques.",
     longDescription:
@@ -115,7 +116,7 @@ export const PAGES: PageMeta[] = [
   {
     id: "blog",
     label: "Blog",
-    href: "/?page=blog",
+    href: "/blog",
     icon: Newspaper,
     shortDescription: "Analyses, conseils et retours d'expérience pour votre entreprise.",
     longDescription:
@@ -124,11 +125,20 @@ export const PAGES: PageMeta[] = [
   {
     id: "equipe",
     label: "Équipe",
-    href: "/?page=equipe",
+    href: "/equipe",
     icon: Users,
     shortDescription: "Notre équipe de consultants experts.",
     longDescription:
       "Découvrez les consultants et experts qui font la force d'HMC.",
+  },
+  {
+    id: "etudes",
+    label: "Études de cas",
+    href: "/etudes",
+    icon: MessageSquareQuote,
+    shortDescription: "Découvrez nos témoignages et études de cas clients.",
+    longDescription:
+      "Découvrez comment nous avons accompagné nos clients dans leurs projets de transformation, de structuration et de croissance.",
   },
 ];
 
@@ -144,17 +154,18 @@ export const NAV_LINKS: NavLink[] = [
   {
     label: "À propos",
     id: "histoire",
-    href: "/?page=histoire",
+    href: "/histoire",
     children: [
-      { href: "/?page=valeurs", label: "Valeurs", id: "valeurs" },
-      { href: "/?page=experience", label: "Expérience", id: "experience" },
-      { href: "/?page=expertise", label: "Expertise", id: "expertise" },
+      { href: "/valeurs", label: "Valeurs", id: "valeurs" },
+      { href: "/experience", label: "Expérience", id: "experience" },
+      { href: "/expertise", label: "Expertise", id: "expertise" },
     ],
   },
-  { href: "/?page=produits", label: "Produits", id: "produits" },
-  { href: "/?page=services", label: "Services", id: "services" },
-  { href: "/?page=blog", label: "Blog", id: "blog" },
-  { href: "/?page=contact", label: "Contact", id: "contact" },
+  { href: "/produits", label: "Produits", id: "produits" },
+  { href: "/services", label: "Services", id: "services" },
+  { href: "/blog", label: "Blog", id: "blog" },
+  { href: "/etudes", label: "Études de cas", id: "etudes" },
+  { href: "/contact", label: "Contact", id: "contact" },
 ];
 
 export type Value = {

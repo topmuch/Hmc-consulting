@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -17,6 +18,10 @@ import {
   Users,
   User as UserIcon,
   BarChart3,
+  CalendarClock,
+  Mail,
+  Newspaper,
+  MessageSquareQuote,
   Menu,
   X,
   Sun,
@@ -44,22 +49,40 @@ import { LeadsView } from "./views/leads-view";
 import { ClientsView } from "./views/clients-view";
 import { UsersView } from "./views/users-view";
 import { ReportsView } from "./views/reports-view";
+import { AppointmentsView } from "./views/appointments-view";
+import { QuotesView } from "./views/quotes-view";
+import { NewsletterView } from "./views/newsletter-view";
+import { BlogView } from "./views/blog-view";
+import { TestimonialsView } from "./views/testimonials-view";
+import { TeamManagementView } from "./views/team-management-view";
 
 type AuthState = "checking" | "authenticated" | "unauthenticated";
 
 type ViewId =
   | "overview"
   | "messages"
+  | "quotes"
   | "leads"
+  | "appointments"
   | "clients"
+  | "newsletter"
+  | "blog"
+  | "testimonials"
+  | "team"
   | "users"
   | "reports";
 
 const NAV_TABS: { id: ViewId; label: string; icon: LucideIcon; color: string; activeBg: string; activeText: string }[] = [
   { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard, color: "text-blue-400", activeBg: "bg-blue-500", activeText: "text-white" },
   { id: "messages", label: "Messages", icon: Inbox, color: "text-purple-400", activeBg: "bg-purple-500", activeText: "text-white" },
+  { id: "quotes", label: "Devis", icon: FileText, color: "text-cyan-400", activeBg: "bg-cyan-500", activeText: "text-white" },
   { id: "leads", label: "Leads", icon: Target, color: "text-orange-400", activeBg: "bg-orange-500", activeText: "text-white" },
+  { id: "appointments", label: "Rendez-vous", icon: CalendarClock, color: "text-teal-400", activeBg: "bg-teal-500", activeText: "text-white" },
   { id: "clients", label: "Clients", icon: Users, color: "text-emerald-400", activeBg: "bg-emerald-500", activeText: "text-white" },
+  { id: "newsletter", label: "Newsletter", icon: Mail, color: "text-rose-400", activeBg: "bg-rose-500", activeText: "text-white" },
+  { id: "blog", label: "Blog", icon: Newspaper, color: "text-sky-400", activeBg: "bg-sky-500", activeText: "text-white" },
+  { id: "testimonials", label: "Témoignages", icon: MessageSquareQuote, color: "text-amber-400", activeBg: "bg-amber-500", activeText: "text-white" },
+  { id: "team", label: "Équipe", icon: Users, color: "text-lime-400", activeBg: "bg-lime-500", activeText: "text-white" },
   { id: "users", label: "Utilisateurs", icon: UserIcon, color: "text-pink-400", activeBg: "bg-pink-500", activeText: "text-white" },
   { id: "reports", label: "Rapports", icon: BarChart3, color: "text-indigo-400", activeBg: "bg-indigo-500", activeText: "text-white" },
 ];
@@ -305,9 +328,11 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
         {/* Logo area */}
         <div className="flex items-center justify-between gap-2 px-5 py-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2.5 group min-w-0">
-            <img
+            <Image
               src="/hmc-logo.png"
               alt={`${COMPANY.name} — ${COMPANY.fullName}`}
+              width={40}
+              height={40}
               className="h-10 w-auto shrink-0"
             />
             <div className="flex flex-col leading-tight min-w-0">
@@ -595,10 +620,18 @@ export function Dashboard({ onGoSettings }: { onGoSettings?: () => void }) {
               onRetry={() => fetchData()}
             />
           )}
+          {activeView === "quotes" && <QuotesView refreshSignal={refreshSignal} />}
           {activeView === "leads" && <LeadsView refreshSignal={refreshSignal} />}
+          {activeView === "appointments" && <AppointmentsView refreshSignal={refreshSignal} />}
           {activeView === "clients" && (
             <ClientsView refreshSignal={refreshSignal} />
           )}
+          {activeView === "newsletter" && (
+            <NewsletterView refreshSignal={refreshSignal} />
+          )}
+          {activeView === "blog" && <BlogView refreshSignal={refreshSignal} />}
+          {activeView === "testimonials" && <TestimonialsView refreshSignal={refreshSignal} />}
+          {activeView === "team" && <TeamManagementView refreshSignal={refreshSignal} />}
           {activeView === "users" && <UsersView refreshSignal={refreshSignal} />}
           {activeView === "reports" && (
             <ReportsView refreshSignal={refreshSignal} />

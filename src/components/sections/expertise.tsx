@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { SectionHeading } from "./section-heading";
@@ -68,10 +69,12 @@ export function Expertise() {
           transition={{ duration: 0.6 }}
           className="mt-16 relative rounded-2xl overflow-hidden h-56 sm:h-64"
         >
-          <img
+          <Image
             src="/expertise-meeting.jpg"
             alt="Dirigeants en réunion stratégique"
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/50 to-transparent" />
           <div className="absolute inset-0 flex items-center">

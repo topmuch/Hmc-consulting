@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -161,9 +162,11 @@ export function SettingsPage() {
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src="/hmc-logo.png"
               alt={`${COMPANY.name} — ${COMPANY.fullName}`}
+              width={48}
+              height={48}
               className="h-12 w-auto"
             />
             <div className="hidden sm:flex flex-col leading-tight">

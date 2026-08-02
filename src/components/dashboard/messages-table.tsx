@@ -52,29 +52,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { formatDate, formatDateTime } from "@/components/dashboard/views/_shared";
 
 const STATUS_OPTIONS = ["new", "in_progress", "treated", "archived"] as const;
 const STAGE_OPTIONS = ["received", "qualified", "meeting", "client"] as const;
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatDateTime(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();

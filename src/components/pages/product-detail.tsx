@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Home, Target } from "lucide-react";
@@ -32,7 +33,7 @@ export function ProductDetail({
             name: product.name,
             description: product.description,
             category: product.category,
-            url: `https://hmc-consulting.pro/?product=${product.id}`,
+            url: `https://hmc-consulting.pro/produits/${product.id}`,
             brand: { "@type": "Brand", name: "HMC — Horizon Management Consulting" },
           }),
         }}
@@ -43,8 +44,8 @@ export function ProductDetail({
           __html: JSON.stringify(
             breadcrumbJsonLd([
               { name: "Accueil", url: "https://hmc-consulting.pro" },
-              { name: "Produits", url: "https://hmc-consulting.pro/?page=produits" },
-              { name: product.name, url: `https://hmc-consulting.pro/?product=${product.id}` },
+              { name: "Produits", url: "https://hmc-consulting.pro/produits" },
+              { name: product.name, url: `https://hmc-consulting.pro/produits/${product.id}` },
             ])
           ),
         }}
@@ -61,7 +62,7 @@ export function ProductDetail({
               Accueil
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link href="/?page=produits" className="hover:text-accent transition-colors">
+            <Link href="/produits" className="hover:text-accent transition-colors">
               Nos Produits
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -104,10 +105,12 @@ export function ProductDetail({
             transition={{ duration: 0.6 }}
             className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[21/9]"
           >
-            <img
+            <Image
               src={product.image}
               alt={product.name}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent" />
           </motion.div>
@@ -269,14 +272,14 @@ export function ProductDetail({
           {/* CTA */}
           <div className="mt-12 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/?page=contact"
+              href="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky text-navy px-6 py-3 text-sm font-medium hover:bg-sky-light transition-colors group"
             >
               Demander une démo
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/?page=produits"
+              href="/produits"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 text-white px-6 py-3 text-sm font-medium hover:bg-white/10 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -296,7 +299,7 @@ export function ProductDetail({
             {otherProducts.map((p) => (
               <Link
                 key={p.id}
-                href={`/?product=${p.id}`}
+                href={`/produits/${p.id}`}
                 className="group flex items-center gap-4 bg-card rounded-2xl border border-border p-5 hover:border-accent/40 hover:shadow-lg transition-all"
               >
                 <div

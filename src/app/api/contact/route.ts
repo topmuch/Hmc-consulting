@@ -61,6 +61,10 @@ export async function POST(req: NextRequest) {
       typeof body?.productId === "string" && body.productId.trim()
         ? body.productId.trim()
         : null;
+    const attachmentUrl =
+      typeof body?.attachmentUrl === "string" && body.attachmentUrl.trim()
+        ? body.attachmentUrl.trim()
+        : null;
 
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
@@ -102,7 +106,10 @@ export async function POST(req: NextRequest) {
         company,
         phone,
         subject,
-        message,
+        message:
+          attachmentUrl
+            ? `${message}\n\n--- Pièce jointe ---\n${attachmentUrl}`
+            : message,
         productId,
       },
     });

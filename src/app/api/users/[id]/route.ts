@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const userSelect = {
@@ -25,13 +25,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
 
     const { id } = await params;
 
@@ -62,13 +57,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
 
     const { id } = await params;
 
@@ -171,13 +161,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
 
     const { id } = await params;
 

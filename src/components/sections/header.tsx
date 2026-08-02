@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -7,6 +8,8 @@ import { Menu, X, LayoutDashboard, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COMPANY, NAV_LINKS } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n";
 
 export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -15,6 +18,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const activePage = searchParams.get("page");
+  const { t } = useTranslation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -31,9 +35,11 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
     <header className="fixed inset-x-0 top-0 z-50 bg-background border-b border-border shadow-sm">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-20">
         <Link href="/" className="flex items-center group" aria-label="HMC — Horizon Management Consulting">
-          <img
+          <Image
             src="/hmc-logo.png"
             alt="HMC — Horizon Management Consulting"
+            width={64}
+            height={64}
             className="h-14 w-auto sm:h-16 transition-transform group-hover:scale-105"
           />
         </Link>
@@ -138,6 +144,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
               </Link>
             );
           })}
+          <LanguageSwitcher className="ml-2" />
           {onGoDashboard && (
             <Button
               variant="ghost"
@@ -146,21 +153,22 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
               className="ml-2 text-foreground/80 hover:text-accent"
             >
               <LayoutDashboard className="h-4 w-4 mr-1.5" />
-              Connexion
+              {t("header.login")}
             </Button>
           )}
           <Button asChild size="sm" className="ml-2 bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link href="/?page=contact">Nous contacter</Link>
+            <Link href="/contact">{t("header.contactUs")}</Link>
           </Button>
         </nav>
 
         {/* Mobile toggle */}
         <div className="lg:hidden flex items-center gap-1">
+          <LanguageSwitcher />
           {onGoDashboard && (
             <button
               className="inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
               onClick={onGoDashboard}
-              aria-label="Connexion"
+              aria-label={t("header.login")}
             >
               <LayoutDashboard className="h-5 w-5" />
             </button>
@@ -168,7 +176,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
           <button
             className="inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary transition-colors"
             onClick={() => setOpen((v) => !v)}
-            aria-label="Ouvrir le menu"
+            aria-label={t("header.openMenu")}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -226,7 +234,7 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
                         <button
                           onClick={() => setMobileSubOpen(isExpanded ? null : (link.id || null))}
                           className="p-2 rounded-md text-foreground/60 hover:bg-secondary hover:text-accent transition-colors"
-                          aria-label="Ouvrir le sous-menu"
+                          aria-label={t("header.openSubMenu")}
                         >
                           <ChevronDown
                             className={cn(
@@ -280,6 +288,10 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
                 </Link>
               );
             })}
+            <div className="my-2 border-t border-border" />
+            <div className="px-3 py-2">
+              <LanguageSwitcher />
+            </div>
             {onGoDashboard && (
               <button
                 onClick={() => {
@@ -289,12 +301,12 @@ export function SiteHeader({ onGoDashboard }: { onGoDashboard?: () => void }) {
                 className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-secondary hover:text-accent transition-colors flex items-center gap-2"
               >
                 <LayoutDashboard className="h-4 w-4" />
-                Connexion
+                {t("header.login")}
               </button>
             )}
             <Button asChild className="mt-2 bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="/?page=contact" onClick={() => setOpen(false)}>
-                Nous contacter
+              <Link href="/contact" onClick={() => setOpen(false)}>
+                {t("header.contactUs")}
               </Link>
             </Button>
           </nav>

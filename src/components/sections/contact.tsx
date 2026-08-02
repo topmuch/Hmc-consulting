@@ -1,20 +1,25 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, User, Briefcase, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, User, Briefcase, Send, CheckCircle2, Loader2, Paperclip } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { COMPANY } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n";
 
 export function Contact() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -36,7 +41,7 @@ export function Contact() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, attachmentUrl }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) {
@@ -52,13 +57,14 @@ export function Contact() {
         message: "",
         productId: "",
       });
+      setAttachmentUrl(null);
       toast({
-        title: "Message envoyé",
-        description: "Merci. Nous revenons vers vous très rapidement.",
+        title: t("contact.successTitle"),
+        description: t("contact.successDescription"),
       });
     } catch (err) {
       toast({
-        title: "Erreur",
+        title: t("common.send") + " — " + "Erreur",
         description:
           err instanceof Error ? err.message : "Une erreur est survenue.",
         variant: "destructive",
@@ -72,10 +78,12 @@ export function Contact() {
     <section id="contact" className="relative py-20 sm:py-28 bg-navy text-white overflow-hidden">
       {/* Decorative chess background */}
       <div className="absolute inset-0 z-0 opacity-20">
-        <img
+        <Image
           src="/contact-chess.jpg"
           alt=""
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="100vw"
           aria-hidden
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/75" />
@@ -89,23 +97,23 @@ export function Contact() {
               eyebrow="Contact"
               title={
                 <>
-                  Parlons de votre <span className="italic text-sky-light">projet</span>
+                  {t("contact.title")} <span className="italic text-sky-light">{t("contact.titleAccent")}</span>
                 </>
               }
-              description="Une question, un projet de développement, de structuration ou de transformation ? Notre équipe vous répond avec la confidentialité et l'attention que méritent vos enjeux."
+              description={t("contact.description")}
               light
             />
 
             <div className="mt-10 space-y-5">
               <ContactCard
                 icon={<User className="h-5 w-5" />}
-                label="Interlocuteur"
+                label={t("contact.interlocutorLabel")}
                 value="HMC"
                 sub="Horizon Management Consulting"
               />
               <ContactCard
                 icon={<Mail className="h-5 w-5" />}
-                label="E-mail"
+                label={t("contact.emailCardLabel")}
                 value={COMPANY.email}
                 href={`mailto:${COMPANY.email}`}
               />
@@ -128,7 +136,7 @@ export function Contact() {
 
             <div className="mt-8 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-sky-light/90">
               <span className="h-px w-8 bg-sky-light/50" />
-              Afrique &amp; Océan Indien
+              {t("contact.locationSubtitle")}
             </div>
           </div>
 
@@ -145,72 +153,71 @@ export function Contact() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky/20 text-sky-light">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h3 className="mt-5 font-serif text-2xl font-semibold">Message envoyé</h3>
+                <h3 className="mt-5 font-serif text-2xl font-semibold">{t("contact.successTitle")}</h3>
                 <p className="mt-2 text-sm text-white/70 max-w-sm">
-                  Merci pour votre confiance. Notre équipe revient vers vous dans les plus
-                  brefs délais.
+                  {t("contact.successDescription")}
                 </p>
                 <Button
                   variant="outline"
                   className="mt-6 border-white/30 text-white hover:bg-white/10 hover:text-white"
                   onClick={() => setDone(false)}
                 >
-                  Envoyer un autre message
+                  {t("contact.sendAnother")}
                 </Button>
               </div>
             ) : (
               <form onSubmit={onSubmit} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Field label="Nom complet *">
+                  <Field label={t("contact.nameLabel")}>
                     <Input
                       required
                       value={form.name}
                       onChange={(e) => update("name", e.target.value)}
-                      placeholder="Votre nom"
+                      placeholder={t("contact.namePlaceholder")}
                       className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
-                  <Field label="E-mail *">
+                  <Field label={t("contact.emailLabel")}>
                     <Input
                       required
                       type="email"
                       value={form.email}
                       onChange={(e) => update("email", e.target.value)}
-                      placeholder="vous@exemple.com"
+                      placeholder={t("contact.emailPlaceholder")}
                       className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Field label="Société">
+                  <Field label={t("contact.companyLabel")}>
                     <div className="relative">
                       <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                       <Input
                         value={form.company}
                         onChange={(e) => update("company", e.target.value)}
-                        placeholder="Votre entreprise"
+                        placeholder={t("contact.companyPlaceholder")}
                         className="bg-white/5 border-white/15 text-white placeholder:text-white/40 pl-9 focus-visible:border-sky-light"
                       />
                     </div>
                   </Field>
-                  <Field label="Téléphone">
+                  <Field label={t("contact.phoneLabel")}>
                     <Input
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value)}
-                      placeholder="+221 ..."
+                      placeholder={t("contact.phonePlaceholder")}
                       className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                     />
                   </Field>
                 </div>
 
-                <Field label="Produit intéressé (optionnel)">
+                <Field label={t("contact.productLabel")}>
                   <select
                     value={form.productId}
                     onChange={(e) => update("productId", e.target.value)}
                     className="w-full rounded-md bg-white/5 border border-white/15 text-white px-3 py-2 text-sm focus-visible:border-sky-light focus-visible:outline-none [&>option]:bg-navy [&>option]:text-white"
                   >
-                    <option value="">— Aucun produit spécifique —</option>
+                    <option value="">{t("contact.noProductOption")}</option>
                     <option value="qrbags">QRbags — Traçabilité de bagages</option>
                     <option value="qrtags">QRtags — Traçabilité d'objets</option>
                     <option value="qrtags-entreprise">QRtags Entreprise — Objets trouvés pro</option>
@@ -220,25 +227,39 @@ export function Contact() {
                   </select>
                 </Field>
 
-                <Field label="Sujet *">
+                <Field label={t("contact.subjectLabel")}>
                   <Input
                     required
                     value={form.subject}
                     onChange={(e) => update("subject", e.target.value)}
-                    placeholder="Objet de votre demande"
+                    placeholder={t("contact.subjectPlaceholder")}
                     className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light"
                   />
                 </Field>
 
-                <Field label="Message *">
+                <Field label={t("contact.messageLabel")}>
                   <Textarea
                     required
                     value={form.message}
                     onChange={(e) => update("message", e.target.value)}
-                    placeholder="Décrivez votre projet ou votre demande…"
+                    placeholder={t("contact.messagePlaceholder")}
                     rows={5}
                     className="bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:border-sky-light resize-none"
                   />
+                </Field>
+
+                <Field label={t("contact.attachmentLabel")}>
+                  <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Paperclip className="h-4 w-4 text-white/40" />
+                      <span className="text-xs text-white/50">{t("contact.attachmentHint")}</span>
+                    </div>
+                    <FileUpload
+                      onUploadComplete={(url) => setAttachmentUrl(url)}
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                      className="[&_div]:border-white/10 [&_div]:bg-white/[0.03] [&_div]:hover:border-sky-light/40 [&_p]:text-white/50 [&_div]:text-white/70"
+                    />
+                  </div>
                 </Field>
 
                 <Button
@@ -249,17 +270,17 @@ export function Contact() {
                   {submitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Envoi en cours…
+                      {t("contact.sendingButton")}
                     </>
                   ) : (
                     <>
                       <Send className="mr-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      Envoyer le message
+                      {t("contact.submitButton")}
                     </>
                   )}
                 </Button>
                 <p className="text-center text-xs text-white/40">
-                  En envoyant ce formulaire, vous acceptez d&apos;être recontacté par HMC.
+                  {t("contact.consentText")}
                 </p>
               </form>
             )}

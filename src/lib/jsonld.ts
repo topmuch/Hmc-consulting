@@ -46,7 +46,7 @@ export function webSiteJsonLd() {
     url: BASE_URL,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${BASE_URL}/?page=services&q={search_term_string}`,
+      target: `${BASE_URL}/services?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -152,7 +152,7 @@ export function productsJsonLd() {
         name: product.name,
         description: product.description,
         category: product.category,
-        url: `${BASE_URL}/?product=${product.id}`,
+        url: `${BASE_URL}/produits/${product.id}`,
         brand: {
           "@type": "Brand",
           name: COMPANY.fullName,

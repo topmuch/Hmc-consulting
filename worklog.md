@@ -424,3 +424,34 @@ Work Log:
 - `bun run lint` → passes with 0 errors, 0 warnings (exit code 0).
 - `bunx tsc --noEmit` → no new errors in any file created or modified by this task. Pre-existing errors remain only in `examples/websocket/*` (missing socket.io modules) and `skills/*` (unrelated) — same baseline as before.
 - `bun run build` → ✅ Compiled successfully in ~16s. All 21 routes (including the new `/api/clients`, `/api/clients/[id]`, `/api/leads`, `/api/leads/[id]`, `/api/users`, `/api/users/[id]`, `/api/reports/overview`) generated cleanly. No build warnings related to the dashboard.
+
+---
+Task ID: phase-3
+Agent: Main Agent
+Task: Phase 3 — Implement 9 suggested features for HMC Consulting
+
+Work Log:
+- Audited all 9 features to determine current implementation state
+- F1 Blog: Created blog detail page (blog-detail-view.tsx), blog management dashboard (blog-view.tsx), updated API routes, updated view-switcher
+- F2 Testimonials: Added Testimonial model to Prisma, created testimonials API, created case-studies-view.tsx page, testimonials management dashboard, seeded data
+- F3 Team: Added TeamMember model to Prisma, created team API, created team-management dashboard view, updated team section to fetch from API
+- F4 Newsletter: Created newsletter-view.tsx dashboard, added GET/DELETE handlers to newsletter API, added Newsletter tab to dashboard
+- F5 Appointment: Added AppointmentBooking section to home page, internationalized with useTranslation
+- F6 Quote Generator: Already complete (was done in previous session)
+- F7 Multilingual: Already complete (was done in previous session)
+- F8 Analytics: Already complete (was done in previous session)
+- F9 File Upload: Integrated FileUpload component in contact form, updated contact API to handle attachmentUrl
+- Added "Études de cas" to navigation and PAGES array
+- Added blog, newsletter, testimonials, and team tabs to dashboard
+- Ran Prisma migrations and seed scripts
+- Final build verified successfully
+
+Stage Summary:
+- All 9 Phase 3 features are now fully implemented
+- 4 new dashboard views: Blog, Newsletter, Testimonials, Team Management
+- 2 new Prisma models: Testimonial, TeamMember
+- 4 new API routes: /api/testimonials, /api/team, /api/testimonials/[id], /api/team/[id]
+- 3 new page components: blog-detail-view, case-studies-view
+- Appointment booking integrated on home page
+- File upload integrated in contact form
+- Build passes with all 43 routes

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, requireManager } from "@/lib/auth";
 
 const VALID_TYPES = new Set(["prospect", "client", "partner"]);
 const VALID_STATUSES = new Set(["active", "inactive", "archived"]);
@@ -54,13 +54,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireManager(req);
+    if (denied) return denied;
 
     const body = await req.json();
 

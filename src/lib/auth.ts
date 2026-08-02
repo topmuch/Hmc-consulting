@@ -222,4 +222,22 @@ export async function requireAdmin(req: NextRequest): Promise<NextResponse | nul
   return null;
 }
 
+// ─── Require manager+ role helper (admin or manager) ─────────
+export async function requireManager(req: NextRequest): Promise<NextResponse | null> {
+  const session = await getSession(req);
+  if (!session.authenticated) {
+    return NextResponse.json(
+      { ok: false, error: "Non authentifié" },
+      { status: 401 }
+    );
+  }
+  if (session.user?.role !== "admin" && session.user?.role !== "manager") {
+    return NextResponse.json(
+      { ok: false, error: "Accès réservé aux managers et administrateurs." },
+      { status: 403 }
+    );
+  }
+  return null;
+}
+
 export { COOKIE_NAME, USER_COOKIE_NAME };

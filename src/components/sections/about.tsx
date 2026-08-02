@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { SectionHeading } from "./section-heading";
@@ -19,10 +20,12 @@ export function About() {
             className="relative order-2 lg:order-1"
           >
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
-              <img
+              <Image
                 src="/about-team.jpg"
                 alt="Équipe de consultants collaborant en bureau"
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
             </div>

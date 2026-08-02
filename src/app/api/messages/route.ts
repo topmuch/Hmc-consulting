@@ -12,9 +12,33 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const messages = await db.contactMessage.findMany({
+    const url = new URL(req.url);
+    const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "50", 10)));
+    const skip = (page - 1) * limit;
+
+    // Fetch paginated messages for the list
+    const [messages, total] = await Promise.all([
+      db.contactMessage.findMany({
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      db.contactMessage.count(),
+    ]);
+
+    // Fetch ALL messages for stats (needed for accurate aggregations)
+    // Using a separate query limited to recent data for performance
+    const statsMessages = await db.contactMessage.findMany({
       orderBy: { createdAt: "desc" },
       take: 500,
+      select: {
+        createdAt: true,
+        subject: true,
+        status: true,
+        stage: true,
+        productId: true,
+      },
     });
 
     const now = new Date();
@@ -29,10 +53,10 @@ export async function GET(req: NextRequest) {
 
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-    const thisMonth = messages.filter((m) => new Date(m.createdAt) >= startOfMonth);
-    const thisWeek = messages.filter((m) => new Date(m.createdAt) >= startOfWeek);
-    const today = messages.filter((m) => new Date(m.createdAt) >= startOfToday);
-    const lastMonth = messages.filter((m) => {
+    const thisMonth = statsMessages.filter((m) => new Date(m.createdAt) >= startOfMonth);
+    const thisWeek = statsMessages.filter((m) => new Date(m.createdAt) >= startOfWeek);
+    const today = statsMessages.filter((m) => new Date(m.createdAt) >= startOfToday);
+    const lastMonth = statsMessages.filter((m) => {
       const d = new Date(m.createdAt);
       return d >= startOfPrevMonth && d < startOfMonth;
     });
@@ -55,7 +79,7 @@ export async function GET(req: NextRequest) {
       d.setDate(d.getDate() + i);
       byDayMap.set(d.toISOString().split("T")[0], 0);
     }
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const d = new Date(m.createdAt);
       if (d >= daysAgo30) {
         const key = d.toISOString().split("T")[0];
@@ -73,7 +97,7 @@ export async function GET(req: NextRequest) {
 
     // ---- Breakdown by subject keyword ----
     const subjectBuckets: Record<string, number> = {};
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const s = m.subject.toLowerCase();
       let bucket = "Autre";
       if (/audit|contrôle|contrôle interne/.test(s)) bucket = "Audit";
@@ -93,7 +117,7 @@ export async function GET(req: NextRequest) {
     const byDowMap = new Map<string, number>([
       ["Lun", 0], ["Mar", 0], ["Mer", 0], ["Jeu", 0], ["Ven", 0], ["Sam", 0], ["Dim", 0],
     ]);
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const d = new Date(m.createdAt).getDay();
       byDowMap.set(dayNames[d], (byDowMap.get(dayNames[d]) || 0) + 1);
     });
@@ -102,12 +126,12 @@ export async function GET(req: NextRequest) {
       count: byDowMap.get(name) || 0,
     }));
 
-    // ---- Breakdown by status (new|in_progress|treated|archived) ----
+    // ---- Breakdown by status ----
     const statusOrder = ["new", "in_progress", "treated", "archived"];
     const byStatusMap = new Map<string, number>(
       statusOrder.map((s) => [s, 0])
     );
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const s = byStatusMap.has(m.status) ? m.status : "new";
       byStatusMap.set(s, (byStatusMap.get(s) || 0) + 1);
     });
@@ -116,12 +140,12 @@ export async function GET(req: NextRequest) {
       count: byStatusMap.get(status) || 0,
     }));
 
-    // ---- Breakdown by stage (received|qualified|meeting|client) — funnel ----
+    // ---- Breakdown by stage ----
     const stageOrder = ["received", "qualified", "meeting", "client"];
     const byStageMap = new Map<string, number>(
       stageOrder.map((s) => [s, 0])
     );
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const st = byStageMap.has(m.stage) ? m.stage : "received";
       byStageMap.set(st, (byStageMap.get(st) || 0) + 1);
     });
@@ -130,9 +154,9 @@ export async function GET(req: NextRequest) {
       count: byStageMap.get(stage) || 0,
     }));
 
-    // ---- Breakdown by product (null = "Non spécifié") ----
+    // ---- Breakdown by product ----
     const byProductMap = new Map<string, number>();
-    messages.forEach((m) => {
+    statsMessages.forEach((m) => {
       const key = m.productId || "__none__";
       byProductMap.set(key, (byProductMap.get(key) || 0) + 1);
     });
@@ -143,8 +167,14 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       messages,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
       stats: {
-        total: messages.length,
+        total,
         thisMonth: thisMonth.length,
         thisWeek: thisWeek.length,
         today: today.length,

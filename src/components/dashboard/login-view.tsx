@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, FormEvent } from "react";
 import { Lock, Loader2, ShieldCheck, ArrowRight, Mail } from "lucide-react";
 import { COMPANY } from "@/lib/site-data";
@@ -51,9 +52,11 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
 
       <header className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-5">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src="/hmc-logo.png"
             alt={`${COMPANY.name} — ${COMPANY.fullName}`}
+            width={48}
+            height={48}
             className="h-12 w-auto drop-shadow"
           />
           <div className="hidden sm:flex flex-col leading-tight">

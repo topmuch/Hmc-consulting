@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { SectionHeading } from "./section-heading";
@@ -13,10 +14,12 @@ export function Experience() {
     >
       {/* Decorative background */}
       <div className="absolute inset-0 z-0 opacity-25">
-        <img
+        <Image
           src="/africa-map.jpg"
           alt="Carte de l'Afrique"
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/70" />
       </div>

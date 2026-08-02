@@ -17,9 +17,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Static pages (histoire, valeurs, services, experience, expertise, contact)
+  // Static pages — clean URLs
   const pages: MetadataRoute.Sitemap = PAGES.map((page) => ({
-    url: `${BASE_URL}/?page=${page.id}`,
+    url: `${BASE_URL}/${page.id}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: page.id === "services" || page.id === "produits" ? 0.9 : 0.8,
@@ -28,16 +28,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Products overview
   const productsOverview: MetadataRoute.Sitemap = [
     {
-      url: `${BASE_URL}/?page=produits`,
+      url: `${BASE_URL}/produits`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
   ];
 
-  // Individual product pages
+  // Individual product pages — clean URLs
   const productPages: MetadataRoute.Sitemap = PRODUCTS.map((product) => ({
-    url: `${BASE_URL}/?product=${product.id}`,
+    url: `${BASE_URL}/produits/${product.id}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: 0.7,

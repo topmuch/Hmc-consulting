@@ -20,6 +20,19 @@ const PUBLIC_PATTERNS = [
   "/api/health",
 ];
 
+// ─── Clean URL rewrites (SEO-friendly) ──────────────────────
+const PAGE_ROUTES = new Set([
+  "services",
+  "produits",
+  "histoire",
+  "valeurs",
+  "experience",
+  "expertise",
+  "contact",
+  "blog",
+  "equipe",
+]);
+
 function isProtected(pathname: string): boolean {
   return PROTECTED_PATTERNS.some((p) => pathname.startsWith(p));
 }
@@ -75,11 +88,29 @@ async function verifyToken(token: string): Promise<boolean> {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Skip non-API routes
-  if (!pathname.startsWith("/api/")) {
-    return NextResponse.next();
+  // ─── Clean URL rewrites (SEO-friendly) ──────────────────────
+  // /services → /?page=services, /produits/qrbags → /?product=qrbags, etc.
+  if (!pathname.startsWith("/_next") && !pathname.startsWith("/api") && pathname !== "/") {
+    const segments = pathname.split("/").filter(Boolean);
+
+    // /produits/{productId} → /?product=productId
+    if (segments.length === 2 && segments[0] === "produits") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      url.searchParams.set("product", segments[1]);
+      return NextResponse.rewrite(url);
+    }
+
+    // /{pageId} → /?page=pageId
+    if (segments.length === 1 && PAGE_ROUTES.has(segments[0])) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      url.searchParams.set("page", segments[0]);
+      return NextResponse.rewrite(url);
+    }
   }
 
+  // ─── API route protection ──────────────────────────────────
   // Allow public routes
   if (isPublic(pathname)) {
     return NextResponse.next();
@@ -101,5 +132,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/((?!_next|favicon\\.ico|.*\\..*).*)"],
 };

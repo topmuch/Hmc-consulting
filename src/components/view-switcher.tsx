@@ -9,8 +9,11 @@ import { PageView } from "@/components/pages/page-view";
 import { ProductsOverview } from "@/components/pages/products-overview";
 import { ProductDetail } from "@/components/pages/product-detail";
 import { BlogView } from "@/components/pages/blog-view";
+import { BlogDetailView } from "@/components/pages/blog-detail-view";
 import { TeamView } from "@/components/pages/team-view";
+import { CaseStudiesView } from "@/components/pages/case-studies-view";
 import { getProductById } from "@/lib/products-data";
+import { I18nProvider } from "@/lib/i18n";
 
 export function ViewSwitcher() {
   const searchParams = useSearchParams();
@@ -18,6 +21,7 @@ export function ViewSwitcher() {
   const view = searchParams.get("view");
   const page = searchParams.get("page");
   const product = searchParams.get("product");
+  const blog = searchParams.get("blog");
 
   const goDashboard = useCallback(() => {
     router.push("/?view=dashboard", { scroll: false });
@@ -27,44 +31,34 @@ export function ViewSwitcher() {
     router.push("/?view=settings", { scroll: false });
   }, [router]);
 
+  let content: React.ReactNode;
+
   if (view === "dashboard") {
-    return <Dashboard onGoSettings={goSettings} />;
-  }
-
-  if (view === "settings") {
-    return <SettingsPage />;
-  }
-
-  // Individual product detail page
-  if (product) {
+    content = <Dashboard onGoSettings={goSettings} />;
+  } else if (view === "settings") {
+    content = <SettingsPage />;
+  } else if (product) {
     const prod = getProductById(product);
     if (prod) {
-      return <ProductDetail product={prod} onGoDashboard={goDashboard} />;
+      content = <ProductDetail product={prod} onGoDashboard={goDashboard} />;
+    } else {
+      content = <ProductsOverview onGoDashboard={goDashboard} />;
     }
-    // Fallback to products overview
-    return <ProductsOverview onGoDashboard={goDashboard} />;
+  } else if (page === "produits") {
+    content = <ProductsOverview onGoDashboard={goDashboard} />;
+  } else if (page === "equipe") {
+    content = <TeamView onGoDashboard={goDashboard} />;
+  } else if (page === "etudes") {
+    content = <CaseStudiesView onGoDashboard={goDashboard} />;
+  } else if (blog) {
+    content = <BlogDetailView postId={blog} onGoDashboard={goDashboard} />;
+  } else if (page === "blog") {
+    content = <BlogView onGoDashboard={goDashboard} />;
+  } else if (page) {
+    content = <PageView pageId={page} onGoDashboard={goDashboard} />;
+  } else {
+    content = <SiteView onGoDashboard={goDashboard} />;
   }
 
-  // Products overview page
-  if (page === "produits") {
-    return <ProductsOverview onGoDashboard={goDashboard} />;
-  }
-
-  // Team page
-  if (page === "equipe") {
-    return <TeamView onGoDashboard={goDashboard} />;
-  }
-
-  // Blog page
-  if (page === "blog") {
-    return <BlogView onGoDashboard={goDashboard} />;
-  }
-
-  // A dedicated content page (histoire, valeurs, services, etc.)
-  if (page) {
-    return <PageView pageId={page} onGoDashboard={goDashboard} />;
-  }
-
-  // Default: homepage
-  return <SiteView onGoDashboard={goDashboard} />;
+  return <I18nProvider>{content}</I18nProvider>;
 }

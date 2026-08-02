@@ -29,7 +29,7 @@ function PageJsonLd({ pageId }: { pageId: string }) {
         __html: JSON.stringify(
           breadcrumbJsonLd([
             { name: "Accueil", url: "https://hmc-consulting.pro" },
-            { name: label, url: `https://hmc-consulting.pro/?page=${pageId}` },
+            { name: label, url: `https://hmc-consulting.pro/${pageId}` },
           ])
         ),
       }}

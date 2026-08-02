@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 // Select object so we NEVER leak the password field
@@ -18,13 +18,8 @@ const VALID_ROLES = new Set(["admin", "manager", "agent"]);
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
 
     const users = await db.user.findMany({
       select: userSelect,
@@ -43,13 +38,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSession(req);
-    if (!session.authenticated) {
-      return NextResponse.json(
-        { ok: false, error: "Non authentifié" },
-        { status: 401 }
-      );
-    }
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
 
     const body = await req.json();
 

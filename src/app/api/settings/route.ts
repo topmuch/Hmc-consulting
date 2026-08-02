@@ -2,19 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings-server";
 import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/settings-types";
-import { requireAuth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) return authError;
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
 
   const settings = await getSettings();
   return NextResponse.json(settings);
 }
 
 export async function PUT(req: NextRequest) {
-  const authError = requireAuth(req);
-  if (authError) return authError;
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
 
   try {
     const body = await req.json();
