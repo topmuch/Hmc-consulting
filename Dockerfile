@@ -11,7 +11,14 @@ RUN bun install
 
 RUN npx prisma generate
 
-RUN DATABASE_URL=file:/app/data/hmc.db NEXT_TELEMETRY_DISABLED=1 bun run build
+# Create the database before build so Prisma queries during SSG don't crash
+RUN mkdir -p /app/data && \
+    DATABASE_URL=file:/app/data/hmc.db npx prisma db push --skip-generate
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL=file:/app/data/hmc.db
+
+RUN bun run build
 
 RUN mkdir -p /app/data
 

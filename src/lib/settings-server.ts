@@ -1,12 +1,13 @@
-import { db } from "@/lib/db";
 import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/settings-types";
 
 /**
  * Get the singleton site settings. Falls back to defaults if not found.
  * Server-side only (uses Prisma).
+ * Resilient to missing DB during build time.
  */
 export async function getSettings(): Promise<SiteSettings> {
   try {
+    const { db } = await import("@/lib/db");
     const row = await db.siteSetting.findUnique({ where: { id: "singleton" } });
     if (!row) return DEFAULT_SETTINGS;
     return {
@@ -55,6 +56,7 @@ export async function maybeCreateNotification(
 ) {
   if (!enabledFlag) return null;
   try {
+    const { db } = await import("@/lib/db");
     return await db.notification.create({
       data: { type, title, message, link },
     });
