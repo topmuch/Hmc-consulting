@@ -9,6 +9,8 @@ const FOOTER_NAV = [
   { href: "/?page=histoire", label: "À propos" },
   { href: "/?page=services", label: "Services" },
   { href: "/?page=produits", label: "Produits" },
+  { href: "/?page=blog", label: "Blog" },
+  { href: "/?page=equipe", label: "Équipe" },
   { href: "/?page=contact", label: "Contact" },
 ];
 

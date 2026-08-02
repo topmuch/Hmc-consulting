@@ -23,6 +23,7 @@ import {
   MessageSquare,
   ArrowRight,
   Package,
+  Newspaper,
   type LucideIcon,
 } from "lucide-react";
 
@@ -111,6 +112,24 @@ export const PAGES: PageMeta[] = [
     longDescription:
       "Une question, un projet de développement ou de structuration ? Notre équipe vous répond avec confidentialité.",
   },
+  {
+    id: "blog",
+    label: "Blog",
+    href: "/?page=blog",
+    icon: Newspaper,
+    shortDescription: "Analyses, conseils et retours d'expérience pour votre entreprise.",
+    longDescription:
+      "Analyses, conseils et retours d'expérience pour accompagner le développement de votre entreprise et anticiper les évolutions des marchés.",
+  },
+  {
+    id: "equipe",
+    label: "Équipe",
+    href: "/?page=equipe",
+    icon: Users,
+    shortDescription: "Notre équipe de consultants experts.",
+    longDescription:
+      "Découvrez les consultants et experts qui font la force d'HMC.",
+  },
 ];
 
 export type NavLink = {
@@ -134,6 +153,7 @@ export const NAV_LINKS: NavLink[] = [
   },
   { href: "/?page=produits", label: "Produits", id: "produits" },
   { href: "/?page=services", label: "Services", id: "services" },
+  { href: "/?page=blog", label: "Blog", id: "blog" },
   { href: "/?page=contact", label: "Contact", id: "contact" },
 ];
 

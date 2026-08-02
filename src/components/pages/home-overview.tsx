@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { SectionHeading } from "@/components/sections/section-heading";
+import { Blog } from "@/components/sections/blog";
+import { Testimonials } from "@/components/sections/testimonials";
+import { Newsletter } from "@/components/sections/newsletter";
 import { SERVICES } from "@/lib/site-data";
 import { PRODUCTS } from "@/lib/products-data";
 
@@ -179,6 +182,15 @@ export function HomeOverview() {
           </div>
         </div>
       </section>
+
+      {/* ── Blog section ── */}
+      <Blog />
+
+      {/* ── Testimonials section ── */}
+      <Testimonials />
+
+      {/* ── Newsletter section ── */}
+      <Newsletter />
     </>
   );
 }

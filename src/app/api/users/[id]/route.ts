@@ -15,8 +15,9 @@ const userSelect = {
 
 const VALID_ROLES = new Set(["admin", "manager", "agent"]);
 
-function hashPassword(password: string): string {
-  return Buffer.from(password).toString("base64");
+async function hashPassword(password: string): Promise<string> {
+  const bcrypt = await import("bcryptjs");
+  return bcrypt.hash(password, 10);
 }
 
 export async function GET(
@@ -106,7 +107,7 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      data.password = hashPassword(body.password);
+      data.password = await hashPassword(body.password);
     }
 
     if (typeof body?.role === "string") {

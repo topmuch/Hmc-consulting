@@ -8,6 +8,8 @@ import { SettingsPage } from "@/components/settings/settings-page";
 import { PageView } from "@/components/pages/page-view";
 import { ProductsOverview } from "@/components/pages/products-overview";
 import { ProductDetail } from "@/components/pages/product-detail";
+import { BlogView } from "@/components/pages/blog-view";
+import { TeamView } from "@/components/pages/team-view";
 import { getProductById } from "@/lib/products-data";
 
 export function ViewSwitcher() {
@@ -46,6 +48,16 @@ export function ViewSwitcher() {
   // Products overview page
   if (page === "produits") {
     return <ProductsOverview onGoDashboard={goDashboard} />;
+  }
+
+  // Team page
+  if (page === "equipe") {
+    return <TeamView onGoDashboard={goDashboard} />;
+  }
+
+  // Blog page
+  if (page === "blog") {
+    return <BlogView onGoDashboard={goDashboard} />;
   }
 
   // A dedicated content page (histoire, valeurs, services, etc.)

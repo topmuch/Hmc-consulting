@@ -1,27 +1,26 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 /**
  * GET /api/auth/check
  * Diagnostic endpoint to verify admin users exist in the database.
- * Returns user count and emails (no passwords) for debugging login issues.
- * Only available in non-production or with explicit DEBUG_AUTH env var.
+ * Only available with DEBUG_AUTH env var set.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Security gate: only allow with explicit DEBUG_AUTH env var
+  if (!process.env.DEBUG_AUTH) {
+    return NextResponse.json(
+      { ok: false, error: "Endpoint non disponible en production." },
+      { status: 403 }
+    );
+  }
+
   try {
-    const users = await db.user.findMany({
-      select: { id: true, email: true, name: true, role: true, active: true },
-    });
+    const count = await db.user.count();
 
     return NextResponse.json({
       ok: true,
-      totalUsers: users.length,
-      users: users.map((u) => ({
-        email: u.email,
-        name: u.name,
-        role: u.role,
-        active: u.active,
-      })),
+      totalUsers: count,
       env: {
         DATABASE_URL_set: !!process.env.DATABASE_URL,
         ADMIN_PASSWORD_set: !!process.env.ADMIN_PASSWORD,

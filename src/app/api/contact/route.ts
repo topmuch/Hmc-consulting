@@ -3,8 +3,48 @@ import { db } from "@/lib/db";
 import { getSettings, maybeCreateNotification } from "@/lib/settings-server";
 import { sendAutoReply, sendNewMessageNotification, sendNewLeadNotification } from "@/lib/email";
 
+// ─── Simple in-memory rate limiter ───────────────────────────
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 3; // 3 requests per minute
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now - entry.lastReset > RATE_LIMIT_WINDOW) {
+    rateLimitMap.set(ip, { count: 1, lastReset: now });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    return true;
+  }
+  return false;
+}
+
+// ─── HTML escape for email templates ─────────────────────────
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { ok: false, error: "Trop de requêtes. Réessayez dans quelques minutes." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     const name = typeof body?.name === "string" ? body.name.trim() : "";
@@ -45,6 +85,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Basic spam detection
+    const spamPatterns = /[<>]script|javascript:|on\w+=/i;
+    if (spamPatterns.test(name) || spamPatterns.test(subject)) {
+      return NextResponse.json(
+        { ok: false, error: "Contenu non autorisé détecté." },
+        { status: 400 }
+      );
+    }
+
     // 1. Save the contact message
     const record = await db.contactMessage.create({
       data: {
@@ -72,15 +121,14 @@ export async function POST(req: NextRequest) {
     // 3. Auto-create a lead from the contact form if it looks like a business inquiry
     let leadCreated = false;
     try {
-      // Check if a lead with the same email already exists
       const existingLead = await db.lead.findFirst({
         where: { email },
         orderBy: { createdAt: "desc" },
       });
 
       if (!existingLead) {
-        // Determine source based on productId
-        const source = productId ? "produit" : "contact_form";
+        // Use valid source values from the leads API
+        const source = productId ? "website" : "website";
         const lead = await db.lead.create({
           data: {
             name,
@@ -94,18 +142,16 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Log activity
         await db.leadActivity.create({
           data: {
             leadId: lead.id,
             type: "note",
-            description: "Lead créé automatiquement depuis le formulaire de contact",
+            content: "Lead créé automatiquement depuis le formulaire de contact",
           },
         });
 
         leadCreated = true;
 
-        // Create in-app notification for new lead
         await maybeCreateNotification(
           "new_lead",
           `Nouveau lead : ${name}`,
@@ -114,35 +160,32 @@ export async function POST(req: NextRequest) {
           settings.notifyOnNewMessage
         );
 
-        // Send email notification about new lead
         try {
           await sendNewLeadNotification(name, email, company, phone, productId);
         } catch (err) {
           console.error("[api/contact] sendNewLeadNotification error", err);
         }
       } else {
-        // Lead exists — log the new contact as an activity on the existing lead
         await db.leadActivity.create({
           data: {
             leadId: existingLead.id,
             type: "note",
-            description: `Nouveau message contact : ${subject}`,
+            content: `Nouveau message contact : ${subject}`,
           },
         });
       }
     } catch (leadErr) {
       console.error("[api/contact] lead creation error", leadErr);
-      // Don't fail the contact form if lead creation fails
     }
 
-    // 4. Send auto-reply to the contact form submitter (respects autoReplyEnabled)
+    // 4. Send auto-reply to the contact form submitter
     try {
       await sendAutoReply(name, email, subject);
     } catch (err) {
       console.error("[api/contact] sendAutoReply error", err);
     }
 
-    // 5. Notify the team about the new message (respects notifyOnNewMessage)
+    // 5. Notify the team about the new message
     try {
       await sendNewMessageNotification(name, subject, company);
     } catch (err) {

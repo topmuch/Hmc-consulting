@@ -17,6 +17,16 @@ type SmtpConfig = {
   from: string;
 };
 
+// ─── HTML escape to prevent XSS in email templates ───────────
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /**
  * Send an email. If SMTP is configured in settings, sends via nodemailer.
  * Otherwise, logs to EmailLog table (status="logged") for demo purposes.
@@ -40,7 +50,6 @@ export async function sendEmail({ to, subject, body, type, messageId }: SendEmai
 
   if (smtp) {
     try {
-      // Dynamic import of nodemailer (only when SMTP is configured)
       const nodemailer: any = await import("nodemailer").catch(() => null);
       if (nodemailer) {
         const transporter = nodemailer.createTransport({
@@ -81,16 +90,19 @@ export async function sendAutoReply(name: string, email: string, subject: string
   const settings = await getSettings();
   if (!settings.autoReplyEnabled) return null;
 
+  const safeName = escapeHtml(name);
+  const safeSubject = escapeHtml(subject);
+
   const body = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: #003070; padding: 24px; border-radius: 8px 8px 0 0;">
-        <h1 style="color: #fff; margin: 0; font-size: 20px;">${settings.siteFullName}</h1>
-        <p style="color: #50b0e0; margin: 4px 0 0; font-size: 13px;">${settings.tagline}</p>
+        <h1 style="color: #fff; margin: 0; font-size: 20px;">${escapeHtml(settings.siteFullName)}</h1>
+        <p style="color: #50b0e0; margin: 4px 0 0; font-size: 13px;">${escapeHtml(settings.tagline)}</p>
       </div>
       <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
-        <p style="color: #333; font-size: 15px;">Bonjour ${name},</p>
+        <p style="color: #333; font-size: 15px;">Bonjour ${safeName},</p>
         <p style="color: #555; font-size: 14px; line-height: 1.6;">
-          Nous avons bien reçu votre demande : <strong>« ${subject} »</strong>.
+          Nous avons bien reçu votre demande : <strong>« ${safeSubject} »</strong>.
         </p>
         <p style="color: #555; font-size: 14px; line-height: 1.6;">
           Notre équipe vous recontactera dans les plus brefs délais pour répondre à vos besoins.
@@ -98,9 +110,9 @@ export async function sendAutoReply(name: string, email: string, subject: string
         </p>
         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
           <p style="color: #888; font-size: 12px; margin: 0;">
-            ${settings.partner} — ${settings.partnerRole}<br/>
-            📞 ${settings.phone} · ✉️ ${settings.email}<br/>
-            Afrique & Océan Indien
+            ${escapeHtml(settings.partner)} — ${escapeHtml(settings.partnerRole)}<br/>
+            ${escapeHtml(settings.phone)} · ${escapeHtml(settings.email)}<br/>
+            Afrique &amp; Océan Indien
           </p>
         </div>
       </div>
@@ -127,13 +139,17 @@ export async function sendNewMessageNotification(
   if (!settings.notifyOnNewMessage) return null;
 
   const to = settings.notifyEmail || settings.email;
+  const safeName = escapeHtml(name);
+  const safeSubject = escapeHtml(subject);
+  const safeCompany = company ? escapeHtml(company) : null;
+
   const body = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h2 style="color: #003070;">📨 Nouveau message reçu</h2>
+      <h2 style="color: #003070;">Nouveau message reçu</h2>
       <table style="width: 100%; font-size: 14px; color: #333;">
-        <tr><td style="padding: 4px 0; font-weight: 600;">De:</td><td>${name}</td></tr>
-        <tr><td style="padding: 4px 0; font-weight: 600;">Sujet:</td><td>${subject}</td></tr>
-        ${company ? `<tr><td style="padding: 4px 0; font-weight: 600;">Société:</td><td>${company}</td></tr>` : ""}
+        <tr><td style="padding: 4px 0; font-weight: 600;">De:</td><td>${safeName}</td></tr>
+        <tr><td style="padding: 4px 0; font-weight: 600;">Sujet:</td><td>${safeSubject}</td></tr>
+        ${safeCompany ? `<tr><td style="padding: 4px 0; font-weight: 600;">Société:</td><td>${safeCompany}</td></tr>` : ""}
       </table>
       <p style="margin-top: 16px;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/?view=dashboard" style="background: #003070; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Voir dans le dashboard</a></p>
     </div>
@@ -161,23 +177,29 @@ export async function sendNewLeadNotification(
   if (!settings.notifyOnNewMessage) return null;
 
   const to = settings.notifyEmail || settings.email;
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safeCompany = company ? escapeHtml(company) : null;
+  const safePhone = phone ? escapeHtml(phone) : null;
+  const safeProductId = productId ? escapeHtml(productId) : null;
+
   const body = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: #003070; padding: 24px; border-radius: 8px 8px 0 0;">
-        <h1 style="color: #fff; margin: 0; font-size: 20px;">🎯 Nouveau lead créé</h1>
+        <h1 style="color: #fff; margin: 0; font-size: 20px;">Nouveau lead créé</h1>
         <p style="color: #50b0e0; margin: 4px 0 0; font-size: 13px;">Un lead a été automatiquement créé depuis le formulaire de contact</p>
       </div>
       <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
         <table style="width: 100%; font-size: 14px; color: #333;">
-          <tr><td style="padding: 4px 0; font-weight: 600; width: 100px;">Nom:</td><td>${name}</td></tr>
-          <tr><td style="padding: 4px 0; font-weight: 600;">Email:</td><td><a href="mailto:${email}" style="color: #003070;">${email}</a></td></tr>
-          ${phone ? `<tr><td style="padding: 4px 0; font-weight: 600;">Téléphone:</td><td>${phone}</td></tr>` : ""}
-          ${company ? `<tr><td style="padding: 4px 0; font-weight: 600;">Société:</td><td>${company}</td></tr>` : ""}
-          <tr><td style="padding: 4px 0; font-weight: 600;">Source:</td><td>${productId ? "Produit (" + productId + ")" : "Formulaire de contact"}</td></tr>
+          <tr><td style="padding: 4px 0; font-weight: 600; width: 100px;">Nom:</td><td>${safeName}</td></tr>
+          <tr><td style="padding: 4px 0; font-weight: 600;">Email:</td><td><a href="mailto:${safeEmail}" style="color: #003070;">${safeEmail}</a></td></tr>
+          ${safePhone ? `<tr><td style="padding: 4px 0; font-weight: 600;">Téléphone:</td><td>${safePhone}</td></tr>` : ""}
+          ${safeCompany ? `<tr><td style="padding: 4px 0; font-weight: 600;">Société:</td><td>${safeCompany}</td></tr>` : ""}
+          <tr><td style="padding: 4px 0; font-weight: 600;">Source:</td><td>${safeProductId ? "Produit (" + safeProductId + ")" : "Formulaire de contact"}</td></tr>
         </table>
         <p style="margin-top: 20px;">
           <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/?view=dashboard" style="background: #003070; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; margin-right: 8px;">Voir le lead</a>
-          <a href="mailto:${email}" style="background: #50b0e0; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Répondre</a>
+          <a href="mailto:${safeEmail}" style="background: #50b0e0; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block;">Répondre</a>
         </p>
       </div>
     </div>
@@ -185,7 +207,7 @@ export async function sendNewLeadNotification(
 
   return sendEmail({
     to,
-    subject: `🎯 Nouveau lead : ${name}${company ? ` (${company})` : ""}`,
+    subject: `Nouveau lead : ${name}${company ? ` (${company})` : ""}`,
     body,
     type: "lead_notification",
   });

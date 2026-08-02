@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { createHmac, randomBytes } from "crypto";
 
 const COOKIE_NAME = "hmc_admin_session";
+const USER_COOKIE_NAME = "hmc_admin_user";
 const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
 
 // ─── Secret key for HMAC tokens ───────────────────────────────
@@ -40,6 +41,35 @@ function verifyToken(token: string): boolean {
   }
 }
 
+// ─── Determine if request is over HTTPS ──────────────────────
+function isSecureRequest(req: NextRequest): boolean {
+  const proto = req.headers.get("x-forwarded-proto");
+  return proto === "https" || req.nextUrl.protocol === "https:";
+}
+
+// ─── Sign user info to prevent tampering ─────────────────────
+function signUserInfo(data: string): string {
+  const sig = createHmac("sha256", getSecret()).update(data).digest("hex");
+  return `${data}.${sig}`;
+}
+
+function verifyUserInfo(signed: string): string | null {
+  try {
+    const parts = signed.split(".");
+    if (parts.length !== 2) return null;
+    const [data, sig] = parts;
+    const expectedSig = createHmac("sha256", getSecret()).update(data).digest("hex");
+    if (sig.length !== expectedSig.length) return null;
+    let diff = 0;
+    for (let i = 0; i < sig.length; i++) {
+      diff |= sig.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+    }
+    return diff === 0 ? data : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Session check ───────────────────────────────────────────
 export async function getSession(req: NextRequest): Promise<{
   authenticated: boolean;
@@ -48,17 +78,22 @@ export async function getSession(req: NextRequest): Promise<{
   const token = req.cookies.get(COOKIE_NAME)?.value;
   if (!token || !verifyToken(token)) return { authenticated: false };
 
-  // Decode user info from a second cookie
-  const userCookie = req.cookies.get("hmc_admin_user")?.value;
+  // Decode user info from signed cookie
+  const userCookie = req.cookies.get(USER_COOKIE_NAME)?.value;
   if (userCookie) {
     try {
-      const user = JSON.parse(Buffer.from(userCookie, "base64").toString());
-      return { authenticated: true, user };
+      const verifiedData = verifyUserInfo(userCookie);
+      if (verifiedData) {
+        const user = JSON.parse(Buffer.from(verifiedData, "base64").toString());
+        return { authenticated: true, user };
+      }
     } catch {
-      return { authenticated: true };
+      // Cookie tampered or invalid — fall through
     }
   }
 
+  // If no valid user cookie, try to resolve from DB using session token
+  // This is a fallback — the user cookie should always be present
   return { authenticated: true };
 }
 
@@ -112,32 +147,31 @@ export async function login(req: NextRequest): Promise<NextResponse> {
     // Create session token
     const token = createToken();
 
-    // Store minimal user info in a separate cookie (non-httpOnly for client read, but signed)
-    const userInfo = Buffer.from(
+    // Store user info in a signed cookie (non-httpOnly for client read, but signed to prevent tampering)
+    const userData = Buffer.from(
       JSON.stringify({ id: user.id, email: user.email, name: user.name, role: user.role })
     ).toString("base64");
+    const signedUserInfo = signUserInfo(userData);
 
     const res = NextResponse.json({
       ok: true,
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
     });
 
-    // Only use Secure cookies when the site is actually served over HTTPS.
-    // Coolify preview domains (.sslip.io) may be HTTP-only.
-    // Secure cookies are NEVER sent by the browser over HTTP → session_cookie=missing.
-    const isSecure = false;
+    // Use secure cookies when served over HTTPS
+    const secure = isSecureRequest(req);
 
     res.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: isSecure,
+      secure,
       sameSite: "lax",
       maxAge: SESSION_DURATION,
       path: "/",
     });
 
-    res.cookies.set("hmc_admin_user", userInfo, {
+    res.cookies.set(USER_COOKIE_NAME, signedUserInfo, {
       httpOnly: false,
-      secure: isSecure,
+      secure,
       sameSite: "lax",
       maxAge: SESSION_DURATION,
       path: "/",
@@ -154,7 +188,7 @@ export async function login(req: NextRequest): Promise<NextResponse> {
 export function logout(): NextResponse {
   const res = NextResponse.json({ ok: true });
   res.cookies.delete(COOKIE_NAME);
-  res.cookies.delete("hmc_admin_user");
+  res.cookies.delete(USER_COOKIE_NAME);
   return res;
 }
 
@@ -170,4 +204,22 @@ export function requireAuth(req: NextRequest): NextResponse | null {
   return null;
 }
 
-export { COOKIE_NAME };
+// ─── Require admin role helper ───────────────────────────────
+export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {
+  const session = await getSession(req);
+  if (!session.authenticated) {
+    return NextResponse.json(
+      { ok: false, error: "Non authentifié" },
+      { status: 401 }
+    );
+  }
+  if (session.user?.role !== "admin") {
+    return NextResponse.json(
+      { ok: false, error: "Accès réservé aux administrateurs." },
+      { status: 403 }
+    );
+  }
+  return null;
+}
+
+export { COOKIE_NAME, USER_COOKIE_NAME };
