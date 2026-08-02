@@ -22,6 +22,7 @@ type NavTranslations = {
   experience: string;
   expertise: string;
   formations: string;
+  devis: string;
 };
 
 type HeroTranslations = {
@@ -311,6 +312,13 @@ type FormationsTranslations = {
   ctaLink: string;
 };
 
+type DevisTranslations = {
+  eyebrow: string;
+  title1: string;
+  title2: string;
+  description: string;
+};
+
 type TranslationSet = {
   nav: NavTranslations;
   hero: HeroTranslations;
@@ -330,6 +338,7 @@ type TranslationSet = {
   header: HeaderTranslations;
   language: LanguageTranslations;
   formations: FormationsTranslations;
+  devis: DevisTranslations;
 };
 
 // ─── French translations ───────────────────────────────────────
@@ -348,6 +357,7 @@ const fr: TranslationSet = {
     experience: "Expérience",
     expertise: "Expertise",
     formations: "Formations",
+    devis: "Devis",
   },
 
   hero: {
@@ -657,9 +667,15 @@ const fr: TranslationSet = {
     ctaDescription: "Nos experts conçoivent des programmes adaptés à vos enjeux spécifiques. Contactez-nous pour un programme personnalisé.",
     ctaLink: "Nous contacter",
   },
-};
 
-// ─── English translations ──────────────────────────────────────
+  devis: {
+    eyebrow: "Devis",
+    title1: "Demandez votre",
+    title2: "devis personnalisé",
+    description:
+      "Découvrez l'ensemble de nos services, produits et formations, et demandez un devis personnalisé adapté à vos besoins.",
+  },
+};
 
 const en: TranslationSet = {
   nav: {
@@ -675,6 +691,7 @@ const en: TranslationSet = {
     experience: "Experience",
     expertise: "Expertise",
     formations: "Training",
+    devis: "Quote",
   },
 
   hero: {
@@ -982,6 +999,14 @@ const en: TranslationSet = {
     ctaTitle2: "custom training",
     ctaDescription: "Our experts design programs adapted to your specific challenges. Contact us for a personalized program.",
     ctaLink: "Contact us",
+  },
+
+  devis: {
+    eyebrow: "Quote",
+    title1: "Request your",
+    title2: "custom quote",
+    description:
+      "Discover our full range of services, products and training, and request a personalized quote tailored to your needs.",
   },
 };
 

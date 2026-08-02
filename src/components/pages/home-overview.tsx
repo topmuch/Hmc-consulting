@@ -6,7 +6,6 @@ import { SectionHeading } from "@/components/sections/section-heading";
 import { Blog } from "@/components/sections/blog";
 import { Testimonials } from "@/components/sections/testimonials";
 import { Newsletter } from "@/components/sections/newsletter";
-import { QuoteGenerator } from "@/components/sections/quote-generator";
 import { AppointmentBooking } from "@/components/sections/appointment-booking";
 import { SERVICES } from "@/lib/site-data";
 import { PRODUCTS } from "@/lib/products-data";
@@ -120,9 +119,6 @@ export function HomeOverview() {
           </div>
         </div>
       </section>
-
-      {/* ── Quote Generator section ── */}
-      <QuoteGenerator />
 
       {/* ── Blog section ── */}
       <Blog />

@@ -25,7 +25,7 @@ import {
   Package,
   Newspaper,
   GraduationCap,
-  MessageSquareQuote,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -133,13 +133,13 @@ export const PAGES: PageMeta[] = [
       "Découvrez les consultants et experts qui font la force d'HMC.",
   },
   {
-    id: "etudes",
-    label: "Études de cas",
-    href: "/etudes",
-    icon: MessageSquareQuote,
-    shortDescription: "Découvrez nos témoignages et études de cas clients.",
+    id: "devis",
+    label: "Devis",
+    href: "/devis",
+    icon: FileText,
+    shortDescription: "Demandez un devis personnalisé pour nos services, produits et formations.",
     longDescription:
-      "Découvrez comment nous avons accompagné nos clients dans leurs projets de transformation, de structuration et de croissance.",
+      "Découvrez l'ensemble de nos services, produits et formations, et demandez un devis personnalisé adapté à vos besoins.",
   },
   {
     id: "formations",
@@ -175,7 +175,7 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/?page=services", label: "Services", id: "services" },
   { href: "/?page=formations", label: "Formations", id: "formations" },
   { href: "/?page=blog", label: "Blog", id: "blog" },
-  { href: "/?page=etudes", label: "Études de cas", id: "etudes" },
+  { href: "/?page=devis", label: "Devis", id: "devis" },
   { href: "/?page=contact", label: "Contact", id: "contact" },
 ];
 
