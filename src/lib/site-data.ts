@@ -24,6 +24,7 @@ import {
   ArrowRight,
   Package,
   Newspaper,
+  GraduationCap,
   MessageSquareQuote,
   type LucideIcon,
 } from "lucide-react";
@@ -140,6 +141,15 @@ export const PAGES: PageMeta[] = [
     longDescription:
       "Découvrez comment nous avons accompagné nos clients dans leurs projets de transformation, de structuration et de croissance.",
   },
+  {
+    id: "formations",
+    label: "Formations",
+    href: "/formations",
+    icon: GraduationCap,
+    shortDescription: "30+ domaines de formation pour développer vos compétences.",
+    longDescription:
+      "Développez les compétences de vos équipes grâce à nos formations sur mesure, dispensées par des experts et adaptées aux réalités du marché africain.",
+  },
 ];
 
 export type NavLink = {
@@ -163,6 +173,7 @@ export const NAV_LINKS: NavLink[] = [
   },
   { href: "/produits", label: "Produits", id: "produits" },
   { href: "/services", label: "Services", id: "services" },
+  { href: "/formations", label: "Formations", id: "formations" },
   { href: "/blog", label: "Blog", id: "blog" },
   { href: "/etudes", label: "Études de cas", id: "etudes" },
   { href: "/contact", label: "Contact", id: "contact" },

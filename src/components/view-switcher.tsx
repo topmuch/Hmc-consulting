@@ -12,6 +12,7 @@ import { BlogView } from "@/components/pages/blog-view";
 import { BlogDetailView } from "@/components/pages/blog-detail-view";
 import { TeamView } from "@/components/pages/team-view";
 import { CaseStudiesView } from "@/components/pages/case-studies-view";
+import { FormationsView } from "@/components/pages/formations-view";
 import { getProductById } from "@/lib/products-data";
 import { I18nProvider } from "@/lib/i18n";
 
@@ -50,6 +51,8 @@ export function ViewSwitcher() {
     content = <TeamView onGoDashboard={goDashboard} />;
   } else if (page === "etudes") {
     content = <CaseStudiesView onGoDashboard={goDashboard} />;
+  } else if (page === "formations") {
+    content = <FormationsView onGoDashboard={goDashboard} />;
   } else if (blog) {
     content = <BlogDetailView postId={blog} onGoDashboard={goDashboard} />;
   } else if (page === "blog") {

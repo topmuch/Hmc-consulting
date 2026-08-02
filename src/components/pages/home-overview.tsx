@@ -12,6 +12,7 @@ import { SERVICES } from "@/lib/site-data";
 import { PRODUCTS } from "@/lib/products-data";
 import { ServiceCard } from "@/components/ui/service-card";
 import { ProductCard } from "@/components/ui/product-card";
+import { Formations } from "@/components/sections/formations";
 import { useTranslation } from "@/lib/i18n";
 
 export function HomeOverview() {
@@ -53,6 +54,9 @@ export function HomeOverview() {
           </div>
         </div>
       </section>
+
+      {/* ── Formations section ── */}
+      <Formations />
 
       {/* ── Products section ── */}
       <section className="py-20 sm:py-28 bg-secondary/20">

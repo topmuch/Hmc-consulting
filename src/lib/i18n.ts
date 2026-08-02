@@ -21,6 +21,7 @@ type NavTranslations = {
   values: string;
   experience: string;
   expertise: string;
+  formations: string;
 };
 
 type HeroTranslations = {
@@ -286,6 +287,30 @@ type LanguageTranslations = {
   english: string;
 };
 
+type FormationsTranslations = {
+  eyebrow: string;
+  title1: string;
+  title2: string;
+  description: string;
+  viewAll: string;
+  courses: string;
+  course: string;
+  discover: string;
+  bannerTitle1: string;
+  bannerTitle2: string;
+  bannerDescription: string;
+  domains: string;
+  trainings: string;
+  searchPlaceholder: string;
+  noResults: string;
+  seeMore: string;
+  seeLess: string;
+  ctaTitle1: string;
+  ctaTitle2: string;
+  ctaDescription: string;
+  ctaLink: string;
+};
+
 type TranslationSet = {
   nav: NavTranslations;
   hero: HeroTranslations;
@@ -304,6 +329,7 @@ type TranslationSet = {
   home: HomeTranslations;
   header: HeaderTranslations;
   language: LanguageTranslations;
+  formations: FormationsTranslations;
 };
 
 // ─── French translations ───────────────────────────────────────
@@ -321,6 +347,7 @@ const fr: TranslationSet = {
     values: "Valeurs",
     experience: "Expérience",
     expertise: "Expertise",
+    formations: "Formations",
   },
 
   hero: {
@@ -606,6 +633,30 @@ const fr: TranslationSet = {
     french: "Français",
     english: "English",
   },
+
+  formations: {
+    eyebrow: "Formations",
+    title1: "Nos domaines de",
+    title2: "formation",
+    description: "Développez les compétences de vos équipes grâce à nos formations sur mesure, dispensées par des experts et adaptées aux réalités du marché africain.",
+    viewAll: "Voir toutes les formations",
+    courses: "formations",
+    course: "formation",
+    discover: "Découvrir",
+    bannerTitle1: "Nos",
+    bannerTitle2: "formations",
+    bannerDescription: "Développez les compétences de vos équipes grâce à nos formations sur mesure, dispensées par des experts et adaptées aux réalités du marché africain.",
+    domains: "Domaines",
+    trainings: "Formations",
+    searchPlaceholder: "Rechercher un domaine ou une formation…",
+    noResults: "Aucun domaine ne correspond à votre recherche.",
+    seeMore: "Voir les autres formations",
+    seeLess: "Voir moins",
+    ctaTitle1: "Besoin d'une formation",
+    ctaTitle2: "sur mesure",
+    ctaDescription: "Nos experts conçoivent des programmes adaptés à vos enjeux spécifiques. Contactez-nous pour un programme personnalisé.",
+    ctaLink: "Nous contacter",
+  },
 };
 
 // ─── English translations ──────────────────────────────────────
@@ -623,6 +674,7 @@ const en: TranslationSet = {
     values: "Values",
     experience: "Experience",
     expertise: "Expertise",
+    formations: "Training",
   },
 
   hero: {
@@ -907,9 +959,31 @@ const en: TranslationSet = {
     french: "Français",
     english: "English",
   },
-};
 
-// ─── Translation maps ──────────────────────────────────────────
+  formations: {
+    eyebrow: "Training",
+    title1: "Our training",
+    title2: "domains",
+    description: "Develop your teams' skills with our customized training programs, delivered by experts and adapted to the realities of the African market.",
+    viewAll: "View all training programs",
+    courses: "courses",
+    course: "course",
+    discover: "Discover",
+    bannerTitle1: "Our",
+    bannerTitle2: "training programs",
+    bannerDescription: "Develop your teams' skills with our customized training programs, delivered by experts and adapted to the realities of the African market.",
+    domains: "Domains",
+    trainings: "Training programs",
+    searchPlaceholder: "Search for a domain or training…",
+    noResults: "No domain matches your search.",
+    seeMore: "View more courses",
+    seeLess: "View less",
+    ctaTitle1: "Need a",
+    ctaTitle2: "custom training",
+    ctaDescription: "Our experts design programs adapted to your specific challenges. Contact us for a personalized program.",
+    ctaLink: "Contact us",
+  },
+};
 
 const translations: Record<Locale, TranslationSet> = { fr, en };
 
