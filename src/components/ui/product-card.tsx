@@ -28,7 +28,7 @@ export function ProductCard({
   return (
     <Wrapper {...animationProps}>
       <Link
-        href={`/produits/${product.id}`}
+        href={`/?product=${product.id}`}
         className="group flex flex-col h-full bg-card rounded-2xl border border-border overflow-hidden hover:shadow-2xl hover:border-transparent transition-all duration-300"
       >
         {/* Image / gradient header */}

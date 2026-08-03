@@ -299,7 +299,7 @@ export function ProductDetail({
             {otherProducts.map((p) => (
               <Link
                 key={p.id}
-                href={`/produits/${p.id}`}
+                href={`/?product=${p.id}`}
                 className="group flex items-center gap-4 bg-card rounded-2xl border border-border p-5 hover:border-accent/40 hover:shadow-lg transition-all"
               >
                 <div
