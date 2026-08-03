@@ -1,7 +1,8 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache git libc6-compat sqlite
-RUN npm install -g bun
+RUN apk add --no-cache git libc6-compat sqlite curl unzip
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
 
 WORKDIR /app
 
